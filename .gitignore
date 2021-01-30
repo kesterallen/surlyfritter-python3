@@ -2,3 +2,5 @@
 tags
 lib/
 .gcloudignore
+surlyfritter/__pycache__/
+keys.txt
