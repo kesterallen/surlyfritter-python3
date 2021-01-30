@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Miri, Julia, and Linus Pictures</title>
+    <link>https://www.surlyfritter.com</link>
+    <description>Lots of family pictures</description>
+    <language>en-us</language>
+    <atom:link href="https://www.surlyfritter.com/feeds/feed.xml" rel="self" type="application/rss+xml" />
+
+    {% for picture in pictures %}
+      <item>
+        <title>Picture of Miri, Julia, Linus from {{picture.date}}</title>
+        <link>https://www.surlyfritter.com/p/{{picture.imgp_id}}</link>
+        <guid>https://www.surlyfritter.com/p/{{picture.imgp_id}}</guid>
+        <pubDate>{{picture.date}}</pubDate>
+        <description>
+          A picture of Miri, Julia, Linus from {{picture.date}}
+          <![CDATA[
+          <p>
+            <a href="https://www.surlyfritter.com/p/{{picture.imgp_id}}">
+              <img src="https://www.surlyfritter.com/imgperm/{{picture.imgp_id}}" 
+                   alt="Miri, Julia, Linus Picture uploaded at {{picture.date}}"
+                   title="Miri, Julia, Linus Picture uploaded at {{picture.date}}">
+            </a>
+          </p>
+          ]]>
+        </description>
+      </item>
+    {% endfor %}
+
+  </channel>
+</rss>
+

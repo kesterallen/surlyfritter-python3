@@ -1,0 +1,208 @@
+* {box-sizing: border-box;}
+
+a {
+  text-decoration: none;
+  color: #0083F8;
+}
+a:hover {
+  text-decoration: underline;
+}
+a:active {
+  color: black;
+}
+
+.wrapper {
+  max-width: 1024px;
+  margin: 0 auto;
+  font: 1.1em 'Barlow', sans-serif;
+  line-height: 1.2;
+}
+.wrapper > * {
+  background-color: #d6dbff;
+  padding: 10px;
+}
+
+.main-head {
+  border: none;
+  grid-area: header;
+  background-color: white;
+}
+.main-head h1 {
+  text-align: center;
+  font-size: 3em;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.main-head ul {
+  text-align: center;
+  margin: 1px 1px 1px 1px;
+  padding-inline-start: 0px;
+}
+.main-head li {
+  display: inline;
+  margin-left: 25px;
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
+.main-column-first{
+  grid-area: content;
+  background-color: #efefef;
+}
+.main-column-first li {
+  list-style-type: none;
+  margin-bottom: 0.75em;
+}
+
+.main-column-second {
+  grid-area: sidebar;
+  border: none;
+}
+.main-column-second ul {
+  margin-top: -20px;
+  margin-left: -30px;
+}
+.main-column-second li {
+  list-style-type: none;
+	margin-top: 10px;
+}
+.main-column-second hr {
+  border: 0;
+  height: 1px;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+}
+
+.main-footer {
+  text-align: center;
+  grid-area: footer;
+  background-color: white;
+  display: inline;
+}
+.main-footer span {
+  font-size: 1.5em;
+}
+.main-footer ul {
+  display:inline;
+  margin-top: 1px;
+  margin-bottom: 1px;
+}
+.main-footer li {
+  display:inline;
+  margin-left: 25px;
+  font-size: 0.85em;
+}
+
+.entry:hover {
+	background-color: lightgray;
+}
+.entry h4 {
+  margin-top: 25px;
+  margin-left: 10px;
+  margin-bottom: 0px;
+}
+.entry h5 {
+  margin-left: 20px;
+  margin-top: 5px;
+  margin-bottom: 0px;
+}
+.entry ul {
+  margin-top: 10px;
+  margin-left: 10px;
+}
+.entry p {
+  margin-top: 5px;
+  margin-left: 20px;
+}
+
+.summary {
+  padding-bottom: 0.5em;
+  padding-left: 0.5em;
+}
+.entry .summary {
+  font-size: 1em;
+  margin-top: 1.33em;
+  margin-bottom: 0.0em;
+  font-weight: bold;
+  width: 100%;
+}
+.entry .summary .title {
+  width: 35%;
+  float: left;
+}
+.entry .summary .company {
+  width: 45%;
+  float: left;
+}
+.entry .summary .dates {
+  width: 20%;
+  float: right;
+  text-align: right;
+}
+.entry .summary .clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.wrapper {
+  display: grid;
+  grid-gap: 2px;
+  grid-template-areas:
+    "header"
+    "content"
+    "sidebar"
+    "footer";
+}
+@media (min-width: 600px) {
+  .wrapper {
+    grid-template-columns: 5fr 2fr;
+    grid-gap: 10px;
+    grid-template-areas:
+      "header header"
+      "content sidebar"
+      "footer  footer"
+   }
+}
+
+/*
+  Just the 6 SVG glyphs from fontawesome (via fontello) for:
+    map
+    phone
+    email
+    twitter
+    github
+    linkedin
+  for header and footer links
+*/
+@font-face {
+  font-family: 'fontello';
+  src: url('/static/font/fontello.eot?53539485');
+  src: url('/static/font/fontello.eot?53539485#iefix') format('embedded-opentype'),
+       url('/static/font/fontello.woff?53539485') format('woff'),
+       url('/static/font/fontello.ttf?53539485') format('truetype'),
+       url('/static/font/fontello.svg?53539485#fontello') format('svg');
+  font-display: optional;
+  font-weight: normal;
+  font-style: normal;
+}
+
+.icon {
+  font-family: "fontello";
+  font-style: normal;
+  font-weight: normal;
+  speak: none;
+
+  display: inline-block;
+  text-decoration: inherit;
+  width: 1em;
+  margin-right: .2em;
+  text-align: center;
+
+  /* For safety - reset parent styles, that can break glyph codes */
+  font-variant: normal;
+  text-transform: none;
+
+  /* Font smoothing. That was taken from TWBS */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

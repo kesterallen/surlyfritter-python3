@@ -1,0 +1,29 @@
+
+<li class="nav-item dropdown">
+  <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+     href="#" id="adminDropdown">
+    Admin
+  </a>
+  <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+    <li><a class="dropdown-item" href="/picture/add">Add a new picture</a></li>
+    {% if pictures and pictures|length == 1 %}
+      <li><a class="dropdown-item" href="/picture/edit/{{pictures[0].imgp_id}}">Edit this picture</a>
+      <li><a class="dropdown-item" href="/picture/delete/{{pictures[0].imgp_id}}">Delete this picture</a>
+    {% endif %}
+
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="https://console.cloud.google.com/home/dashboard">Cloud console</a></li>
+    <li><hr class="dropdown-divider"></li>
+
+    <!-- only delete if this is a single-picture page -->
+    <li><a class="dropdown-item" href="/counts">Counts</a></li>
+    <li><a class="dropdown-item" href="/smoke-test">Smoke test</a></li>
+    <li><a class="dropdown-item" href="/fix-next-prev">Repair date ordering</a></li>
+    <li><hr class="dropdown-divider"></li>
+
+    <li><a class="dropdown-item" href="/recipes">Recipes</a></li>
+    <li><a class="dropdown-item" href="/naga">Zoom links</a></li>
+    <li><a class="dropdown-item" href="/air">Local AQI map</a></li>
+    <li><a class="dropdown-item" href="/resume">Kester's resume</a></li>
+  </ul>
+</li>

@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %} {{ super() }} Pictures Page {% endblock %}
+
+{% block head %} 
+  {{ super() }}
+  {% if pictures and pictures|length == 1 %}
+    <script>
+      document.onkeyup = function (e) {
+        e = e || window.event;
+        var key = e.which;
+        if(key == 39) { // right arrow
+          document.getElementById("next_picture").click();
+          return false;  
+        } else if(key == 37) { // left arrow
+          document.getElementById("prev_picture").click();
+          return false;  
+        }
+      }
+    </script>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  {{ super() }}
+
+  <div class="container-md">
+    {% if pictures %}
+      {% for picture in pictures %}
+        <!-- Display picture and metadata -->
+        <br/>
+        <div class="row">
+
+          <div class="col-sm-10 col-lg-8">
+            <!--
+                Prev/Random/Next buttons for mobile 
+                (disable next/prev buttons for last/first pages) 
+            -->
+            {% set prev_extras = "" if picture.prev_pic else "disabled" %}
+            {% set prev_imgp_id = picture.prev_pic.imgp_id if picture.prev_pic else "#" %}
+
+            {% set next_extras = "" if picture.next_pic else "disabled" %}
+            {% set next_imgp_id = picture.next_pic.imgp_id if picture.next_pic else "#" %}
+
+            {% if pictures|length == 1 %}
+              <div class="row d-lg-none"> <!-- Hide on screens wider than lg -->
+                {% if picture.prev_pic %}
+                  <a class="btn btn-primary col-sm-3 offset-sm-1" href="/p/{{picture.prev_pic.imgp_id}}" role="button">
+                    <div>Previous</div>
+                  </a>
+                {% endif %}
+                <a class="btn btn-primary col-sm-3 offset-sm-1" href="/random" role="button">
+                  <div>Random</div>
+                </a>
+                {% if picture.next_pic %}
+                  <a class="right btn btn-primary col-sm-3 offset-sm-1" href="/p/{{picture.next_pic.imgp_id}}" role="button">
+                    <div>Next</div>
+                  </a>
+                {% endif %}
+              </div>
+              <br/>
+            {% endif %}
+
+
+            {% if is_admin %}
+              <!-- Rotation button for admins -->
+              {% set new_rot = picture.img_rot + 90 if picture.img_rot else 90 %}
+              <form 
+                action="/picture/edit/{{picture.imgp_id}}"
+                method="POST"
+              >
+                <input hidden type="number" id="img_rot" name="img_rot" value="{{new_rot}}">
+                <button type="submit" class="btn btn-primary">Rotate Image 90 CW</button>
+              </form>
+              <br/>
+            {% endif %}
+
+            <!-- The image -->
+            <a href="/p/{{picture.imgp_id}}">
+              <img 
+                class="img-fluid" 
+                src="{{picture.img_url}}"
+                {% if picture.img_rot %} style="transform:rotate({{picture.img_rot}}deg);" {% endif %}
+              >
+            </a>
+          </div>
+
+          <!-- Show date, tag(s), comment(s), add tag/comment forms, & tag cloud -->
+          <div class="col-sm-10 col-lg-4 text-center">
+            {{picture.date_display}}
+
+            <ul class="list-inline"> 
+              {% for t in picture.tags %}
+                <li class="list-inline-item">
+                  <a href="/tags/{{t.text}}">{{t.text}}</a>
+                </li>
+              {% endfor %}
+            </ul>
+
+            <ul class="list-unstyled"> 
+              {% for c in picture.comments %}<li>{{c.text}}</li>{% endfor %}
+            </ul>
+
+            <!-- 
+            If this is a single picture, show the forms to add comments/tags
+            and the tag cloud.
+            -->
+            {% if pictures|length == 1 %}
+              <hr/>
+              {% include 'add_tag_comment.html' %}
+              <hr/>
+              {% include 'tag_cloud.html' %}
+            {% endif %}
+          </div> 
+
+        </div>
+      {% endfor %}
+    {% else %}
+      <!-- Empty picture. Show tag cloud here. -->
+      (No pictures found for '{{request.path}}')
+      {% include 'tag_cloud.html' %}
+    {% endif %}
+
+  </div>
+{% endblock %}
+
+{% block footer %} {{ super() }} {% endblock %}

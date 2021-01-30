@@ -1,0 +1,15 @@
+
+{% extends "base.html" %}
+
+{% block title %} {{ super() }} Error page {% endblock %}
+{% block head %} {{ super() }} {% endblock %}
+{% block content %}
+  {{ super() }}
+
+  <div class="container-md">
+    <h1>Something's gone wrong</h1>
+    <h2>{{error}}</h2>
+  </div>
+{% endblock %}
+
+{% block footer %} {{ super() }} {% endblock %}

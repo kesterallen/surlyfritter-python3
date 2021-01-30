@@ -1,0 +1,15 @@
+<form name="addtag" action="/tag/add" method="post">
+  <div class="form-group">
+    <input type="hidden" name="img_id" value="{{pictures[0].imgp_id}}">
+    <input class="form-control" type="text" name="tag_text" placeholder="Add tags">
+  </div>
+</form>
+
+<br/>
+
+<form name="addcomment" action="/comment/add" method="post">
+  <div class="form-group">
+    <input type="hidden" name="img_id" value="{{pictures[0].imgp_id}}">
+    <input class="form-control" type="text" name="comment_text" placeholder="Add comments"/>
+  </div>
+</form>

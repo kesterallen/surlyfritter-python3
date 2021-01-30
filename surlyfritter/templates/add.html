@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %} Add Picture {% endblock %}
+
+{% block head %}
+  {{ super() }}
+  <style> .container-md { text-align: center; } </style>
+{% endblock %}
+
+{% block content %}
+  {{ super() }}
+
+  <div class="container-md">
+    <h1>
+      {% if edit_picture %}
+        Edit Picture
+      {% else %}
+        Add Pictures
+      {% endif %}
+    </h1>
+
+    {% if message %}
+      {{message}}
+      {% if not edit_picture %}
+        <a href="/">Pictures</a>
+      {% endif %}
+    {% endif %}
+
+    {% if edit_picture %}
+        Current image: 
+        <img 
+          id="current_img"
+          class="img-fluid"
+          src="{{edit_picture.img_url}}" 
+          {% if edit_picture.img_rot %}style="transform:rotate({{edit_picture.img_rot}}deg);"{% endif %}
+        >
+    {% endif %}
+
+    <!-- Everything form -->
+    <form 
+      action="/picture/{% if edit_picture %}edit/{{edit_picture.imgp_id}}{% else %}add{% endif %}"
+      method="POST" enctype="multipart/form-data"
+    >
+      <div class="form-group">
+        <label for="file">Select Picture{% if not edit_picture %}(s){% endif %}</label>
+        <input type="file" 
+          {% if edit_picture %}
+            name="picture"
+          {% else %}
+            multiple name="pictures"
+          {% endif %}
+        >
+        {% if edit_picture %}
+          Rotate Image (click image to rotate 90 degrees clockwise)?
+          <input type="number" id="img_rot" name="img_rot" min="0" step="90" max="270">
+        {% endif %}
+      </div>
+      <button type="submit" class="btn btn-primary">
+        {% if edit_picture %}
+          Update Picture
+        {% else %}
+          Upload Picture(s)
+        {% endif %}
+      </button>
+    </form>
+
+  </div>
+{% endblock %}
+
+{% block footer %} {{ super() }} {% endblock %}

@@ -1,0 +1,32 @@
+indexes:
+
+- kind: Picture           
+  properties:             
+  - name: date            
+  - name: added_order     
+
+- kind: Picture           
+  properties:             
+  - name: date            
+    direction: desc
+  - name: added_order     
+
+- kind: Picture           
+  properties:             
+  - name: date            
+  - name: added_order     
+    direction: desc
+
+- kind: Picture
+  properties:
+  - name: date
+    direction: desc
+  - name: added_order
+    direction: desc
+
+
+- kind: Picture
+  properties:
+  - name: tag_refs
+  - name: added_order
+    direction: desc

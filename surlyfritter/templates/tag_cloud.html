@@ -1,0 +1,15 @@
+<!--
+"Tag cloud" 
+Use the bootstrap font-size FS* classes and the log10 of the tag count to make
+popular tags have larger text
+-->
+{% if tags %}
+  <!--Tag Cloud: -->
+  <ul class="list-inline"> 
+    {% for t in tags %}
+      <li class="list-inline-item small fs-{{(6 - t.tag_count_log)|int}}">
+        <a href="/tags/{{t.text}}">{{t.text}}</a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}

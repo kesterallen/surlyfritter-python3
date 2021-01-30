@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+<!-- Google onetap login (https://developers.google.com/identity/one-tap/web/guides/load-one-tap-client-library) -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<!-- Bootstrap5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+<!-- Bootstrap5: Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="">
+<link rel="icon" href="/static/favicon.ico"> <!-- TODO: get this set up in app.yaml as a static endpoint -->
+<link rel="alternate" type="application/rss+xml" title="RSS" href="/feed"/>
+
+{% block head %}
+  <!-- Twitter card -->
+  <meta name="twitter:card"        content="photo"/>
+  <meta name="twitter:site"        content="@kesterallen"/>
+  <meta name="twitter:creator"     content="@kesterallen"/>
+  {% if pictures %}
+    <meta name="twitter:url"         content="https://www.surlyfritter.com/p/{{pictures[0].imgp_id}}"/>
+    <meta name="twitter:title"       content="{{pictures[0].comments_str}}"/>
+    <meta name="twitter:text:title"  content="{{pictures[0].comments_str}}"/>
+    <meta name="twitter:description" content="{{pictures[0].tags_str}}"/>
+    <meta name="twitter:image"       content="{{pictures[0].img_url}}"/>
+  {% else %}
+    <meta name="twitter:url" content="{{request.path}}"/>
+  {% endif %}
+
+  <!-- Facebook preview-->
+  <meta property="og:type"         content="article"/>
+  <meta property="og:image:height" content="800"/>
+  <meta property="og:image:width"  content="800"/>
+  <meta property="og:site_name"    content="Pictures of Miri, Julia, and Linus"/>
+  <meta property="fb:admins"       content="kesterallen"/>
+  <meta property="fb:app_id"       content="2092545157500591"/>
+  {% if pictures %}
+    <meta property="og:title"        content="{{pictures[0].comments_str}}"/>
+    <meta property="og:description"  content="{{pictures[0].tags_str}}"/>
+    <meta property="og:url"          content="https://www.surlyfritter.com/p/{{pictures[0].imgp_id}}"/>
+    <meta property="og:image"        content="{{pictures[0].img_url}}"/>
+  {% else %}
+    <meta property="og:url" content="{{request.path}}"/>
+  {% endif %}
+
+  <title>
+  {% block title %}{% endblock %}
+  </title>
+{% endblock %}
+</head>
+
+<body>
+
+<div id="content">
+  {% block content %}
+    {% include "navbar.html" %}
+
+    <!-- Ref: https://developers.google.com/identity/sign-in/web/backend-auth -->
+
+    {% if not is_logged_in %}
+      <div id="g_id_onload"
+        data-client_id="75715567093-1nhb1mtio6jvfoika3rradalj3c0q7n8.apps.googleusercontent.com",
+        data-login_uri="/gauth"
+        data-auto_select="true"
+      >
+      </div>
+    {% endif %}
+
+  {% endblock %}
+</div>
+
+<div id="footer">
+  {% block footer %}
+    <ul class="list-inline">
+      <li class="list-inline-item"><img src="/static/gae.png" alt="Powered by GCloud"></li>
+      <li class="list-inline-item"><a href="/feed"><img src="/static/rss.gif" alt="rss icon"></a></li>
+    </ul>
+  {% endblock %}
+</div>
+
+<!-- Bootstrap5: JS bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+</body>
+
+</html>
