@@ -53,6 +53,14 @@
         {% if edit_picture %}
           Rotate Image (click image to rotate 90 degrees clockwise)?
           <input type="number" id="img_rot" name="img_rot" min="0" step="90" max="270">
+
+          <hr/>
+          <ul>
+            <li>{{edit_picture.date}}</li>
+            <li>{{edit_picture.added_on}}</li>
+            <li>{{edit_picture.updated_on}}</li>
+            <li>{{edit_picture.img_rot}}</li>
+          </ul>
         {% endif %}
       </div>
       <button type="submit" class="btn btn-primary">

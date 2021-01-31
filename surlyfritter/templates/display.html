@@ -63,15 +63,31 @@
 
 
             {% if is_admin %}
-              <!-- Rotation button for admins -->
-              {% set new_rot = picture.img_rot + 90 if picture.img_rot else 90 %}
-              <form 
-                action="/picture/edit/{{picture.imgp_id}}"
-                method="POST"
-              >
-                <input hidden type="number" id="img_rot" name="img_rot" value="{{new_rot}}">
-                <button type="submit" class="btn btn-primary">Rotate Image 90 CW</button>
-              </form>
+              <div class="row"> 
+                <!-- Rotation buttons for admins -->
+
+                <div class="col-6">
+                  {% set new_rot_cw = picture.img_rot + 90 if picture.img_rot else 90 %}
+                  <form 
+                    action="/picture/edit/{{picture.imgp_id}}"
+                    method="POST"
+                  >
+                    <input hidden type="number" id="img_rot" name="img_rot" value="{{new_rot_cw}}">
+                    <button type="submit" class="btn btn-primary text-center">Rotate Image 90 CW</button>
+                  </form>
+                </div>
+  
+                <div class="col-6">
+                  {% set new_rot_ccw = picture.img_rot + 270 if picture.img_rot else 270 %}
+                  <form 
+                    action="/picture/edit/{{picture.imgp_id}}"
+                    method="POST"
+                  >
+                    <input hidden type="number" id="img_rot" name="img_rot" value="{{new_rot_ccw}}">
+                    <button type="submit" class="btn btn-primary text-center">Rotate Image 90 CCW</button>
+                  </form>
+                </div>
+              </div>
               <br/>
             {% endif %}
 
@@ -90,7 +106,7 @@
             {{picture.date_display}}
 
             <ul class="list-inline"> 
-              {% for t in picture.tags %}
+              {% for t in picture.tags|shuffle %}
                 <li class="list-inline-item">
                   <a href="/tags/{{t.text}}">{{t.text}}</a>
                 </li>

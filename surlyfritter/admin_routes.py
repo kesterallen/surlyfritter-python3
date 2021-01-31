@@ -5,6 +5,7 @@ Admin routes
 import datetime
 import io
 import pprint
+import PIL.Image
 
 import jwt
 import requests
@@ -182,10 +183,15 @@ def picture_edit(img_id:int):
         else:
             # GET: Render form with optional message
             picture = Picture.query(Picture.added_order == img_id).get()
+
+            date = get_exif_date_from_url(img)
+
             if picture is None:
                 abort(404, f"Cannot find picture with added_order = {img_id}")
             message = "Edit Mode"
-            return render_template('add.html', message=message, edit_picture=picture)
+
+            return render_template('add.html', message=message, 
+                edit_picture=picture, exif_date=exif_date)
 
 @app.route('/picture/delete/<int:img_id>')
 def picture_delete(img_id:int):
@@ -208,7 +214,8 @@ def picture_delete(img_id:int):
             blob = bucket.blob(picture.name)
             blob.delete()
         except NotFound as err: # blob not found
-            abort(404, f"Blob with {picture.name} not found, exiting")
+            #abort(404, f"Blob with {picture.name} not found, exiting")
+            pass
 
         # Update prev/next pointers on the adjacent pics, unless this is the
         # first/last image. If this is the first image, null the prev_pic_ref

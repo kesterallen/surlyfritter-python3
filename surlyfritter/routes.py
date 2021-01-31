@@ -23,7 +23,9 @@ from surlyfritter.models import (
     Picture,
     Tag,
 )
-from surlyfritter.utils import send_email, render_template
+from surlyfritter.utils import (
+    send_email, render_template, get_exif_date, string_to_date
+)
 
 from . import app, client
 
@@ -59,6 +61,15 @@ def image_perm(added_order:int):
 
         return send_file(img, mimetype='image/jpeg')
 
+@app.template_filter('shuffle')
+def filter_shuffle(seq):
+    try:
+        result = list(seq)
+        random.shuffle(result)
+        return result
+    except:
+        return seq
+
 @app.route('/displayperm/<int:img_id>')
 @app.route('/display/<int:img_id>')
 @app.route('/display')
@@ -86,7 +97,6 @@ def display(img_id:int=None):
             picture = Picture.most_recent()
         pictures = [picture] if picture is not None else None
         tags = Tag.query().fetch()
-        random.shuffle(tags) # this appears to take only ~4ms -- fast
 
         html = render_template('display.html', pictures=pictures, tags=tags)
         return html
@@ -207,15 +217,11 @@ def display_date(date_str:str):
     """
     Display the picture closest to 'date_str'
     """
-    strptime_fmts = [ "%Y-%m-%d", "%Y%m%d", "%Y%m", "%Y", ]
     with client.context():
-        date = None
-        for fmt in strptime_fmts:
-            if date is None:
-                try:
-                    date = datetime.datetime.strptime(date_str, fmt)
-                except ValueError as err:
-                    print(err)
+        # TODO: make this a utility multiple-convert-to-date, DRY this with the
+        # one that's already in utils
+        strptime_fmts = [ "%Y-%m-%d", "%Y%m%d", "%Y%m", "%Y", ]
+        date = string_to_date(date_str, strptime_fmts)
         if date is None:
             return f"The input date {date_str} is not a valid date"
 
@@ -235,8 +241,9 @@ def timejump(added_order:int, years:float):
 @app.route('/picture/add', methods=['GET', 'POST'])
 def picture_add():
     """
-    Add one or more Picture/GCS blob pair(s), or render the template to
-    upload new pictures
+    Add one or more Picture/GCS blob pair(s), or render the template to upload
+    new pictures. If it exists, use the EXIF date for the date, otherwise use
+    'now'. Use 'now' for part of the filename.
     """
     if request.method == 'POST':
         # POST: upload picture(s)
@@ -247,7 +254,12 @@ def picture_add():
                 now = datetime.datetime.now()
                 (name, ext) = os.path.splitext(img.filename)
                 name = f"{name}_{now.timestamp()}{ext}"
-                picture = Picture.create(img, name, now)
+                picture = Picture.create(img, name)
+
+                date = get_exif_date(img)
+                if date is None:
+                    date = now
+
                 names['success'].append(name)
             except UnboundLocalError as err:
                 names['fail'].append((name, err))

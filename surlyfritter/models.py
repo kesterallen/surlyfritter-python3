@@ -8,6 +8,8 @@ import datetime
 from google.cloud import ndb, storage
 import math
 
+from surlyfritter.utils import get_exif_date_from_url
+
 DOB = dict(
     miri=datetime.datetime(2007, 10, 26, 5, 30, 0),
     julia=datetime.datetime(2010, 4, 21, 7, 30, 0),
@@ -59,13 +61,26 @@ class Picture(ndb.Model):
         blob.upload_from_file(img, content_type="image/jpeg")
 
     @classmethod
-    def create(cls, img, name, date):
+    def blob_url(cls, name):
+        return f"https://storage.googleapis.com/{GCS_BUCKET_NAME}/{name}"
+
+    @classmethod
+    def create(cls, img, name):
         """
         Set this picture's prev and next pointers to the right entities, and
         update the previous's pic.next and the next's pic.prev to point to the
         current (new) picture:
         """
         with client.context():
+
+            # Make blob from file:
+            Picture.blob_create(img, name)
+
+            # Get the date from the exif data, if possible:
+            date = get_exif_date_from_url(Picture.blob_url(name))
+            if date is None:
+                date = datetime.datetime.now()
+
             prev_pic = Picture.prev_by_date(date)
             prev_pic_key = None if prev_pic is None else prev_pic.key
 
@@ -88,9 +103,6 @@ class Picture(ndb.Model):
             if next_pic is not None:
                 next_pic.prev_pic_ref = picture.key
                 next_pic.put()
-
-            # Make blob from file:
-            Picture.blob_create(img, name)
 
         return picture
 
@@ -267,16 +279,13 @@ class Picture(ndb.Model):
         Return the URL for the image for this object. The image is a blob in
         the modern GCS storage.
         """
-        url_prefix = "https://storage.googleapis.com"
-        url = f"{url_prefix}/{GCS_BUCKET_NAME}/{self.name}"
-        return url
+        return Picture.blob_url(self.name)
 
     @property
     def meta(self) -> str:
         """Picture metadata, returned as JSON by flask"""
         meta_str = dict(
-            name=self.name,
-            date=self.date,
+            name=self.name, date=self.date,
             key=str(self.key),
             added_order=self.added_order,
             prev_ref=str(self.prev_pic_ref),
