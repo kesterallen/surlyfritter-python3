@@ -37,7 +37,7 @@ def _counts():
     with client.context():
         num_pics = Picture.query().count()
         num_tags = Tag.query().count()
-        num_comments = Tag.query().count()
+        num_comments = Comment.query().count()
 
     num_blobs = 0
     storage_client = storage.Client()
@@ -188,8 +188,7 @@ def picture_edit(img_id:int):
                 #
                 new_date = request.form.get("new_date")
                 if new_date:
-                    strptime_fmts = [ "%Y-%m-%d", "%Y%m%d", "%Y%m", "%Y", ]
-                    date = string_to_date(new_date, strptime_fmts)
+                    date = string_to_date(new_date)
                     picture.date = date
 
                     # set prev_pic's .next_pic_ref to next_pic, if prev_pic exists (or None, if next_pic doesn't exist)

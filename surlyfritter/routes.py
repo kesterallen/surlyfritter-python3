@@ -151,13 +151,19 @@ def feed(max_num:int=5):
         pictures = Picture.query().order(-Picture.added_order).fetch(max_num)
         return render_template('feed.xml', pictures=pictures)
 
+@app.route('/tags/<tag_text>/all')
+def pictures_for_tags_all(tag_text:str):
+    """Display all pictures with the tag 'tag_text'"""
+    return pictures_for_tags(tag_text=tag_text, max_num=None)
+
 @app.route('/tags/<tag_text>/<int:max_num>')
 @app.route('/tags/<tag_text>')
 def pictures_for_tags(tag_text:str, max_num:int=5):
     """Display N pictures with the tag 'tag_text'"""
     with client.context():
-        pictures = Picture.with_tag(tag_text, max_num)
-        return render_template('display.html', pictures=pictures, max_num=max_num, tag_text=tag_text)
+        pictures = Picture.with_tag(tag_text, num=max_num)
+        return render_template('display.html', pictures=pictures,
+            max_num=max_num, tag_text=tag_text)
 
 def _kid_is(name:str, age_years:float):
     """Return a redirect the display page for kid 'name' at age 'age_years'"""
@@ -189,7 +195,7 @@ def linus_is(age_years:float):
 def same_age(age_years=None):
     """Return a redirect the display page for linus at age 'age_years'"""
     if age_years is None:
-        linus_age = datetime.datetime.now() - DOB['linus'] 
+        linus_age = datetime.datetime.now() - DOB['linus']
         age_years = random.uniform(0, linus_age.days / DAYS_IN_YEAR)
     with client.context():
         miri = Picture.kid_is_index('miri', age_years)
@@ -219,7 +225,6 @@ def display_date(date_str:str):
     Display the picture closest to 'date_str'
     """
     with client.context():
-        strptime_fmts = [ "%Y-%m-%d", "%Y%m%d", "%Y%m", "%Y", ]
         date = string_to_date(date_str, strptime_fmts)
         if date is None:
             return f"The input date {date_str} is not a valid date"

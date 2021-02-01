@@ -66,6 +66,7 @@ def get_exif_date_from_url(img_url:str) -> datetime.datetime:
 
 def get_exif_date(img_file) -> datetime.datetime:
     """Extract the data from the img_file's exif data."""
+    # TODO: this doesn't do timezones correctly
     DATETIME_KEY = 306
     assert ExifTags.TAGS[DATETIME_KEY] == "DateTime"
 
@@ -85,19 +86,43 @@ def get_exif_date(img_file) -> datetime.datetime:
             print("no datetime field in image's exif data")
             date_str = None
 
-    strptime_fmts = [ "%Y:%m:%d %H:%M:%S", "%Y:%m:%d %H:%M:%SZ", ]
-    date = string_to_date(date_str, strptime_fmts)
+    date = string_to_date(date_str)
     return date
 
 def string_to_date(date_str:str, fmts) -> datetime.datetime:
     """ 
     Try several formats to convert the date_str string into a datetime object .
     """
+    date_formats = [
+        '%Y:%m:%d %H:%M:%S',  # 2020:01:26 11:56:23
+        '%Y:%m:%d %H:%M:%SZ', # 2020:01:26 11:56:23Z
+        '%Y-%m-%d %H:%M:%S',  # 2020-01-26 11:56:23
+        '%Y-%m-%d %H:%M',     # 2020-01-26 11:56
+        '%Y-%m-%d',           # 2020-01-26
+        '%Y%m%d',             # 20200126
+        '%Y-%m',              # 2020-01
+        '%Y%m',               # 202001
+        '%Y',                 # 2020
+        '%Y %m %d %H:%M:%S',  # 2020 01 26 11:56:23
+        '%Y %m %d',           # 2020 01 26
+        '%Y %m',              # 2020 01
+        '%B %d, %Y',          # January 26, 2020
+        '%b %d %Y',           # Jan 26 2020
+        '%B %d, %Y',          # January 26, 2020
+        '%b %d %Y',           # Jan 26 2020
+        '%d %B %Y',           # 26 January 2020
+        '%d %b %Y',           # 26 Jan 2020
+        '%d %B, %Y',          # 26 January, 2020
+        '%d %b, %Y',          # 26 Jan, 2020
+        '%Y %d %B',           # 2020 26 January
+        '%Y %d %b',           # 2020 26 January
+    ]
+
     if date_str is None:
         return None
 
     date = None
-    for fmt in fmts:
+    for fmt in date_formats:
         if date is None:
             try:
                 date = datetime.datetime.strptime(date_str, fmt)

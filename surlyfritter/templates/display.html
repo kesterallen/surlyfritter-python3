@@ -6,6 +6,7 @@
   {{ super() }}
   {% if pictures and pictures|length == 1 %}
     <script>
+      // TODO: change this to a smaller smaller element, not 'document'.
       document.onkeyup = function (e) {
         e = e || window.event;
         var key = e.which;
@@ -26,13 +27,15 @@
 
   <div class="container-md">
     {% if pictures %}
-      {% for picture in pictures %}
-        {% if max_num %}
-          Showing only first {{max_num}} pictures 
-          {% if tag_text %}
-            for tag '{{tag_text}}'. <a href="/tags/{{tag_text}}/9999">Show all</a>
-          {% endif %}.
+
+      <!-- If this is a /tags/tagname page, and it showing only the first N pictures, let the user know -->
+      {% if max_num and tag_text %}
+        Showing only first {{max_num}} pictures tagged <em>{{tag_text}}</em>.
+        <a href="/tags/{{tag_text}}/all">Show all</a>
       {% endif %}
+
+      {% for picture in pictures %}
+
         <!-- Display picture and metadata -->
         <br/>
         <div class="row">
