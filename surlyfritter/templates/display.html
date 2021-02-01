@@ -27,6 +27,12 @@
   <div class="container-md">
     {% if pictures %}
       {% for picture in pictures %}
+        {% if max_num %}
+          Showing only first {{max_num}} pictures 
+          {% if tag_text %}
+            for tag '{{tag_text}}'. <a href="/tags/{{tag_text}}/9999">Show all</a>
+          {% endif %}.
+      {% endif %}
         <!-- Display picture and metadata -->
         <br/>
         <div class="row">

@@ -65,6 +65,17 @@ class Picture(ndb.Model):
         return f"https://storage.googleapis.com/{GCS_BUCKET_NAME}/{name}"
 
     @classmethod
+    def prev_next_pic_keys(cls, date):
+        prev_pic = Picture.prev_by_date(date)
+        prev_pic_key = None if prev_pic is None else prev_pic.key
+
+        next_pic = Picture.next_by_date(date)
+        next_pic_key = None if next_pic is None else next_pic.key
+
+        return(prev_pic_key, next_pic_key)
+
+
+    @classmethod
     def create(cls, img, name):
         """
         Set this picture's prev and next pointers to the right entities, and
@@ -81,12 +92,7 @@ class Picture(ndb.Model):
             if date is None:
                 date = datetime.datetime.now()
 
-            prev_pic = Picture.prev_by_date(date)
-            prev_pic_key = None if prev_pic is None else prev_pic.key
-
-            next_pic = Picture.next_by_date(date)
-            next_pic_key = None if next_pic is None else next_pic.key
-
+            prev_pic_key, next_pic_key = Picture.prev_next_pic_keys(date)
             picture = Picture(
                 name=name,
                 date=date,
@@ -151,7 +157,7 @@ class Picture(ndb.Model):
         tag = Tag.query(Tag.text == tag_text).get()
         if tag:
             query = Picture.query(Picture.tag_refs == tag.key
-                ).order(-Picture.added_order)
+                ).order(-Picture.date)
             pictures = query.fetch() if num is None else query.fetch(num)
         else:
             pictures = None

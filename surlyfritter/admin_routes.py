@@ -18,13 +18,19 @@ from google.auth.transport import requests as g_requests
 
 
 from surlyfritter.models import Picture, Tag, Comment, GCS_BUCKET_NAME
-from surlyfritter.utils import send_email, render_template, get_key, is_logged_in, is_admin
+from surlyfritter.utils import (
+    send_email,
+    render_template,
+    get_key,
+    is_logged_in,
+    is_admin,
+    get_exif_date_from_url,
+    string_to_date,
+)
 
 from . import app, client
 
 #TODO print --> logging (https://cloud.google.com/appengine/docs/standard/python/migrate-to-python3/migrate-to-cloud-logging)
-
-# TODO: require admin
 
 def _counts():
     """Extract the count of pictures, blobs, tags, and comments"""
@@ -151,6 +157,9 @@ def picture_edit(img_id:int):
     # TODO alter date
     # TODO remove comment or tag
 
+    if not is_admin():
+        abort(404, "edit is admin-only")
+
     with client.context():
 
         if request.method == 'POST':
@@ -167,12 +176,34 @@ def picture_edit(img_id:int):
 
                 # Update rotation:
                 img_rot_raw = request.form.get("img_rot")
-                try:
-                    img_rot = int(img_rot_raw) % 360
-                except ValueError:
-                    abort(404, f"Bad image rotation request: {img_rot_raw}")
-                if img_rot % 90 == 0:
-                    picture.img_rot = int(img_rot)
+                if img_rot_raw:
+                    try:
+                        img_rot = int(img_rot_raw) % 360
+                    except ValueError:
+                        abort(404, f"Bad image rotation request: {img_rot_raw}")
+                    if img_rot % 90 == 0:
+                        picture.img_rot = int(img_rot)
+
+                # TODO: Alter .date:
+                #
+                new_date = request.form.get("new_date")
+                if new_date:
+                    strptime_fmts = [ "%Y-%m-%d", "%Y%m%d", "%Y%m", "%Y", ]
+                    date = string_to_date(new_date, strptime_fmts)
+                    picture.date = date
+
+                    # set prev_pic's .next_pic_ref to next_pic, if prev_pic exists (or None, if next_pic doesn't exist)
+                    if picture.next_pic_ref:
+                        picture.prev_pic.next_pic_ref = picture.next_pic.key
+
+                    # set next_pic's .prev_pic_ref to prev_pic, if next_pic exists (or None, if prev_pic doesn't exist)
+                    if picture.prev_pic_ref:
+                        picture.next_pic.prev_pic_ref = picture.prev_pic.key
+
+                    # set picture.next_pic_ref and picture.prev_pic_ref in the same way that Picture.create
+                    prev_pic_key, next_pic_key = Picture.prev_next_pic_keys(date)
+                    picture.prev_pic_ref = prev_pic_key
+                    picture.next_pic_ref = next_pic_key
 
                 picture.updated_on = datetime.datetime.now()
                 picture.put()
@@ -184,7 +215,8 @@ def picture_edit(img_id:int):
             # GET: Render form with optional message
             picture = Picture.query(Picture.added_order == img_id).get()
 
-            date = get_exif_date_from_url(img)
+            exif_date = get_exif_date_from_url(picture.img_url)
+
 
             if picture is None:
                 abort(404, f"Cannot find picture with added_order = {img_id}")
@@ -359,7 +391,10 @@ def smoke_test():
         picture count
     """
     if not is_admin():
-        abort(404, "fix-next-prev is admin-only")
+        abort(404, "smoke-test is admin-only")
+
+    storage_client = storage.Client()
+    blob_names = set([b.name for b in storage_client.list_blobs(GCS_BUCKET_NAME)])
 
     raw_counts = _counts()
 
@@ -372,9 +407,11 @@ def smoke_test():
         else:
             pictures = [picture]
             while picture.prev_pic_ref is not None:
+                blob_names.discard(picture.name)
                 tmp = picture
                 picture = tmp.prev_pic
                 pictures.append(picture)
+            blob_names.discard(picture.name)
             dates = [str(p.date) for p in pictures]
             dates_sorted = sorted(dates, reverse=True)
 
@@ -387,7 +424,7 @@ def smoke_test():
 
             message = f"date ordering {date_status}, counts match {count_status} ({len(pictures)})"
 
-        message = f"{message}, Counts: {raw_counts}"
+        message = f"{message}, Counts: {raw_counts}, orphan blobs: {blob_names}"
 
         return render_template('admin_report.html', pictures=pictures,
             dates_sorted=dates_sorted, message=message, counts=raw_counts, zip=zip)

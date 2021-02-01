@@ -34,10 +34,10 @@
 
           <!-- Disable next/prev links for last/first pages -->
           {% set prev_extras = "" if picture.prev_pic else "disabled" %}
-          {% set prev_imgp_id = picture.prev_pic.imgp_id if picture.prev_pic else "#" %}
+          {% set prev_imgp_id = picture.prev_pic.imgp_id if picture.prev_pic else "" %}
 
           {% set next_extras = "" if picture.next_pic else "disabled" %}
-          {% set next_imgp_id = picture.next_pic.imgp_id if picture.next_pic else "#" %}
+          {% set next_imgp_id = picture.next_pic.imgp_id if picture.next_pic else "" %}
 
           <li class="nav-item"> <a class="nav-link {{prev_extras}}" id="prev_picture" href="/p/{{prev_imgp_id}}">Previous</a> </li>
           <li class="nav-item"> <a class="nav-link {{next_extras}}" id="next_picture" href="/p/{{next_imgp_id}}">Next</a> </li>

@@ -83,6 +83,7 @@ def filter_shuffle(seq):
 @app.route('/n')
 @app.route('/perm/<int:img_id>')
 @app.route('/p/<int:img_id>')
+@app.route('/p/')
 @app.route('/p')
 @app.route('/')
 def display(img_id:int=None):
@@ -135,28 +136,28 @@ def display_oldest():
 def random_page():
     """Load a random picture"""
     with client.context():
-        num = Picture.query().count()
-        index = random.randrange(0, num)
+        num_pics = Picture.query().count()
+        index = random.randrange(0, num_pics)
         return redirect(f"/p/{index}")
 
 @app.route('/feed')
-@app.route('/feed/<int:num>')
+@app.route('/feed/<int:max_num>')
 @app.route('/feeds/feed.xml')
-def feed(num:int=5):
+def feed(max_num:int=5):
     """
-    RSS feed for the most recent 'num' pictures.
+    RSS feed for the most recent 'max_num' pictures.
     """
     with client.context():
-        pictures = Picture.query().order(-Picture.added_order).fetch(num)
+        pictures = Picture.query().order(-Picture.added_order).fetch(max_num)
         return render_template('feed.xml', pictures=pictures)
 
-@app.route('/tags/<tag_text>/<int:num>')
+@app.route('/tags/<tag_text>/<int:max_num>')
 @app.route('/tags/<tag_text>')
-def pictures_for_tags(tag_text:str, num:int=5):
+def pictures_for_tags(tag_text:str, max_num:int=5):
     """Display N pictures with the tag 'tag_text'"""
     with client.context():
-        pictures = Picture.with_tag(tag_text, num)
-        return render_template('display.html', pictures=pictures)
+        pictures = Picture.with_tag(tag_text, max_num)
+        return render_template('display.html', pictures=pictures, max_num=max_num, tag_text=tag_text)
 
 def _kid_is(name:str, age_years:float):
     """Return a redirect the display page for kid 'name' at age 'age_years'"""
@@ -218,8 +219,6 @@ def display_date(date_str:str):
     Display the picture closest to 'date_str'
     """
     with client.context():
-        # TODO: make this a utility multiple-convert-to-date, DRY this with the
-        # one that's already in utils
         strptime_fmts = [ "%Y-%m-%d", "%Y%m%d", "%Y%m", "%Y", ]
         date = string_to_date(date_str, strptime_fmts)
         if date is None:

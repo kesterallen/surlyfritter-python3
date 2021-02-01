@@ -24,9 +24,14 @@ indexes:
   - name: added_order
     direction: desc
 
-
 - kind: Picture
   properties:
   - name: tag_refs
   - name: added_order
+    direction: desc
+
+- kind: Picture
+  properties:
+  - name: tag_refs
+  - name: date
     direction: desc
