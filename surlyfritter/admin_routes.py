@@ -154,7 +154,6 @@ def delete_everything():
 def picture_edit(img_id:int):
     """ Edit a Picture that already exists """
 
-    # TODO alter date
     # TODO remove comment or tag
 
     if not is_admin():
@@ -184,8 +183,7 @@ def picture_edit(img_id:int):
                     if img_rot % 90 == 0:
                         picture.img_rot = int(img_rot)
 
-                # TODO: Alter .date:
-                #
+                # Alter .date:
                 new_date = request.form.get("new_date")
                 if new_date:
                     date = string_to_date(new_date)
@@ -199,10 +197,17 @@ def picture_edit(img_id:int):
                     if picture.prev_pic_ref:
                         picture.next_pic.prev_pic_ref = picture.prev_pic.key
 
-                    # set picture.next_pic_ref and picture.prev_pic_ref in the same way that Picture.create
+                    # set new next_pic and prev_pic to point to picture, and
+                    # picture.next_pic_ref and picture.prev_pic_ref to point to
+                    # new next/prev
                     prev_pic_key, next_pic_key = Picture.prev_next_pic_keys(date)
                     picture.prev_pic_ref = prev_pic_key
+                    #TODO: need to picture.put() first?
+                    picture.prev_pic.next_pic_ref = picture.key
                     picture.next_pic_ref = next_pic_key
+                    #TODO: need to picture.put() first?
+                    picture.next_pic.prev_pic_ref = picture.key
+                    
 
                 picture.updated_on = datetime.datetime.now()
                 picture.put()

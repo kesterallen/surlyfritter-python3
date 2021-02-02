@@ -70,6 +70,14 @@ def filter_shuffle(seq):
     except:
         return seq
 
+@app.template_filter('tag_fs_size')
+def filter_tagfontsize(tag):
+    try:
+        result = int(6 - tag.tag_count_log)
+        return result
+    except:
+        return 6
+
 @app.route('/displayperm/<int:img_id>')
 @app.route('/display/<int:img_id>')
 @app.route('/display')
@@ -293,6 +301,7 @@ def tag_add():
     with client.context():
         picture = Picture.query(Picture.added_order == added_order).get()
         for tag_text in tag_texts:
+            tag_text = tag_text.lower().strip()
             picture.add_tag(tag_text)
 
     return redirect(f"/p/{added_order}")

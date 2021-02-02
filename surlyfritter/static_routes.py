@@ -31,3 +31,8 @@ def zoom():
     """ Zoom links now include Gael link, this route is just a synonym for /naga """
     return app.send_static_file('zoom.html')
 
+@app.route('/apple-touch-icon.png')
+def apple_touch_icon():
+    """ iphone homescreen icon """
+    return app.send_static_file('images/july4th.png')
+

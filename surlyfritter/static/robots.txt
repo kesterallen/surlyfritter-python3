@@ -9,7 +9,7 @@ Disallow:
 
 User-agent: *
 Disallow: /
-Disallow: /same_age
+Disallow: /same-age
 Disallow: /timejump
 Disallow: /carousel
 Disallow: /add

@@ -149,11 +149,12 @@ class Picture(ndb.Model):
         return picture
 
     @classmethod
-    def with_tag(cls, tag_text, num=None):
+    def with_tag(cls, tag_text:str, num=None):
         """
         Get 'num' (or all if num is None) pictures with who contain a tag with
         .text of 'tag_text'.
         """
+        tag_text = tag_text.lower().strip()
         tag = Tag.query(Tag.text == tag_text).get()
         if tag:
             query = Picture.query(Picture.tag_refs == tag.key
@@ -308,16 +309,15 @@ class Picture(ndb.Model):
 
     def add_tag(self, tag_text:str):
         """Add a tag to this Picture, avoiding duplicates"""
-        # TODO this incorrectly increases the tag_count and tag_count_log if the tag is a duplicate for this pictures
+        tag_text = tag_text.lower().strip()
         tag = Tag.query(Tag.text == tag_text).get()
 
         # Check if this Tag is already associated with this Picture (duplicate
         # entry in the form?). If it is, return. If there isn't a Tag with this
         # .text yet, create one and associate it with the Picture:
         #
-        if tag is not None:
-            if tag.key in self.tag_refs:
-                return
+        if tag is not None and tag.key in self.tag_refs:
+            return
         else:
             tag = Tag(text=tag_text, tag_count=0)
 
