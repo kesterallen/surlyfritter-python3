@@ -8,30 +8,35 @@ from . import app
 @app.route('/robots.txt')
 @app.route('/robots')
 def robots():
-    """ Robots.txt static file """
+    """Robots.txt static file"""
     return app.send_static_file('robots.txt')
 
 @app.route('/resume')
 def resume():
-    """ Resume static file """
+    """Resume static file"""
     return app.send_static_file('resume.html')
 
 @app.route('/air')
 def air():
-    """ Resume air quality file """
+    """Resume air quality file"""
     return app.send_static_file('air_quality.html')
 
 @app.route('/naga')
 def naga():
-    """ Naga zoom links for linus """
+    """Naga zoom links for linus"""
     return app.send_static_file('zoom.html')
 
 @app.route('/zoom')
 def zoom():
-    """ Zoom links now include Gael link, this route is just a synonym for /naga """
+    """Zoom links now include Gael link, this route is just a synonym for /naga"""
     return app.send_static_file('zoom.html')
+
+@app.route('/images/<string:img_name>')
+def images_static(img_name:str):
+    """General image endpoint"""
+    return app.send_static_file(f'images/{img_name}')
 
 @app.route('/apple-touch-icon.png')
 def apple_touch_icon():
-    """ iphone homescreen icon """
+    """iphone homescreen icon"""
     return app.send_static_file('images/july4th.png')
