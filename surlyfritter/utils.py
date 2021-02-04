@@ -1,3 +1,4 @@
+"""Utility functions for surlyfritter"""
 
 import datetime
 import io
@@ -7,17 +8,15 @@ from flask import session, render_template as flask_render_template
 from PIL import Image, ExifTags
 import requests
 
-# using SendGrid's Python Library
-# https://github.com/sendgrid/sendgrid-python
-from sendgrid import SendGridAPIClient
+from sendgrid import SendGridAPIClient # https://github.com/sendgrid/sendgrid-python #pylint: disable=line-too-long
 from sendgrid.helpers.mail import Mail
 
 ADMIN_EMAILS = ['kester@gmail.com', 'apaske@gmail.com']
 
 def get_key(name='sendgrid_key', filename='keys.txt'):
-    """ Get an entry from keys.txt """
-    SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-    file_url = os.path.join(SITE_ROOT, filename)
+    """Get an entry from keys.txt"""
+    site_root = os.path.realpath(os.path.dirname(__file__))
+    file_url = os.path.join(site_root, filename)
     with open(file_url) as file:
         keys = file.readlines()
         for line in keys:
@@ -27,7 +26,7 @@ def get_key(name='sendgrid_key', filename='keys.txt'):
     return None
 
 def send_email(subject, body, to_email=ADMIN_EMAILS[0], from_email=ADMIN_EMAILS[0]):
-    """ 
+    """
     Send an email
     https://app.sendgrid.com/settings/sender_auth/verify?link=2052482&domain=10170929&provider=Google%20Cloud
     """
@@ -39,8 +38,8 @@ def send_email(subject, body, to_email=ADMIN_EMAILS[0], from_email=ADMIN_EMAILS[
     )
     try:
         sendgrid_key = get_key('sendgrid_key')
-        sg = SendGridAPIClient(sendgrid_key)
-        response = sg.send(message)
+        sendgrid = SendGridAPIClient(sendgrid_key)
+        response = sendgrid.send(message)
         print(response.status_code)
         print(response.body)
         print(response.headers)
@@ -57,31 +56,70 @@ def is_admin() -> bool:
     return(is_logged_in() and
         session.get('user_email') in ADMIN_EMAILS)
 
+def get_exif_data_from_url(img_url:str) -> datetime.datetime:
+    """Extract the exif data of an image at img_url."""
+    response = requests.get(img_url)
+    print(response)
+    img_file = io.BytesIO(response.content)
+    print(img_file)
+    return get_exif_data(img_file)
+
 def get_exif_date_from_url(img_url:str) -> datetime.datetime:
-    """Extract the data from of the image at img_url from its exif data."""
-    # TODO: probably a better way to do this
+    """Extract the exif date of an image at img_url."""
     response = requests.get(img_url)
     img_file = io.BytesIO(response.content)
-    return get_exif_date(img_file) 
+    return get_exif_date(img_file)
+
+def get_exif_data(img_file) -> dict:
+    """Extract the image's exif data and return as a human-readable dict."""
+    with Image.open(img_file) as img:
+        img_exif = img.getexif()
+
+    if img_exif is None:
+        print("no exif data in image")
+        return img_exif
+
+    # Stringify binaries for json serialization:
+    img_exif_dict = dict()
+    for key, value in img_exif.items():
+        readable_key = ExifTags.TAGS[key]
+        img_exif_dict[readable_key] = str(value)
+
+    return img_exif_dict
 
 def get_exif_date(img_file) -> datetime.datetime:
-    """Extract the data from the img_file's exif data."""
-    # TODO: this doesn't do timezones correctly
+    """Extract the date from the img_file's exif data."""
+    # TODO: this doesn't do timezones correctly for some exif data
+
     DATETIME_KEY = 306
+    TIMEZONEOFFSET_KEY = 34858
+    DATETIMEORIGINAL_KEY = 36867
+
     assert ExifTags.TAGS[DATETIME_KEY] == "DateTime"
+    assert ExifTags.TAGS[TIMEZONEOFFSET_KEY] == "TimeZoneOffset"
+    assert ExifTags.TAGS[DATETIMEORIGINAL_KEY] == "DateTimeOriginal"
 
-    # TODO: try this with context manager
-    img = Image.open(img_file)
-    img_exif = img.getexif()
-    img_file.close()
-
+    img_exif = get_exif_data(img_file)
     if img_exif is None:
         print("no exif data in image")
         date_str = None
     else:
-        img_exif_dict = dict(img_exif)
-        if DATETIME_KEY in img_exif_dict:
-            date_str = img_exif_dict[DATETIME_KEY]
+        #TODO: remove this when figure out the timezone offset
+        if DATETIME_KEY in img_exif:
+            print("datetime-key is in image", img_exif[DATETIME_KEY])
+        else:
+            print("no datetime-key is in image")
+        if TIMEZONEOFFSET_KEY in img_exif:
+            print("timezoneoffset-key is in image", img_exif[TIMEZONEOFFSET_KEY])
+        else:
+            print("no timezoneoffset-key is in image")
+        if DATETIMEORIGINAL_KEY in img_exif:
+            print("datetimeoriginal-key is in image", img_exif[DATETIMEORIGINAL_KEY])
+        else:
+            print("no datetimeoriginal-key is in image")
+
+        if DATETIME_KEY in img_exif:
+            date_str = img_exif[DATETIME_KEY]
         else:
             print("no datetime field in image's exif data")
             date_str = None
@@ -89,10 +127,13 @@ def get_exif_date(img_file) -> datetime.datetime:
     date = string_to_date(date_str)
     return date
 
-def string_to_date(date_str:str, fmts) -> datetime.datetime:
-    """ 
-    Try several formats to convert the date_str string into a datetime object .
+def string_to_date(date_str:str) -> datetime.datetime:
     """
+    Try several formats to convert the date_str string into a datetime object.
+    """
+    if date_str is None:
+        return None
+
     date_formats = [
         '%Y:%m:%d %H:%M:%S',  # 2020:01:26 11:56:23
         '%Y:%m:%d %H:%M:%SZ', # 2020:01:26 11:56:23Z
@@ -118,9 +159,6 @@ def string_to_date(date_str:str, fmts) -> datetime.datetime:
         '%Y %d %b',           # 2020 26 January
     ]
 
-    if date_str is None:
-        return None
-
     date = None
     for fmt in date_formats:
         if date is None:
@@ -134,6 +172,8 @@ def render_template(*args, **kwargs):
     """Render template with the user_img inserted into the render"""
     user_img = session.get('user_img')
 
-    html = flask_render_template(*args, **kwargs,
-        is_logged_in=is_logged_in(), user_img=user_img, is_admin=is_admin())
+    html = flask_render_template(
+        *args, **kwargs, is_logged_in=is_logged_in(), user_img=user_img,
+        is_admin=is_admin(),
+    )
     return html

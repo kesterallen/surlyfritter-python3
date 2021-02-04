@@ -5,17 +5,9 @@ from surlyfritter import app
 
 #SET THIS envar TO GET CREDS:
 #
-#GOOGLE_APPLICATION_CREDENTIALS=/home/kester/Desktop/gae_tutorial/python-docs-samples/appengine/standard_python3/surlyfritter-python3-2ce73610c763.json
-# [START gae_python38_app]
+#GOOGLE_APPLICATION_CREDENTIALS=/home/kester/Desktop/gae_tutorial/python-docs-samples/appengine/standard_python3/surlyfritter-python3-2ce73610c763.json # pylint: disable=line-too-long
 
-# TODO:
-# Email pictures
-# Nice response for pictures that don't exist.
-#    * redirect back to previous?
-#    * bracket to highest/lowest?
-#    * /\d*.jpg
-#    * /exiv/\d+
-# TODO: rotate images as required?
+# [START gae_python38_app]
 
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App

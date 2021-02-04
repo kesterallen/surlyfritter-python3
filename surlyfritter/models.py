@@ -5,8 +5,9 @@ Model classes for picture site
 #TODO print --> logging
 
 import datetime
-from google.cloud import ndb, storage
 import math
+
+from google.cloud import ndb, storage
 
 from surlyfritter.utils import get_exif_date_from_url
 
@@ -23,17 +24,17 @@ GCS_BUCKET_NAME_PREFIX = "surlyfritter-python3"
 GCS_BUCKET_NAME = f"{GCS_BUCKET_NAME_PREFIX}.appspot.com"
 
 client = ndb.Client(project=GCS_BUCKET_NAME_PREFIX)
-
-class Comment(ndb.Model):
+class Comment(ndb.Model): # pylint: disable=too-few-public-methods
     """Freeform comments about a picture."""
     text = ndb.StringProperty()
     added_on = ndb.DateTimeProperty(auto_now_add=True)
 
-class Tag(ndb.Model):
+class Tag(ndb.Model): # pylint: disable=too-few-public-methods
     """Freeform tag about a picture."""
     text = ndb.StringProperty()
     tag_count = ndb.IntegerProperty()
-    tag_count_log = ndb.FloatProperty() # precompute this, useful for font sizing in tag cloud
+    # precompute the logarithm, useful for font sizing in tag cloud
+    tag_count_log = ndb.FloatProperty()
     added_on = ndb.DateTimeProperty(auto_now_add=True)
 
 class Picture(ndb.Model):
@@ -54,7 +55,7 @@ class Picture(ndb.Model):
 
     @classmethod
     def blob_create(cls, img, name):
-        """ Create or overwrite a blob image. """
+        """Create or overwrite a blob image."""
         storage_client = storage.Client()
         bucket = storage_client.bucket(GCS_BUCKET_NAME)
         blob = bucket.blob(name)
@@ -62,10 +63,12 @@ class Picture(ndb.Model):
 
     @classmethod
     def blob_url(cls, name):
+        """The URL of the blob image"""
         return f"https://storage.googleapis.com/{GCS_BUCKET_NAME}/{name}"
 
     @classmethod
     def prev_next_pic_keys(cls, date):
+        """Get the previous and next picture reference keys"""
         prev_pic = Picture.prev_by_date(date)
         prev_pic_key = None if prev_pic is None else prev_pic.key
 
@@ -92,6 +95,7 @@ class Picture(ndb.Model):
             if date is None:
                 date = datetime.datetime.now()
 
+            # Get prev/next keys and instantiate the new Picture:
             prev_pic_key, next_pic_key = Picture.prev_next_pic_keys(date)
             picture = Picture(
                 name=name,
@@ -103,12 +107,14 @@ class Picture(ndb.Model):
             )
             picture.put()
 
-            if prev_pic is not None:
-                prev_pic.next_pic_ref = picture.key
-                prev_pic.put()
-            if next_pic is not None:
-                next_pic.prev_pic_ref = picture.key
-                next_pic.put()
+            # Update adjacent picture prev/prev links to point to this new
+            # picture:
+            if picture.prev_pic_ref is not None:
+                picture.prev_pic.next_pic_ref = picture.key
+                picture.prev_pic.put()
+            if picture.next_pic_ref is not None:
+                picture.next_pic.prev_pic_ref = picture.key
+                picture.next_pic.put()
 
         return picture
 
@@ -147,6 +153,17 @@ class Picture(ndb.Model):
 
         picture = query.order(-Picture.date, -Picture.added_order).get()
         return picture
+
+    @classmethod
+    def with_tag_count(cls, tag_text:str):
+        """How many pictures have a given tag, (hopefully inexpensive)"""
+        tag_text = tag_text.lower().strip()
+        tag = Tag.query(Tag.text == tag_text).get()
+        if tag:
+            count = Picture.query(Picture.tag_refs == tag.key).count()
+        else:
+            count = 0
+        return count
 
     @classmethod
     def with_tag(cls, tag_text:str, num=None):
@@ -211,39 +228,42 @@ class Picture(ndb.Model):
 
     @classmethod
     def next_added_order(cls):
-        """ Return the most recently added Picture's .added_order"""
+        """Return the most recently added Picture's .added_order"""
         picture = Picture.query().order(-Picture.added_order).get()
         added_order = 0 if picture is None else picture.added_order + 1
         return added_order
 
     @classmethod
     def last_added(cls):
-        """ Return the most recently added Picture, by .added_order """
+        """Return the most recently added Picture, by .added_order"""
         picture = Picture.query().order(-Picture.added_order).get()
         return picture
 
     @classmethod
     def most_recent(cls):
-        """ Return the most recent Picture, by .date"""
+        """Return the most recent Picture, by .date"""
         picture = Picture.query().order(-Picture.date).get()
         return picture
 
     @classmethod
     def first_added(cls):
-        """ Return the first-added Picture, by .added_order """
+        """Return the first-added Picture, by .added_order"""
         picture = Picture.query().order(Picture.added_order).get()
         return picture
 
     @classmethod
     def least_recent(cls):
-        """ Return the most recent Picture, by .date"""
+        """Return the most recent Picture, by .date"""
         picture = Picture.query().order(Picture.date).get()
         return picture
 
     @property
     def date_display(self):
-        utc_offset = datetime.timedelta(hours=8)
-        return (self.date - utc_offset).strftime('%B %-d, %Y (%-I:%M %p)')
+        """Date string for UI display"""
+        # TODO: time zones? some dates appear to be in UTC, mainly older pictures
+        #utc_offset = datetime.timedelta(hours=8)
+        #return (self.date - utc_offset).strftime('%B %-d, %Y (%-I:%M %p)')
+        return self.date.strftime('%B %-d, %Y (%-I:%M %p)')
 
     @property
     def tags(self):
@@ -291,21 +311,29 @@ class Picture(ndb.Model):
     @property
     def meta(self) -> str:
         """Picture metadata, returned as JSON by flask"""
-        meta_str = dict(
-            name=self.name, date=self.date,
-            key=str(self.key),
-            added_order=self.added_order,
-            prev_ref=str(self.prev_pic_ref),
-            next_ref=str(self.next_pic_ref),
-            tags=[t.text for t in self.tags],
-            comments=[c.text for c in self.comments],
-            url=self.img_url,
-        )
-        return meta_str
+        return self.json
 
     @property
     def json(self):
-        return dict(added_order=self.added_order, key=str(self.key), date=self.date)
+        """JSON representation of object"""
+        return dict(
+            key=str(self.key),
+
+            name=self.name,
+            date=self.date,
+            added_on=self.added_on,
+            updated_on=self.updated_on,
+            added_order=self.added_order,
+
+            prev_ref=str(self.prev_pic_ref),
+            next_ref=str(self.next_pic_ref),
+
+            tags=[t.text for t in self.tags],
+            comments=[c.text for c in self.comments],
+
+            img_rot=self.img_rot,
+            url=self.img_url,
+        )
 
     def add_tag(self, tag_text:str):
         """Add a tag to this Picture, avoiding duplicates"""
@@ -318,9 +346,8 @@ class Picture(ndb.Model):
         #
         if tag is not None and tag.key in self.tag_refs:
             return
-        else:
-            tag = Tag(text=tag_text, tag_count=0)
 
+        tag = Tag(text=tag_text, tag_count=0)
         tag.tag_count += 1
         tag.tag_count_log = math.log10(tag.tag_count)
         tag.put()

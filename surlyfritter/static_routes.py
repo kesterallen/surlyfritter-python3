@@ -35,4 +35,3 @@ def zoom():
 def apple_touch_icon():
     """ iphone homescreen icon """
     return app.send_static_file('images/july4th.png')
-

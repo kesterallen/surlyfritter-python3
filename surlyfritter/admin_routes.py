@@ -3,25 +3,21 @@ Admin routes
 """
 
 import datetime
-import io
 import pprint
-import PIL.Image
 
 import jwt
-import requests
 from flask import redirect, request, abort, session
 
 from google.cloud import storage
 from google.cloud.exceptions import NotFound
-from google.oauth2 import id_token
+#from google.oauth2 import id_token
 from google.auth.transport import requests as g_requests
-
 
 from surlyfritter.models import Picture, Tag, Comment, GCS_BUCKET_NAME
 from surlyfritter.utils import (
     send_email,
     render_template,
-    get_key,
+    #get_key,
     is_logged_in,
     is_admin,
     get_exif_date_from_url,
@@ -30,7 +26,7 @@ from surlyfritter.utils import (
 
 from . import app, client
 
-#TODO print --> logging (https://cloud.google.com/appengine/docs/standard/python/migrate-to-python3/migrate-to-cloud-logging)
+#TODO print --> logging (https://cloud.google.com/appengine/docs/standard/python/migrate-to-python3/migrate-to-cloud-logging) # pylint: disable=line-too-long
 
 def _counts():
     """Extract the count of pictures, blobs, tags, and comments"""
@@ -53,7 +49,7 @@ def _counts():
 
 @app.route('/logout')
 def logout():
-    """ Clear session of user info to log out """
+    """Clear session of user info to log out"""
     session['user_img'] = None
     session['user_email'] = None
     session['user_name'] = None
@@ -84,9 +80,10 @@ def gauth():
     # Get credential and set user info:
     credential = request.values.get('credential')
     decoded = jwt.decode(credential, options={"verify_signature": False})
-    client_id = get_key('onetap_key')
-    #decoded_token = jwt.decode(csrf_token_body, options={"verify_signature": False})
-    #idinfo = id_token.verify_oauth2_token(decoded_token, g_requests.Request(), client_id)
+    #client_id = get_key('onetap_key')
+    #decoded_token = jwt.decode(csrf_token_body, options={"verify_signature": False}) # pylint: disable=line-too-long
+
+    #idinfo = id_token.verify_oauth2_token(decoded_token, g_requests.Request(), client_id) # pylint: disable=line-too-long
 
     session['user_img'] = decoded['picture']
     session['user_email'] = decoded['email']
@@ -150,90 +147,90 @@ def delete_everything():
 #    message = "Delete report:"
 #    return render_template('admin_report.html', deletes=deletes, message=message)
 
+def _picture_edit_post(img_id:int):
+    """POST: Make the picture edit changes"""
+    # TODO remove/edit comment or tag
+
+    try:
+        picture = Picture.query(Picture.added_order == img_id).get()
+        if picture is None:
+            abort(404, f"Cannot find picture with added_order = {img_id}")
+
+        # Make blob from file, if a file is supplied:
+        img = request.files.get("picture")
+        if img:
+            Picture.blob_create(img, picture.name)
+
+        # Update rotation:
+        img_rot_raw = request.form.get("img_rot")
+        if img_rot_raw:
+            try:
+                img_rot = int(img_rot_raw) % 360
+            except ValueError:
+                abort(404, f"Bad image rotation request: {img_rot_raw}")
+            if img_rot % 90 == 0:
+                picture.img_rot = int(img_rot)
+
+        # Alter .date:
+        new_date = request.form.get("new_date")
+        if new_date:
+            date = string_to_date(new_date)
+            picture.date = date
+
+            # set prev_pic's .next_pic_ref to next_pic, if prev_pic exists (or None, if next_pic doesn't exist)
+            if picture.next_pic_ref:
+                picture.prev_pic.next_pic_ref = picture.next_pic.key
+
+            # set next_pic's .prev_pic_ref to prev_pic, if next_pic exists (or None, if prev_pic doesn't exist)
+            if picture.prev_pic_ref:
+                picture.next_pic.prev_pic_ref = picture.prev_pic.key
+
+            # set new next_pic and prev_pic to point to picture, and
+            # picture.next_pic_ref and picture.prev_pic_ref to point to
+            # new next/prev
+            prev_pic_key, next_pic_key = Picture.prev_next_pic_keys(date)
+            picture.prev_pic_ref = prev_pic_key
+            #TODO: need to picture.put() first?
+            picture.prev_pic.next_pic_ref = picture.key
+            picture.next_pic_ref = next_pic_key
+            #TODO: need to picture.put() first?
+            picture.next_pic.prev_pic_ref = picture.key
+
+        picture.updated_on = datetime.datetime.now()
+        picture.put()
+    except NotFound as err: # blob not found
+        abort(404, f"Blob with {picture.name} not found, exiting")
+
+    return redirect(f"/p/{picture.imgp_id}")
+
+def _picture_edit_get(img_id:int):
+    """GET: Render form with optional message"""
+    picture = Picture.query(Picture.added_order == img_id).get()
+
+    exif_date = get_exif_date_from_url(picture.img_url)
+
+    if picture is None:
+        abort(404, f"Cannot find picture with added_order = {img_id}")
+    message = "Edit Mode"
+
+    return render_template('add.html', message=message,
+        edit_picture=picture, exif_date=exif_date)
+
 @app.route('/picture/edit/<int:img_id>', methods=['GET', 'POST'])
 def picture_edit(img_id:int):
-    """ Edit a Picture that already exists """
-
-    # TODO remove comment or tag
+    """Edit a Picture that already exists"""
 
     if not is_admin():
         abort(404, "edit is admin-only")
 
     with client.context():
-
         if request.method == 'POST':
-            try:
-                #img_id = int(request.form.get("img_id"))
-                picture = Picture.query(Picture.added_order == img_id).get()
-                if picture is None:
-                    abort(404, f"Cannot find picture with added_order = {img_id}")
-
-                # Make blob from file, if a file is supplied:
-                img = request.files.get("picture")
-                if img:
-                    Picture.blob_create(img, picture.name)
-
-                # Update rotation:
-                img_rot_raw = request.form.get("img_rot")
-                if img_rot_raw:
-                    try:
-                        img_rot = int(img_rot_raw) % 360
-                    except ValueError:
-                        abort(404, f"Bad image rotation request: {img_rot_raw}")
-                    if img_rot % 90 == 0:
-                        picture.img_rot = int(img_rot)
-
-                # Alter .date:
-                new_date = request.form.get("new_date")
-                if new_date:
-                    date = string_to_date(new_date)
-                    picture.date = date
-
-                    # set prev_pic's .next_pic_ref to next_pic, if prev_pic exists (or None, if next_pic doesn't exist)
-                    if picture.next_pic_ref:
-                        picture.prev_pic.next_pic_ref = picture.next_pic.key
-
-                    # set next_pic's .prev_pic_ref to prev_pic, if next_pic exists (or None, if prev_pic doesn't exist)
-                    if picture.prev_pic_ref:
-                        picture.next_pic.prev_pic_ref = picture.prev_pic.key
-
-                    # set new next_pic and prev_pic to point to picture, and
-                    # picture.next_pic_ref and picture.prev_pic_ref to point to
-                    # new next/prev
-                    prev_pic_key, next_pic_key = Picture.prev_next_pic_keys(date)
-                    picture.prev_pic_ref = prev_pic_key
-                    #TODO: need to picture.put() first?
-                    picture.prev_pic.next_pic_ref = picture.key
-                    picture.next_pic_ref = next_pic_key
-                    #TODO: need to picture.put() first?
-                    picture.next_pic.prev_pic_ref = picture.key
-                    
-
-                picture.updated_on = datetime.datetime.now()
-                picture.put()
-            except NotFound as err: # blob not found
-                abort(404, f"Blob with {picture.name} not found, exiting")
-
-            return redirect(f"/p/{picture.imgp_id}")
-        else:
-            # GET: Render form with optional message
-            picture = Picture.query(Picture.added_order == img_id).get()
-
-            exif_date = get_exif_date_from_url(picture.img_url)
-
-
-            if picture is None:
-                abort(404, f"Cannot find picture with added_order = {img_id}")
-            message = "Edit Mode"
-
-            return render_template('add.html', message=message, 
-                edit_picture=picture, exif_date=exif_date)
+            return _picture_edit_post(img_id)
+        return _picture_edit_get(img_id)
 
 @app.route('/picture/delete/<int:img_id>')
 def picture_delete(img_id:int):
-    """
-    Delete a Picture and its associated blob, by its .added_order attribute
-    """
+    """Delete a Picture and its blob (by the .added_order attribute)"""
     if not is_admin():
         abort(404, "picture delete is admin-only")
 
@@ -242,7 +239,7 @@ def picture_delete(img_id:int):
             picture = Picture.query(Picture.added_order == img_id).get()
             if picture is None:
                 abort(404, f"Cannot find picture with added_order = {img_id}")
-            picture_meta = picture.meta
+            metadata = picture.json
 
             # delete blob with picture.name
             storage_client = storage.Client()
@@ -251,7 +248,7 @@ def picture_delete(img_id:int):
             blob.delete()
         except NotFound as err: # blob not found
             #abort(404, f"Blob with {picture.name} not found, exiting")
-            pass
+            print("no blob for .added_order {img_id}: {err}")
 
         # Update prev/next pointers on the adjacent pics, unless this is the
         # first/last image. If this is the first image, null the prev_pic_ref
@@ -287,7 +284,7 @@ def picture_delete(img_id:int):
 
         send_email(subject=f'deleted picture {img_id}',
             body=f'deleted picture {img_id}')
-        return f"deleted {img_id}:\n{picture_meta}"
+        return f"deleted {img_id}:\n{metadata}"
 
 @app.route('/import/hrd', methods=['POST'])
 def import_hrd():
@@ -398,7 +395,7 @@ def smoke_test():
         abort(404, "smoke-test is admin-only")
 
     storage_client = storage.Client()
-    blob_names = set([b.name for b in storage_client.list_blobs(GCS_BUCKET_NAME)])
+    blob_names = {b.name for b in storage_client.list_blobs(GCS_BUCKET_NAME)}
 
     raw_counts = _counts()
 

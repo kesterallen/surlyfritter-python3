@@ -1,6 +1,4 @@
-"""
-Clunky nickname-to-html-file handler
-"""
+""" Clunky nickname-to-html-file handler """
 
 from flask import render_template, abort
 
@@ -9,6 +7,7 @@ from . import app
 @app.route('/recipes')
 @app.route('/recipes/<name>')
 def recipes(name=None):
+    """ Clunky nickname-to-html-file handler """
     if name is None:
         name = "recipes"
     names = {
@@ -39,10 +38,10 @@ def recipes(name=None):
         abort(404, f"404: recipe {name} not found")
 
     filename = f"recipes/{names[name]}"
-    print("HI there", filename)
     html = render_template(filename)
     return html
 
 @app.route('/pancakes')
 def pancakes():
+    """Special route for nature's most perfect food"""
     return recipes("pancakes")

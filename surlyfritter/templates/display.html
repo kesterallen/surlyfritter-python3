@@ -29,9 +29,11 @@
     {% if pictures %}
 
       <!-- If this is a /tags/tagname page, and it showing only the first N pictures, let the user know -->
-      {% if max_num and tag_text %}
-        Showing only first {{max_num}} pictures tagged <em>{{tag_text}}</em>.
-        <a href="/tags/{{tag_text}}/all">Show all</a>
+      {% if tag_text and total_count > pictures|length%}
+        Showing only first {{pictures|length}} pictures tagged
+        <em>{{tag_text}}</em> of {{total_count}}. 
+        <a href="/tags/{{tag_text}}/all">Show all</a>.
+        <br/>
       {% endif %}
 
       {% for picture in pictures %}

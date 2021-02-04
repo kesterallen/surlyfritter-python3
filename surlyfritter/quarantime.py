@@ -1,3 +1,4 @@
+"""How long has quarantine been going on now?"""
 
 import datetime
 import humanize
@@ -6,6 +7,7 @@ from . import app
 
 @app.route('/quarantime')
 def quarantime():
+    """Quarantine calendar"""
     march_13th = datetime.datetime(2020, 3, 13, 0, 0)
     march_31st = datetime.datetime(2020, 3, 31, 0, 0)
     now = datetime.datetime.now()

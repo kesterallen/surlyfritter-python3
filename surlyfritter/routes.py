@@ -2,8 +2,6 @@
 Non-admin controllers for surlyfritter
 """
 
-# TODO: redirect domain: https://cloud.google.com/appengine/docs/standard/python3/mapping-custom-domains
-
 #TODO print --> logging
 
 import datetime
@@ -24,7 +22,11 @@ from surlyfritter.models import (
     Tag,
 )
 from surlyfritter.utils import (
-    send_email, render_template, get_exif_date, string_to_date
+    get_exif_data_from_url,
+    get_exif_date,
+    render_template,
+    send_email,
+    string_to_date,
 )
 
 from . import app, client
@@ -57,12 +59,13 @@ def image_perm(added_order:int):
             img = io.BytesIO(blob.download_as_bytes())
         except NotFound as err: # blob not found
             abort(404, f"blob for added_order={added_order} "
-                "not found in image_perm; {err}")
+                f"not found in image_perm; {err}")
 
         return send_file(img, mimetype='image/jpeg')
 
 @app.template_filter('shuffle')
 def filter_shuffle(seq):
+    """A shuffle filter for the template"""
     try:
         result = list(seq)
         random.shuffle(result)
@@ -72,28 +75,33 @@ def filter_shuffle(seq):
 
 @app.template_filter('tag_fs_size')
 def filter_tagfontsize(tag):
+    """A tag font size fitler for the template"""
     try:
         result = int(6 - tag.tag_count_log)
         return result
     except:
         return 6
 
-@app.route('/displayperm/<int:img_id>')
-@app.route('/display/<int:img_id>')
-@app.route('/display')
-@app.route('/d/<int:img_id>')
+@app.route('/')
 @app.route('/d')
-@app.route('/navperm/<int:img_id>')
-@app.route('/navperm')
-@app.route('/nav/<int:img_id>')
-@app.route('/nav')
-@app.route('/n/<int:img_id>')
+@app.route('/d/<int:img_id>')
+@app.route('/display')
+@app.route('/display/<int:img_id>')
+@app.route('/displayperm/<int:img_id>')
 @app.route('/n')
-@app.route('/perm/<int:img_id>')
-@app.route('/p/<int:img_id>')
+@app.route('/nav')
+@app.route('/nav/<int:img_id>')
+@app.route('/navperm')
+@app.route('/navperm/<int:img_id>')
+@app.route('/n/<int:img_id>')
 @app.route('/p/')
 @app.route('/p')
-@app.route('/')
+@app.route('/perm/<int:img_id>')
+@app.route('/picture/')
+@app.route('/picture')
+@app.route('/picture/<int:img_id>')
+@app.route('/p/<int:img_id>')
+@app.route('/<int:img_id>.jpg')
 def display(img_id:int=None):
     """
     Display the picture that img_id == Picture.added_order for. If that doesn't
@@ -135,7 +143,7 @@ def display_newest():
 @app.route('/display/lowestp')
 @app.route('/d/highestp')
 def display_oldest():
-    """Show the picture page for the oldest picture """
+    """Show the picture page for the oldest picture"""
     with client.context():
         picture = Picture.least_recent()
     return redirect(f"/p/{picture.added_order}")
@@ -169,9 +177,12 @@ def pictures_for_tags_all(tag_text:str):
 def pictures_for_tags(tag_text:str, max_num:int=5):
     """Display N pictures with the tag 'tag_text'"""
     with client.context():
+        # Run a separate count in case the unfiltered Pictures array would be
+        # large:
+        total_count = Picture.with_tag_count(tag_text)
         pictures = Picture.with_tag(tag_text, num=max_num)
         return render_template('display.html', pictures=pictures,
-            max_num=max_num, tag_text=tag_text)
+            tag_text=tag_text, total_count=total_count)
 
 def _kid_is(name:str, age_years:float):
     """Return a redirect the display page for kid 'name' at age 'age_years'"""
@@ -233,7 +244,7 @@ def display_date(date_str:str):
     Display the picture closest to 'date_str'
     """
     with client.context():
-        date = string_to_date(date_str, strptime_fmts)
+        date = string_to_date(date_str)
         if date is None:
             return f"The input date {date_str} is not a valid date"
 
@@ -322,9 +333,18 @@ def comment_add():
 @app.route('/p/meta/<int:img_id>')
 @app.route('/picture/meta/<int:img_id>')
 def meta(img_id:int):
-    """ Display a Picture's metadata, by its .added_order attribute """
+    """Display a Picture's metadata, by its .added_order attribute"""
     with client.context():
         picture = Picture.query(Picture.added_order == img_id).get()
         if picture is None:
             abort(404, f"No picture for ID {img_id}")
         return picture.meta
+
+@app.route('/exif/<int:img_id>')
+def exif(img_id:int):
+    """Display a Picture's image exif metadata, by its .added_order attribute"""
+    with client.context():
+        picture = Picture.query(Picture.added_order == img_id).get()
+        if picture is None:
+            abort(404, f"No picture to get exif from for ID {img_id}")
+        return get_exif_data_from_url(picture.img_url)
