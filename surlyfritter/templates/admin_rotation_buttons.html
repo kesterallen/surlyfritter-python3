@@ -1,0 +1,25 @@
+<div class="row"> 
+
+  <div class="col-6">
+    {% set new_rot_cw = picture.img_rot + 90 if picture.img_rot else 90 %}
+    <form 
+      action="/picture/edit/{{picture.imgp_id}}"
+      method="POST"
+    >
+      <input hidden type="number" id="img_rot" name="img_rot" value="{{new_rot_cw}}">
+      <button type="submit" class="btn btn-danger text-center">Rotate Image 90 CW</button>
+    </form>
+  </div>
+
+  <div class="col-6">
+    {% set new_rot_ccw = picture.img_rot + 270 if picture.img_rot else 270 %}
+    <form 
+      action="/picture/edit/{{picture.imgp_id}}"
+      method="POST"
+    >
+      <input hidden type="number" id="img_rot" name="img_rot" value="{{new_rot_ccw}}">
+      <button type="submit" class="btn btn-danger text-center">Rotate Image 90 CCW</button>
+    </form>
+  </div>
+</div>
+<br/>

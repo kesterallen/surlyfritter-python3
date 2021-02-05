@@ -40,108 +40,52 @@
       {% for picture in pictures %}
 
         <!-- Display picture and metadata -->
-        <br/>
-        <div class="row">
+        <hr/>
+        <!-- No div class=row here, that seems to be the way to get the text wrap / image float to work. ??-->
+        <!-- TODO: this seems to break the multple-pictures view -->
 
-          <div class="col-sm-10 col-lg-8">
-            <!--
-                Prev/Random/Next buttons for mobile 
-                (disable next/prev buttons for last/first pages) 
-            -->
-            {% set prev_extras = "" if picture.prev_pic else "disabled" %}
-            {% set prev_imgp_id = picture.prev_pic.imgp_id if picture.prev_pic else "#" %}
+        <div class="col-lg-8 col-sm-12">
+          {% include 'phone_buttons.html' %}
+          {% if is_admin %} {% include 'admin_rotation_buttons.html' %} {% endif %}
 
-            {% set next_extras = "" if picture.next_pic else "disabled" %}
-            {% set next_imgp_id = picture.next_pic.imgp_id if picture.next_pic else "#" %}
-
-            {% if pictures|length == 1 %}
-              <div class="row d-lg-none"> <!-- Hide on screens wider than lg -->
-                {% if picture.prev_pic %}
-                  <a class="btn btn-primary col-sm-3 offset-sm-1" href="/p/{{picture.prev_pic.imgp_id}}" role="button">
-                    <div>Previous</div>
-                  </a>
-                {% endif %}
-                <a class="btn btn-primary col-sm-3 offset-sm-1" href="/random" role="button">
-                  <div>Random</div>
-                </a>
-                {% if picture.next_pic %}
-                  <a class="right btn btn-primary col-sm-3 offset-sm-1" href="/p/{{picture.next_pic.imgp_id}}" role="button">
-                    <div>Next</div>
-                  </a>
-                {% endif %}
-              </div>
-              <br/>
-            {% endif %}
-
-
-            {% if is_admin %}
-              <div class="row"> 
-                <!-- Rotation buttons for admins -->
-
-                <div class="col-6">
-                  {% set new_rot_cw = picture.img_rot + 90 if picture.img_rot else 90 %}
-                  <form 
-                    action="/picture/edit/{{picture.imgp_id}}"
-                    method="POST"
-                  >
-                    <input hidden type="number" id="img_rot" name="img_rot" value="{{new_rot_cw}}">
-                    <button type="submit" class="btn btn-primary text-center">Rotate Image 90 CW</button>
-                  </form>
-                </div>
-  
-                <div class="col-6">
-                  {% set new_rot_ccw = picture.img_rot + 270 if picture.img_rot else 270 %}
-                  <form 
-                    action="/picture/edit/{{picture.imgp_id}}"
-                    method="POST"
-                  >
-                    <input hidden type="number" id="img_rot" name="img_rot" value="{{new_rot_ccw}}">
-                    <button type="submit" class="btn btn-primary text-center">Rotate Image 90 CCW</button>
-                  </form>
-                </div>
-              </div>
-              <br/>
-            {% endif %}
-
-            <!-- The image -->
-            <a href="/p/{{picture.imgp_id}}">
-              <img 
-                class="img-fluid" 
-                src="{{picture.img_url}}"
-                {% if picture.img_rot %} style="transform:rotate({{picture.img_rot}}deg);" {% endif %}
-              >
-            </a>
-          </div>
-
-          <!-- Show date, tag(s), comment(s), add tag/comment forms, & tag cloud -->
-          <div class="col-sm-10 col-lg-4 text-center">
-            {{picture.date_display}}
-
-            <ul class="list-inline"> 
-              {% for t in picture.tags|shuffle %}
-                <li class="list-inline-item">
-                  <a href="/tags/{{t.text}}">{{t.text}}</a>
-                </li>
-              {% endfor %}
-            </ul>
-
-            <ul class="list-unstyled"> 
-              {% for c in picture.comments %}<li>{{c.text}}</li>{% endfor %}
-            </ul>
-
-            <!-- 
-            If this is a single picture, show the forms to add comments/tags
-            and the tag cloud.
-            -->
-            {% if pictures|length == 1 %}
-              <hr/>
-              {% include 'add_tag_comment.html' %}
-              <hr/>
-              {% include 'tag_cloud.html' %}
-            {% endif %}
-          </div> 
-
+          <!-- The image -->
+          <a href="/p/{{picture.imgp_id}}">
+            <img 
+              class="img-thumbnail float-start me-4 mb-10"
+              src="{{picture.img_url}}"
+              {% if picture.img_rot %} style="transform:rotate({{picture.img_rot}}deg);" {% endif %}
+            >
+          </a>
         </div>
+
+        <!-- Show date, tag(s), comment(s), add tag/comment forms, & tag cloud -->
+        <div class="col-lg-12 col-sm-12 text-center">
+          {{picture.date_display}}
+
+          <ul class="list-inline"> 
+            {% for t in picture.tags|shuffle %}
+              <li class="list-inline-item">
+                <a href="/tags/{{t.text}}">{{t.text}}</a>
+              </li>
+            {% endfor %}
+          </ul>
+
+          <ul class="list-unstyled"> 
+            {% for c in picture.comments %}<li>{{c.text}}</li>{% endfor %}
+          </ul>
+
+          <!-- 
+          If this is a single picture, show the forms to add comments/tags
+          and the tag cloud.
+          -->
+          {% if pictures|length == 1 %}
+            <hr/>
+            {% include 'tag_cloud.html' %}
+            <hr/>
+            {% include 'add_tag_comment.html' %}
+          {% endif %}
+        </div> 
+
       {% endfor %}
     {% else %}
       <!-- Empty picture. Show tag cloud here. -->
