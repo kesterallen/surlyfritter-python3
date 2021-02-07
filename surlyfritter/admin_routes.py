@@ -423,9 +423,10 @@ def smoke_test():
             count_match = pics_count_match and blobs_count_match
             count_status= "correct " if count_match else "incorrect"
 
-            message = f"date ordering {date_status}, counts match {count_status} ({len(pictures)})"
+            message = (f"date ordering {date_status} / counts match {count_status}")
 
-        message = f"{message}, Counts: {raw_counts}, orphan blobs: {blob_names}"
+        orphan_message = "orphan blobs: {blob_names}" if blob_names else "no orphans"
+        message = f"{message}, {orphan_message}"
 
         return render_template('admin_report.html', pictures=pictures,
             dates_sorted=dates_sorted, message=message, counts=raw_counts, zip=zip)

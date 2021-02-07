@@ -12,6 +12,7 @@
     <h1>{{message}}</h1>
 
     {% if counts %} 
+      <hr/>
       <h1>Counts</h1>
       <table class="table">
         <tr><th>Entity</th><th>Count</th></tr>
@@ -22,6 +23,8 @@
     {% endif %}
 
     {% if dates_sorted %}
+      <hr/>
+      <h1>Picture Order</h1>
       <table class="table">
         <tr>
           <th>db linked list date</th>

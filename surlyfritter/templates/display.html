@@ -2,7 +2,7 @@
 
 {% block title %} {{ super() }} Pictures Page {% endblock %}
 
-{% block head %} 
+{% block head %}
   {{ super() }}
   {% if pictures and pictures|length == 1 %}
     <script>
@@ -13,10 +13,10 @@
         var key = e.which;
         if(key == 39) { // right arrow
           document.getElementById("next_picture").click();
-          return false;  
+          return false;
         } else if(key == 37) { // left arrow
           document.getElementById("prev_picture").click();
-          return false;  
+          return false;
         }
       }
     </script>
@@ -30,39 +30,45 @@
     {% if pictures %}
 
       <!-- If this is a /tags/tagname page, and it showing only the first N pictures, let the user know -->
-      {% if tag_text and total_count > pictures|length%}
+      {% if tag_text and total_count > pictures|length %}
         Showing only first {{pictures|length}} pictures tagged
-        <em>{{tag_text}}</em> of {{total_count}}. 
+        <em>{{tag_text}}</em> of {{total_count}}.
         <a href="/tags/{{tag_text}}/all">Show all</a>.
         <br/>
       {% endif %}
 
       {% for picture in pictures %}
+        <!-- No div class=row here, that seems to be the way to get the text wrap / image float to work. ?? -->
+        <!--
+        If there are more than one picture on the page, the row div is
+        needed to make the two-column layout work
+        -->
+        {% if pictures|length > 1 %}<div class="row">{% endif %}
 
         <!-- Display picture and metadata -->
         <hr/>
-        <!-- No div class=row here, that seems to be the way to get the text wrap / image float to work. ??-->
-        <!-- TODO: this seems to break the multple-pictures view -->
 
-        <div class="col-lg-8 col-sm-12">
+        <div class="col-lg-8 col-sm-12 float-start me-4 mb-10">
           {% include 'phone_buttons.html' %}
           {% if is_admin %} {% include 'admin_rotation_buttons.html' %} {% endif %}
 
           <!-- The image -->
           <a href="/p/{{picture.imgp_id}}">
-            <img 
-              class="img-thumbnail float-start me-4 mb-10"
+            <img
+              class="img-thumbnail"
               src="{{picture.img_url}}"
               {% if picture.img_rot %} style="transform:rotate({{picture.img_rot}}deg);" {% endif %}
             >
           </a>
+          <!-- If this is a single picture, show the forms to add comments/tags -->
+          {% include 'add_tag_comment.html' %}
         </div>
 
-        <!-- Show date, tag(s), comment(s), add tag/comment forms, & tag cloud -->
+        <!-- Show date, tag(s), comment(s) -->
         <div class="col-lg-12 col-sm-12 text-center">
           {{picture.date_display}}
 
-          <ul class="list-inline"> 
+          <ul class="list-inline">
             {% for t in picture.tags|shuffle %}
               <li class="list-inline-item">
                 <a href="/tags/{{t.text}}">{{t.text}}</a>
@@ -70,25 +76,25 @@
             {% endfor %}
           </ul>
 
-          <ul class="list-unstyled"> 
+          <ul class="list-unstyled">
             {% for c in picture.comments %}<li>{{c.text}}</li>{% endfor %}
           </ul>
 
-          <!-- 
-          If this is a single picture, show the forms to add comments/tags
-          and the tag cloud.
-          -->
+          <!-- If this is a single picture, show the tag cloud here -->
           {% if pictures|length == 1 %}
             <hr/>
             {% include 'tag_cloud.html' %}
-            <hr/>
-            {% include 'add_tag_comment.html' %}
           {% endif %}
-        </div> 
+        </div>
 
+        <!--
+        Closing div for 'If there are more than one picture on the page, the row div is
+        needed to make the two-column layout worak' from above
+        -->
+        {% if pictures|length > 1 %}</div>{% endif %}
       {% endfor %}
     {% else %}
-      <!-- Empty picture. Show tag cloud here. -->
+      <!-- If there is NO picture, show tag cloud here -->
       (No pictures found for '{{request.path}}')
       {% include 'tag_cloud.html' %}
     {% endif %}

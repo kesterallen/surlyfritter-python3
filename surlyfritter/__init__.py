@@ -1,7 +1,7 @@
 """Surlyfritter picture site"""
 
 from flask import Flask
-from google.cloud import ndb#, storage#, TODO vision
+from google.cloud import ndb
 from surlyfritter.models import GCS_BUCKET_NAME_PREFIX
 
 app = Flask(__name__)

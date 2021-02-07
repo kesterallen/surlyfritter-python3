@@ -260,10 +260,11 @@ class Picture(ndb.Model):
     @property
     def date_display(self):
         """Date string for UI display"""
-        # TODO: time zones? some dates appear to be in UTC, mainly older pictures
+        # TODO: time zones? some dates appear to be in UTC, mainly older pictures / uploaded from iphone
         #utc_offset = datetime.timedelta(hours=8)
         #return (self.date - utc_offset).strftime('%B %-d, %Y (%-I:%M %p)')
-        return self.date.strftime('%B %-d, %Y (%-I:%M %p)')
+        #return self.date.strftime('%B %-d, %Y (%-I:%M %p)')
+        return self.date.strftime('%B %-d, %Y')
 
     @property
     def tags(self):
@@ -344,16 +345,16 @@ class Picture(ndb.Model):
         # entry in the form?). If it is, return. If there isn't a Tag with this
         # .text yet, create one and associate it with the Picture:
         #
-        if tag is not None and tag.key in self.tag_refs:
-            return
+        if tag is None:
+            tag = Tag(text=tag_text, tag_count=0)
 
-        tag = Tag(text=tag_text, tag_count=0)
-        tag.tag_count += 1
-        tag.tag_count_log = math.log10(tag.tag_count)
-        tag.put()
+        if tag.key not in self.tag_refs:
+            tag.tag_count += 1
+            tag.tag_count_log = math.log10(tag.tag_count)
+            tag.put()
 
-        self.tag_refs.append(tag.key)
-        self.put()
+            self.tag_refs.append(tag.key)
+            self.put()
 
     def add_comment(self, comment_text:str):
         """Add a comment to this Picture"""

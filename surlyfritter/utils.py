@@ -91,39 +91,43 @@ def get_exif_date(img_file) -> datetime.datetime:
     """Extract the date from the img_file's exif data."""
     # TODO: this doesn't do timezones correctly for some exif data
 
-    DATETIME_KEY = 306
-    TIMEZONEOFFSET_KEY = 34858
-    DATETIMEORIGINAL_KEY = 36867
+    datetime_key = 306
+    timezoneoffset_key = 34858
+    datetimeoriginal_key = 36867
 
-    assert ExifTags.TAGS[DATETIME_KEY] == "DateTime"
-    assert ExifTags.TAGS[TIMEZONEOFFSET_KEY] == "TimeZoneOffset"
-    assert ExifTags.TAGS[DATETIMEORIGINAL_KEY] == "DateTimeOriginal"
+    assert ExifTags.TAGS[datetime_key] == "DateTime"
+    assert ExifTags.TAGS[timezoneoffset_key] == "TimeZoneOffset"
+    assert ExifTags.TAGS[datetimeoriginal_key] == "DateTimeOriginal"
 
     img_exif = get_exif_data(img_file)
+    msgs = []
     if img_exif is None:
-        print("no exif data in image")
+        msgs.append("no exif data in image")
         date_str = None
     else:
         #TODO: remove this when figure out the timezone offset
-        if DATETIME_KEY in img_exif:
-            print("datetime-key is in image", img_exif[DATETIME_KEY])
+        if datetime_key in img_exif:
+            msgs.append(f"datetime-key is in image {img_exif[datetime_key]}")
         else:
-            print("no datetime-key is in image")
-        if TIMEZONEOFFSET_KEY in img_exif:
-            print("timezoneoffset-key is in image", img_exif[TIMEZONEOFFSET_KEY])
-        else:
-            print("no timezoneoffset-key is in image")
-        if DATETIMEORIGINAL_KEY in img_exif:
-            print("datetimeoriginal-key is in image", img_exif[DATETIMEORIGINAL_KEY])
-        else:
-            print("no datetimeoriginal-key is in image")
+            msgs.append(f"no datetime-key is in image")
 
-        if DATETIME_KEY in img_exif:
-            date_str = img_exif[DATETIME_KEY]
+        if timezoneoffset_key in img_exif:
+            msgs.append(f"timezoneoffset-key is in image {img_exif[timezoneoffset_key]}")
         else:
-            print("no datetime field in image's exif data")
+            msgs.append(f"no timezoneoffset-key is in image")
+
+        if datetimeoriginal_key in img_exif:
+            msgs.append(f"datetimeoriginal-key is in image {img_exif[datetimeoriginal_key]}")
+        else:
+            msgs.append(f"no datetimeoriginal-key is in image")
+
+        if datetime_key in img_exif:
+            date_str = img_exif[datetime_key]
+        else:
+            msgs.append("no datetime field in image's exif data")
             date_str = None
 
+    print(msgs)
     date = string_to_date(date_str)
     return date
 
