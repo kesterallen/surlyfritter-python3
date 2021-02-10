@@ -36,7 +36,6 @@
         >
     {% endif %}
 
-    <!-- Everything form -->
     <form 
       action="/picture/{% if edit_picture %}edit/{{edit_picture.imgp_id}}{% else %}add{% endif %}"
       method="POST" enctype="multipart/form-data"

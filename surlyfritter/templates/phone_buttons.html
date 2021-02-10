@@ -9,19 +9,14 @@
 {% set next_imgp_id = picture.next_pic.imgp_id if picture.next_pic else "#" %}
 
 {% if pictures|length == 1 %}
-  <div class="row d-lg-none"> <!-- Hide on screens wider than lg -->
+  <!-- Hide on screens wider than lg -->
+  <div class="d-lg-none d-grid gap-2 d-lg-block">
     {% if picture.prev_pic %}
-      <a class="btn btn-primary col-sm-3 offset-sm-1" href="/p/{{picture.prev_pic.imgp_id}}" role="button">
-        <div>Previous</div>
-      </a>
+      <a class="btn btn-primary" href="/p/{{picture.prev_pic.imgp_id}}" role="button"> Previous </a>
     {% endif %}
-    <a class="btn btn-primary col-sm-3 offset-sm-1" href="/random" role="button">
-      <div>Random</div>
-    </a>
+    <a class="btn btn-primary" href="/random" role="button"> Random </a>
     {% if picture.next_pic %}
-      <a class="right btn btn-primary col-sm-3 offset-sm-1" href="/p/{{picture.next_pic.imgp_id}}" role="button">
-        <div>Next</div>
-      </a>
+      <a class="btn btn-primary" href="/p/{{picture.next_pic.imgp_id}}" role="button"> Next </a>
     {% endif %}
   </div>
   <br/>

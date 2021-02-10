@@ -31,9 +31,8 @@
 
       <!-- If this is a /tags/tagname page, and it showing only the first N pictures, let the user know -->
       {% if tag_text and total_count > pictures|length %}
-        Showing only first {{pictures|length}} pictures tagged
-        <em>{{tag_text}}</em> of {{total_count}}.
-        <a href="/tags/{{tag_text}}/all">Show all</a>.
+        Showing only first {{pictures|length}} of {{total_count}} pictures tagged
+        <em>{{tag_text}}</em> -- <a href="/tags/{{tag_text}}/all">show all</a>.
         <br/>
       {% endif %}
 
@@ -60,6 +59,7 @@
               {% if picture.img_rot %} style="transform:rotate({{picture.img_rot}}deg);" {% endif %}
             >
           </a>
+
           <!-- If this is a single picture, show the forms to add comments/tags -->
           {% include 'add_tag_comment.html' %}
         </div>

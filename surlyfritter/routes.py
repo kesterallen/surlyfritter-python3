@@ -236,7 +236,7 @@ def side_by_side(img_id1:int, img_id2:int, img_id3:int):
             Picture.query(Picture.added_order == img_id2).get(),
             Picture.query(Picture.added_order == img_id3).get(),
         ]
-        return render_template('display.html', pictures=pictures)
+        return render_template('display.html', pictures=pictures, side_by_side=True)
 
 @app.route('/date/<date_str>')
 def display_date(date_str:str):
@@ -288,12 +288,17 @@ def picture_add():
                 names['fail'].append((name, err))
 
         status = "succeeded" if len(names['fail']) == 0 else "failed"
-        message = f'Your picture uploaded {status}. {names}.'
+        message = f'''
+            Your picture uploaded {status}. <br/>
+            Successful uploads {names['success']}. <br/>
+            Failed uploads {names['fail']}. <br/>
+            <a href="/p/{picture.imgp_id}">See pictures</a>
+        '''
 
         send_email(
             subject=f"Added: /p/{picture.imgp_id}",
             body=f"""
-                Added picture {picture.img_url}
+                Added picture {picture.img_url} (/p/{picture.imgp_id})
             """
         )
         return redirect(f"/picture/add?message={message}")

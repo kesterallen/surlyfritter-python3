@@ -19,7 +19,8 @@ def quarantime():
     <html>
       <h1>
         It is March {day_of_march}, 
-        the {day_of_quarantine} day of quarantine.
+        the {day_of_quarantine} day of quarantine
+        (<a href="https://www.wunderground.com/maps/temperature/feels-like">feels like</a> day <a href="https://twitter.com/AgnesCallard/status/1358104983909134337">4,989,384</a>).
       </h1>
     </html>
 """
