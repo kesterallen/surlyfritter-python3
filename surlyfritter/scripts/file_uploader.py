@@ -1,11 +1,11 @@
 """Script to upload groups of images to surlyfritter.com."""
 
-import re
 import sys
 import time
 import requests
 
 DEBUG = False
+ONLY_DO_THIS_MANY_UPLOADS = 0
 
 class SurlyfritterImage:
     """
@@ -24,11 +24,11 @@ class SurlyfritterImage:
         with open(self.fname, 'rb') as image_fh:
             files = {'file': image_fh}
             data = {}
-            response = requests.post(UPLOAD_URL, files=files, data=data)
+            response = requests.post(SurlyfritterImage.UPLOAD_URL, files=files, data=data)
             response.raise_for_status()
 
     def __repr__(self):
-        return "{0.fname}".format(self)
+        return self.fname
 
 def main(img_fnames):
     """
@@ -36,38 +36,36 @@ def main(img_fnames):
     them to surlyfritter.
     """
     images = []
-    print("Loading {} images".format(len(img_fnames)))
+    print(f"Loading {len(img_fnames)} images")
     for fname in img_fnames:
         image = SurlyfritterImage(fname)
         images.append(image)
     print("Loading complete")
 
-    succeeded = []
-    failed = []
+    successes = []
+    failures = []
 
     for i, image in enumerate(images):
-        msg_sfx = "{} / {} {}".format(i+1, len(images), image)
-        SKIP_LATER_THAN = 0 # TODO
-        if i < SKIP_LATER_THAN: # tweak this for debugging
-            print("skipping", msg_sfx)
+        msg = "{i+1} / {len(images)} {image}"
+        if i < ONLY_DO_THIS_MANY_UPLOADS: # tweak this for debugging
+            print("skipping", msg)
             continue
-        else:
-            print("posting ", msg_sfx)
+        print("posting ", msg)
 
         try:
             image.submit()
-            succeeded.append(image.fname)
+            successes.append(image.fname)
         except requests.exceptions.HTTPError:
-            failed.append(image.fname)
+            failures.append(image.fname)
         if not DEBUG:
             time.sleep(60)
 
-    requests.get('http://www.surlyfritter.com/flush')
-
-    if succeeded:
-        print("\nUploaded successfully:\n\t{}".format("\n\t".join(succeeded)))
-    if failed:
-        print("\n\nFailed:\n\t{}".format("\n\t".join(failed)))
+    msgs = []
+    if successes:
+        msgs.extend(["\nUploaded successfully:"] + successes)
+    if failures:
+        msgs.extend(["\n\nFailed:"] + failures)
+    print("\n\t".join(msgs))
 
 if __name__ == '__main__':
     main(sys.argv[1:])
