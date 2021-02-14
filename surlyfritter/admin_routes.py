@@ -26,6 +26,8 @@ from surlyfritter.utils import (
 
 from . import app, client
 
+DISABLE_DAMAGING_ENDPOINTS = True
+
 #TODO print --> logging (https://cloud.google.com/appengine/docs/standard/python/migrate-to-python3/migrate-to-cloud-logging) # pylint: disable=line-too-long
 
 def _counts():
@@ -105,47 +107,49 @@ def delete_everything():
     """Erase everything"""
     # TODO: ask if user is sure before doing this
 
-    abort(404, "delete-all is a disabled endpoint")
+    # ABORT
+    if DISABLE_DAMAGING_ENDPOINTS:
+        abort(404, "delete-all is a disabled endpoint")
 
-#    if not is_admin():
-#        abort(404, "delete-all is admin-only")
-#
-#    deletes = dict(
-#        blobs=[],
-#        pictures=[],
-#        tags=[],
-#        comments=[],
-#    )
-#    with client.context():
-#        for picture in Picture.query().iter():
-#
-#            try:
-#                # Delete blob with picture.name
-#                storage_client = storage.Client()
-#                bucket = storage_client.bucket(GCS_BUCKET_NAME)
-#                blob = bucket.blob(picture.name)
-#                blob.delete()
-#                deletes['blobs'].append(picture.name)
-#            except:
-#                deletes['blobs'].append(f"failure: {picture.name}")
-#
-#            try:
-#                # Delete picture
-#                picture.key.delete()
-#                deletes['pictures'].append(picture.name)
-#            except:
-#                deletes['pictures'].append(f"failure: {picture.name}")
-#
-#        for tag in Tag.query().iter():
-#            tag.key.delete()
-#            deletes['tags'].append(tag.text)
-#
-#        for comment in Comment.query().iter():
-#            comment.key.delete()
-#            deletes['comments'].append(comment.text)
-#
-#    message = "Delete report:"
-#    return render_template('admin_report.html', deletes=deletes, message=message)
+    if not is_admin():
+        abort(404, "delete-all is admin-only")
+
+    deletes = dict(
+        blobs=[],
+        pictures=[],
+        tags=[],
+        comments=[],
+    )
+    with client.context():
+        for picture in Picture.query().iter():
+
+            try:
+                # Delete blob with picture.name
+                storage_client = storage.Client()
+                bucket = storage_client.bucket(GCS_BUCKET_NAME)
+                blob = bucket.blob(picture.name)
+                blob.delete()
+                deletes['blobs'].append(picture.name)
+            except:
+                deletes['blobs'].append(f"failure: {picture.name}")
+
+            try:
+                # Delete picture
+                picture.key.delete()
+                deletes['pictures'].append(picture.name)
+            except:
+                deletes['pictures'].append(f"failure: {picture.name}")
+
+        for tag in Tag.query().iter():
+            tag.key.delete()
+            deletes['tags'].append(tag.text)
+
+        for comment in Comment.query().iter():
+            comment.key.delete()
+            deletes['comments'].append(comment.text)
+
+    message = "Delete report:"
+    return render_template('admin_report.html', deletes=deletes, message=message)
 
 def _picture_edit_post(img_id:int):
     """POST: Make the picture edit changes"""
@@ -294,31 +298,34 @@ def import_hrd():
     TODO: HRD import must be done in old site's added_order order to preserve
     added_order
     """
-    abort(404, 'Import-HRD is disabled')
 
-#    hrd_meta = request.get_json(force=True)
-#
-#    # Download image from old site:
-#    try:
-#        response = requests.get(hrd_meta['url']) # N.B. 'requestS' library
-#        img = io.BytesIO(response.content)
-#        now = datetime.datetime.now().timestamp()
-#        added_order = hrd_meta['added_order']
-#        name = f"hrd_import_{added_order}_{now}.jpg"
-#        date = datetime.datetime.strptime(hrd_meta['date'], '%Y:%m:%d %H:%M:%S')
-#
-#        picture = Picture.create(img, name, date)
-#
-#        # Add comments and tags:
-#        with client.context():
-#            for tag in hrd_meta['tags']:
-#                picture.add_tag(tag)
-#            for comment in hrd_meta['comments']:
-#                picture.add_comment(comment)
-#    except:
-#        abort(404, f'Import-HRD failure for {hrd_meta["url"]}')
-#
-#    return hrd_meta
+    # ABORT
+    if DISABLE_DAMAGING_ENDPOINTS:
+        abort(404, 'Import-HRD is disabled')
+
+    hrd_meta = request.get_json(force=True)
+
+    # Download image from old site:
+    try:
+        response = requests.get(hrd_meta['url']) # N.B. 'requestS' library
+        img = io.BytesIO(response.content)
+        now = datetime.datetime.now().timestamp()
+        added_order = hrd_meta['added_order']
+        name = f"hrd_import_{added_order}_{now}.jpg"
+        date = datetime.datetime.strptime(hrd_meta['date'], '%Y:%m:%d %H:%M:%S')
+
+        picture = Picture.create(img, name, date)
+
+        # Add comments and tags:
+        with client.context():
+            for tag in hrd_meta['tags']:
+                picture.add_tag(tag)
+            for comment in hrd_meta['comments']:
+                picture.add_comment(comment)
+    except:
+        abort(404, f'Import-HRD failure for {hrd_meta["url"]}')
+
+    return hrd_meta
 
 @app.route('/fix-next-prev')
 def fix_next_prev_links():
@@ -436,10 +443,7 @@ def list_buckets():
     """List all buckets for this project."""
     storage_client = storage.Client()
     buckets = storage_client.list_buckets()
-
-    names = []
-    for bucket in buckets:
-        names.append(bucket.name)
+    names = [b.name for b in buckets]
     return ", ".join(names)
 
 @app.route('/buckets/list')
