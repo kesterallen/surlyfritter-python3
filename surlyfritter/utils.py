@@ -82,8 +82,11 @@ def get_exif_data(img_file) -> dict:
     # Stringify binaries for json serialization:
     img_exif_dict = dict()
     for key, value in img_exif.items():
-        readable_key = ExifTags.TAGS[key]
-        img_exif_dict[readable_key] = str(value)
+        if key in ExifTags.TAGS[key]:
+            readable_key = ExifTags.TAGS[key]
+            img_exif_dict[readable_key] = str(value)
+        else:
+            img_exif_dict[key] = str(value)
 
     return img_exif_dict
 
