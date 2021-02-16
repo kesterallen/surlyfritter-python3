@@ -24,6 +24,7 @@ from surlyfritter.models import (
 from surlyfritter.utils import (
     get_exif_data_from_url,
     get_exif_date,
+    get_hash_from_url,
     render_template,
     send_email,
     string_to_date,
@@ -238,6 +239,17 @@ def side_by_side(img_id1:int, img_id2:int, img_id3:int):
         ]
         return render_template('display.html', pictures=pictures, side_by_side=True)
 
+@app.route('/mm/<img_ids_str>')
+def side_by_side_list(img_ids_str:str):
+    """Display a list of images on one page"""
+    img_ids = [int(i) for i in img_ids_str.split(",")]
+    with client.context():
+        pictures = []
+        for img_id in img_ids:
+            picture = Picture.query(Picture.added_order == img_id).get()
+            pictures.append(picture)
+        return render_template('display.html', pictures=pictures, side_by_side=True)
+
 @app.route('/date/<date_str>')
 def display_date(date_str:str):
     """
@@ -299,6 +311,7 @@ def picture_add():
             subject=f"Added: /p/{picture.imgp_id}",
             body=f"""
                 Added picture {picture.img_url} (/p/{picture.imgp_id})
+                {message}
             """
         )
         return redirect(f"/picture/add?message={message}")
@@ -353,3 +366,13 @@ def exif(img_id:int):
         if picture is None:
             abort(404, f"No picture to get exif from for ID {img_id}")
         return get_exif_data_from_url(picture.img_url)
+
+@app.route('/hash/<int:img_id>')
+def hash(img_id:int):
+    """Display a Picture's MD5 hash, by its .added_order attribute"""
+    with client.context():
+        picture = Picture.query(Picture.added_order == img_id).get()
+        if picture is None:
+            abort(404, f"No picture to get exif from for ID {img_id}")
+        hash_value = get_hash_from_url(picture.img_url)
+    return hash_value
