@@ -18,6 +18,7 @@ from surlyfritter.utils import (
     send_email,
     render_template,
     #get_key,
+    get_hash_from_url,
     is_logged_in,
     is_admin,
     get_exif_date_from_url,
@@ -100,6 +101,29 @@ def counts():
 
     counts_dict = _counts()
     return render_template('admin_report.html', counts=counts_dict)
+
+# TODO: remove this
+@app.route('/picture/nullrefs/<int:img_id>', methods=['POST'])
+def picture_null_refs(img_id:int):
+    """
+    Null the next / previous links for this picture. Used for date linkage
+    cleanup.
+    """
+
+    # ABORT
+    if DISABLE_DAMAGING_ENDPOINTS:
+        abort(404, "delete-all is a disabled endpoint")
+
+    if not is_admin():
+        abort(404, "null is admin-only")
+
+    with client.context():
+        picture = Picture.query(Picture.added_order == img_id).get()
+        if picture is None:
+            abort(404, f"Cannot find picture with added_order = {img_id}")
+        picture.prev_pic_ref = None
+        picture.next_pic_ref = None
+        picture.put()
 
 # TODO: remove this
 @app.route('/delete/all')
@@ -398,6 +422,8 @@ def smoke_test():
         next/prev links
         picture count
     """
+    DO_HASH_CHECK = False
+
     if not is_admin():
         abort(404, "smoke-test is admin-only")
 
@@ -406,6 +432,11 @@ def smoke_test():
 
     raw_counts = _counts()
 
+    if DO_HASH_CHECK:
+        ihash = 0
+        image_hashes = dict()
+
+    i = 1
     with client.context():
         picture = Picture.most_recent()
         if picture is None:
@@ -413,18 +444,45 @@ def smoke_test():
             dates_sorted = []
             message = "no pictures"
         else:
+            # Walk backwards through the pictures from most recent to earliest
+            # using the previous pic references:
             pictures = [picture]
+            visited_pics = {picture.imgp_id: None}
             while picture.prev_pic_ref is not None:
                 blob_names.discard(picture.name)
                 tmp = picture
                 picture = tmp.prev_pic
+                print(i, tmp.imgp_id, picture.imgp_id)
+                i += 1
                 pictures.append(picture)
+
+                if picture.imgp_id in visited_pics:
+                    abort(400, f"Abort: circular path: picture {picture.imgp_id} has already been visited by {visited_pics[picture.imgp_id]} and is not being visited by {tmp.imgp_id} ({len(visited_pics)} pics visited)")
+                else:
+                    visited_pics[picture.imgp_id] = tmp.imgp_id
+
+                if DO_HASH_CHECK:
+                    # Check for duplicate images
+                    hash_value = get_hash_from_url(picture.img_url)
+                    ihash += 1
+                    print(f"doing {ihash} hash for {picture.imgp_id}")
+                    if hash_value not in image_hashes:
+                        # New hash -- not a duplicate image
+                        image_hashes[hash_value] = [picture.imgp_id]
+                    else:
+                        # Duplicate image, append the new image ID:
+                        image_hashes[hash_value].append(picture.imgp_id)
+
+            # Discard the final picture's blob name so it isn't marked as an
+            # orphan:
             blob_names.discard(picture.name)
+
+            # Check the dates sorting is correct:
             dates = [str(p.date) for p in pictures]
             dates_sorted = sorted(dates, reverse=True)
-
             date_status = "correct" if dates == dates_sorted else "incorrect"
 
+            # Check the counts are correct
             pics_count_match = raw_counts['pics'] == len(pictures)
             blobs_count_match = raw_counts['blobs'] == len(pictures)
             count_match = pics_count_match and blobs_count_match
@@ -432,7 +490,15 @@ def smoke_test():
 
             message = (f"date ordering {date_status} / counts match {count_status}")
 
-        orphan_message = "orphan blobs: {blob_names}" if blob_names else "no orphans"
+            if DO_HASH_CHECK:
+                # Flag any duplicate images:
+                duplicate_images = []
+                for hash_value, imgp_ids in image_hashes.items():
+                    if len(imgp_ids) > 1:
+                        duplicate_images.append(imgp_ids)
+                message = f"{message}, duplicate images: {duplicate_images}"
+
+        orphan_message = f"orphan blobs: {blob_names}" if blob_names else "no orphans"
         message = f"{message}, {orphan_message}"
 
         return render_template('admin_report.html', pictures=pictures,
