@@ -9,9 +9,9 @@
     {% if pictures and pictures|length == 1 %}
       <li><a class="dropdown-item" href="/picture/edit/{{pictures[0].imgp_id}}">Edit this picture</a>
       <li><a class="dropdown-item" href="/picture/delete/{{pictures[0].imgp_id}}">Delete this picture</a>
+      <li><hr class="dropdown-divider"></li>
     {% endif %}
 
-    <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="https://console.cloud.google.com/home/dashboard">Cloud console</a></li>
 
     <li><hr class="dropdown-divider"></li>
