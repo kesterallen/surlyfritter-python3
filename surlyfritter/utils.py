@@ -1,6 +1,7 @@
 """Utility functions for surlyfritter"""
 
 import datetime
+import hashlib
 import io
 import os
 
@@ -59,16 +60,23 @@ def is_admin() -> bool:
 def get_exif_data_from_url(img_url:str) -> datetime.datetime:
     """Extract the exif data of an image at img_url."""
     response = requests.get(img_url)
-    print(response)
     img_file = io.BytesIO(response.content)
-    print(img_file)
     return get_exif_data(img_file)
 
 def get_exif_date_from_url(img_url:str) -> datetime.datetime:
-    """Extract the exif date of an image at img_url."""
+    """Extract the exif date of the image at img_url."""
     response = requests.get(img_url)
     img_file = io.BytesIO(response.content)
     return get_exif_date(img_file)
+
+def get_hash_from_url(img_url:str) -> str:
+    """Extract the MD5 hash of the image at img_url."""
+    #headers = {"Range": "bytes=0-100"}  # first 100 bytes
+    #response = requests.get(img_url, headers=headers)
+    #return response.content
+    response = requests.get(img_url)
+    hash_resp = hashlib.md5(response.content).hexdigest()
+    return hash_resp
 
 def get_exif_data(img_file) -> dict:
     """Extract the image's exif data and return as a human-readable dict."""
@@ -82,11 +90,11 @@ def get_exif_data(img_file) -> dict:
     # Stringify binaries for json serialization:
     img_exif_dict = dict()
     for key, value in img_exif.items():
-        if key in ExifTags.TAGS[key]:
+        if key in ExifTags.TAGS:
             readable_key = ExifTags.TAGS[key]
-            img_exif_dict[readable_key] = str(value)
         else:
-            img_exif_dict[key] = str(value)
+            readable_key = str(key)
+        img_exif_dict[readable_key] = str(value)
 
     return img_exif_dict
 
@@ -98,6 +106,7 @@ def get_exif_date(img_file) -> datetime.datetime:
     timezoneoffset_key = 34858
     datetimeoriginal_key = 36867
 
+    # Sanity check on the magic _key numbers
     assert ExifTags.TAGS[datetime_key] == "DateTime"
     assert ExifTags.TAGS[timezoneoffset_key] == "TimeZoneOffset"
     assert ExifTags.TAGS[datetimeoriginal_key] == "DateTimeOriginal"
@@ -108,6 +117,7 @@ def get_exif_date(img_file) -> datetime.datetime:
         msgs.append("no exif data in image")
         date_str = None
     else:
+        # Copious messages about time zone status
         #TODO: remove this when figure out the timezone offset
         if datetime_key in img_exif:
             msgs.append(f"datetime-key is in image {img_exif[datetime_key]}")
@@ -180,7 +190,7 @@ def render_template(*args, **kwargs):
     user_img = session.get('user_img')
 
     html = flask_render_template(
-        *args, **kwargs, is_logged_in=is_logged_in(), user_img=user_img,
-        is_admin=is_admin(),
+        *args, **kwargs,
+        is_logged_in=is_logged_in(), user_img=user_img, is_admin=is_admin(),
     )
     return html
