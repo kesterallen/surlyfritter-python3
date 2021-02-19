@@ -122,17 +122,17 @@ def get_exif_date(img_file) -> datetime.datetime:
         if datetime_key in img_exif:
             msgs.append(f"datetime-key is in image {img_exif[datetime_key]}")
         else:
-            msgs.append(f"no datetime-key is in image")
+            msgs.append("no datetime-key is in image")
 
         if timezoneoffset_key in img_exif:
             msgs.append(f"timezoneoffset-key is in image {img_exif[timezoneoffset_key]}")
         else:
-            msgs.append(f"no timezoneoffset-key is in image")
+            msgs.append("no timezoneoffset-key is in image")
 
         if datetimeoriginal_key in img_exif:
             msgs.append(f"datetimeoriginal-key is in image {img_exif[datetimeoriginal_key]}")
         else:
-            msgs.append(f"no datetimeoriginal-key is in image")
+            msgs.append("no datetimeoriginal-key is in image")
 
         if datetime_key in img_exif:
             date_str = img_exif[datetime_key]

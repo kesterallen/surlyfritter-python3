@@ -22,16 +22,16 @@
       </table>
     {% endif %}
 
-    {% if dates_sorted %}
+    {% if correct_ordering %}
       <hr/>
-      <h1>Picture Order</h1>
+      <h1>Picture Order for first {len(correct_ordering)} pictures</h1>
       <table class="table">
         <tr>
           <th>db linked list date</th>
           <th>added order</th>
           <th>sorted list</th>
         </tr>
-        {% for p, d in zip(pictures, dates_sorted) %}
+        {% for p, d in zip(pictures, correct_ordering) %}
           <tr>
             <td><a href="/p/{{p.imgp_id}}">{{p.date}}</a></td>
             <td>{{p.added_order}}</td>

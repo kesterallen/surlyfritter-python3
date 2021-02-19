@@ -3,7 +3,9 @@ Admin routes
 """
 
 import datetime
+import io
 import pprint
+import requests
 
 import jwt
 from flask import redirect, request, abort, session
@@ -23,6 +25,11 @@ from surlyfritter.utils import (
     is_admin,
     get_exif_date_from_url,
     string_to_date,
+)
+
+from surlyfritter.fixtures.correct_ordering import (
+    correct_picture_ordering,
+    old_site_date_orders,
 )
 
 from . import app, client
@@ -227,7 +234,7 @@ def _picture_edit_post(img_id:int):
         picture.updated_on = datetime.datetime.now()
         picture.put()
     except NotFound as err: # blob not found
-        abort(404, f"Blob with {picture.name} not found, exiting")
+        abort(404, f"Blob with {picture.name} not found, exiting ({err})")
 
     return redirect(f"/p/{picture.imgp_id}")
 
@@ -276,7 +283,7 @@ def picture_delete(img_id:int):
             blob.delete()
         except NotFound as err: # blob not found
             #abort(404, f"Blob with {picture.name} not found, exiting")
-            print("no blob for .added_order {img_id}: {err}")
+            print(f"no blob for .added_order {img_id}: {err}")
 
         # Update prev/next pointers on the adjacent pics, unless this is the
         # first/last image. If this is the first image, null the prev_pic_ref
@@ -439,70 +446,76 @@ def smoke_test():
     i = 1
     with client.context():
         picture = Picture.most_recent()
+
+        # If not pictures, bail:
         if picture is None:
-            pictures = []
-            dates_sorted = []
-            message = "no pictures"
-        else:
-            # Walk backwards through the pictures from most recent to earliest
-            # using the previous pic references:
-            pictures = [picture]
-            visited_pics = {picture.imgp_id: None}
-            while picture.prev_pic_ref is not None:
-                blob_names.discard(picture.name)
-                tmp = picture
-                picture = tmp.prev_pic
-                print(i, tmp.imgp_id, picture.imgp_id)
-                i += 1
-                pictures.append(picture)
+            return render_template('admin_report.html', pictures=[],
+                correct_ordering=[], message="no pictures", counts=raw_counts, zip=zip)
 
-                if picture.imgp_id in visited_pics:
-                    abort(400, f"Abort: circular path: picture {picture.imgp_id} has already been visited by {visited_pics[picture.imgp_id]} and is not being visited by {tmp.imgp_id} ({len(visited_pics)} pics visited)")
-                else:
-                    visited_pics[picture.imgp_id] = tmp.imgp_id
+        # If there are pictures, check them:
 
-                if DO_HASH_CHECK:
-                    # Check for duplicate images
-                    hash_value = get_hash_from_url(picture.img_url)
-                    ihash += 1
-                    print(f"doing {ihash} hash for {picture.imgp_id}")
-                    if hash_value not in image_hashes:
-                        # New hash -- not a duplicate image
-                        image_hashes[hash_value] = [picture.imgp_id]
-                    else:
-                        # Duplicate image, append the new image ID:
-                        image_hashes[hash_value].append(picture.imgp_id)
-
-            # Discard the final picture's blob name so it isn't marked as an
-            # orphan:
+        # Walk backwards through the pictures from most recent to earliest
+        # using the previous pic references:
+        pictures = [picture]
+        visited_pics = {picture.imgp_id: None}
+        while picture.prev_pic_ref is not None:
             blob_names.discard(picture.name)
+            tmp = picture
+            picture = tmp.prev_pic
+            print("smoke-test status:", i, tmp.imgp_id, picture.imgp_id)
+            i += 1
+            pictures.append(picture)
 
-            # Check the dates sorting is correct:
-            dates = [str(p.date) for p in pictures]
-            dates_sorted = sorted(dates, reverse=True)
-            date_status = "correct" if dates == dates_sorted else "incorrect"
-
-            # Check the counts are correct
-            pics_count_match = raw_counts['pics'] == len(pictures)
-            blobs_count_match = raw_counts['blobs'] == len(pictures)
-            count_match = pics_count_match and blobs_count_match
-            count_status= "correct " if count_match else "incorrect"
-
-            message = (f"date ordering {date_status} / counts match {count_status}")
+            if picture.imgp_id in visited_pics:
+                msg = (
+                    f"Abort: circular path: picture {picture.imgp_id} has"
+                    f" already been visited by {visited_pics[picture.imgp_id]}"
+                    f" and is not being visited by {tmp.imgp_id}"
+                    f" ({len(visited_pics)} pics visited)")
+                abort(400, msg)
+            visited_pics[picture.imgp_id] = tmp.imgp_id
 
             if DO_HASH_CHECK:
-                # Flag any duplicate images:
-                duplicate_images = []
-                for hash_value, imgp_ids in image_hashes.items():
-                    if len(imgp_ids) > 1:
-                        duplicate_images.append(imgp_ids)
-                message = f"{message}, duplicate images: {duplicate_images}"
+                # Check for duplicate images. SLOW
+                hash_value = get_hash_from_url(picture.img_url)
+                ihash += 1
+                print(f"doing {ihash} hash for {picture.imgp_id}")
+                if hash_value not in image_hashes:
+                    # New hash -- not a duplicate image
+                    image_hashes[hash_value] = [picture.imgp_id]
+                else:
+                    # Duplicate image, append the new image ID:
+                    image_hashes[hash_value].append(picture.imgp_id)
+
+        # Discard the final picture's blob name so it isn't marked as an
+        # orphan:
+        blob_names.discard(picture.name)
+
+        # Check the dates sorting is correct:
+        dates_imgp = [p.imgp_id for p in pictures]
+        date_status = "correct" if dates_imgp[-len(correct_picture_ordering):] == correct_picture_ordering else "incorrect"
+
+        # Check the counts are correct
+        pics_count_match = raw_counts['pics'] == len(pictures)
+        blobs_count_match = raw_counts['blobs'] == len(pictures)
+        count_match = pics_count_match and blobs_count_match
+        count_status= "correct " if count_match else "incorrect"
+
+        message = f"date ordering {date_status} / counts match {count_status}"
+
+        if DO_HASH_CHECK:
+            # Flag any duplicate images:
+            duplicate_images = []
+            for hash_value, imgp_ids in image_hashes.items():
+                if len(imgp_ids) > 1:
+                    duplicate_images.append(imgp_ids)
+            message = f"{message}, duplicate images: {duplicate_images}"
 
         orphan_message = f"orphan blobs: {blob_names}" if blob_names else "no orphans"
         message = f"{message}, {orphan_message}"
 
         return render_template('admin_report.html', pictures=pictures,
-            dates_sorted=dates_sorted, message=message, counts=raw_counts, zip=zip)
+            correct_ordering=correct_picture_ordering, message=message, counts=raw_counts, zip=zip)
 
 @app.route('/buckets')
 def list_buckets():
@@ -525,3 +538,94 @@ def list_bucket():
             items[bucket.name].append(item.name)
 
     return pprint.pformat(items)
+
+@app.route('/fixtures')
+def fixtures():
+    return(", ".join([str(x) for x in correct_picture_ordering])
+        + ", ".join([str(x) for x in old_site_date_orders]))
+
+@app.route('/reverttooldsitedateorder')
+def revert_to_old_site_date_order():
+    # from https://surlyfritter-hrd.appspot.com/listdate
+    # fold the next 6500 lines in vim for better editing
+    if not is_admin():
+        abort(404, "reverttooldsitedateorder is admin-only")
+
+    with client.context():
+        def _get_prev_picture(i):
+            i_prev = i + 1
+            prev_picture = None
+            while prev_picture is None:
+                added_order = old_site_date_orders[i_prev][1]
+                prev_picture = Picture.query(Picture.added_order == added_order).get()
+                i_prev += 1
+            return prev_picture
+
+        def _get_next_picture(i):
+            i_next = i - 1
+            next_picture = None
+            while next_picture is None:
+                added_order = old_site_date_orders[i_next][1]
+                next_picture = Picture.query(Picture.added_order == added_order).get()
+                i_next -= 1
+            return next_picture
+
+        for i in range(len(old_site_date_orders)):
+            date_order, added_order = old_site_date_orders[i]
+            print(f"{i} -- date order: {date_order}, added order: {added_order}")
+
+            picture = Picture.query(Picture.added_order == added_order).get()
+            if picture is None:
+                print(f"Skipping {i} -- no picture")
+                continue
+
+            if i == 0:
+                print("special most-recent picture logic")
+                prev_picture = _get_prev_picture(i)
+                prev_picture.next_pic_ref = picture.key
+                picture.prev_pic_ref = prev_picture.key
+
+                picture.next_pic_ref = None
+                # TODO: run fix_6521():
+
+                picture.put()
+                prev_picture.put()
+            elif i == (len(old_site_date_orders)-1):
+                print("special earliest picture logic")
+                next_picture = _get_next_picture(i)
+                next_picture.prev_pic_ref = picture.key
+                picture.next_pic_ref = next_picture.key
+
+                picture.prev_pic_ref = None
+
+                picture.put()
+                next_picture.put()
+            else:
+                #print("regular case")
+                prev_picture = _get_prev_picture(i)
+                prev_picture.next_pic_ref = picture.key
+                picture.prev_pic_ref = prev_picture.key
+
+                next_picture = _get_next_picture(i)
+                next_picture.prev_pic_ref = picture.key
+                picture.next_pic_ref = next_picture.key
+
+                picture.put()
+                prev_picture.put()
+                next_picture.put()
+
+    return "done"
+
+@app.route('/fix6521')
+def fix_6521():
+    if not is_admin():
+        abort(404, "fix_6521 is admin-only")
+    with client.context():
+        picture = Picture.query(Picture.added_order == 6521).get()
+        next_picture = Picture.query(Picture.added_order == 6522).get()
+
+        next_picture.prev_pic_ref = picture.key
+        picture.next_pic_ref = next_picture.key
+
+        picture.put()
+        next_picture.put()
