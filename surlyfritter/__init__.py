@@ -12,4 +12,5 @@ import surlyfritter.routes # pylint: disable=cyclic-import disable=wrong-import-
 import surlyfritter.admin_routes # pylint: disable=cyclic-import disable=wrong-import-position
 import surlyfritter.static_routes # pylint: disable=cyclic-import disable=wrong-import-position
 import surlyfritter.quarantime # pylint: disable=cyclic-import disable=wrong-import-position
+import surlyfritter.accuweather # pylint: disable=cyclic-import disable=wrong-import-position
 import surlyfritter.recipes # pylint: disable=cyclic-import disable=wrong-import-position
