@@ -33,6 +33,8 @@ def recipes(name=None):
         'pumpkin-pie': 'pumpkin_pie.html',
         'pie-dough': 'pie_dough.html',
         'piedough': 'pie_dough.html',
+        'dutch-baby': 'dutch_baby.html',
+        'dutchbaby': 'dutch_baby.html',
     }
     if name not in names:
         abort(404, f"404: recipe {name} not found")
