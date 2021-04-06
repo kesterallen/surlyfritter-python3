@@ -300,11 +300,12 @@ def picture_add():
                 names['fail'].append((name, err))
 
         status = "succeeded" if len(names['fail']) == 0 else "failed"
+
         message = f'''
             Your picture uploaded {status}. <br/>
-            Successful uploads {names['success']}. <br/>
-            Failed uploads {names['fail']}. <br/>
-            <a href="/p/{picture.imgp_id}">See pictures</a>
+            Successful uploads {", ".join(names['success'])}. <br/>
+            Failed uploads {", ".join(names['fail'])}. <br/>
+            <a href="/p/{picture.imgp_id}">See pictures</a> <br/>
         '''
 
         send_email(

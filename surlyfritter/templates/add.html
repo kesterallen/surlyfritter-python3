@@ -20,7 +20,7 @@
     </h1>
 
     {% if message %}
-      {{message}}
+      {{message|safe}}
       {% if not edit_picture %}
         <a href="/">Pictures</a>
       {% endif %}
