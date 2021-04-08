@@ -154,7 +154,14 @@ def random_page():
     """Load a random picture"""
     with client.context():
         num_pics = Picture.query().count()
-        index = random.randrange(0, num_pics)
+        pic_not_selected = True
+        max_num_tries = 100
+        num_tries = 0
+        while pic_not_selected and num_tries < max_num_tries:
+            index = random.randrange(0, num_pics)
+            num_tries += 1
+            pic_not_selected = Picture.query(Picture.added_order == index).count() == 0
+
         return redirect(f"/p/{index}")
 
 @app.route('/feed')
