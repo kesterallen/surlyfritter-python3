@@ -11,12 +11,12 @@ from . import app
 @app.route('/quarantime')
 def quarantime():
     """Quarantine calendar"""
+    march_1st = datetime.datetime(2020, 3,  1, 0, 0)
     march_13th = datetime.datetime(2020, 3, 13, 0, 0)
-    march_31st = datetime.datetime(2020, 3, 31, 0, 0)
     now = datetime.datetime.now()
     td_13 = now - march_13th
-    td_31 = now - march_31st
-    day_of_march = humanize.ordinal(td_31.days+31)
+    td_31 = now - march_1st
+    day_of_march = humanize.ordinal(td_31.days)
     day_of_quarantine = humanize.ordinal(td_13.days)
     return f"""
     <html>
