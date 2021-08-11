@@ -21,7 +21,6 @@ class SurlyfritterImage:
     def submit(self):
         """Submit the SurlyfritterImage with a POST request to surlyfritter"""
 
-        # TODO s/b pictures, uploader uses:     imgs = request.files.getlist("pictures")
         with open(self.fname, 'rb') as image_fh:
             files = {'pictures': image_fh}
             data = {}
