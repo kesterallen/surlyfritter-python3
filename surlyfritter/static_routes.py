@@ -69,3 +69,8 @@ def apple_touch_icon():
     """iphone homescreen icon"""
     return app.send_static_file('images/july4th.png')
     
+
+@app.route('/knuth')
+def knuth():
+    """Diamond hand-painted cat-crossing for Donald Knuth"""
+    return redirect("https://photos.app.goo.gl/bYGjy9gQzdvDV7kT8")
