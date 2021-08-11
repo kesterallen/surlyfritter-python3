@@ -17,6 +17,8 @@ def recipes(name=None):
         'fruit-crisp': 'fruit_crisp.html',
         'rice': 'instant_pot_mexican_rice.html',
         'mexican-rice': 'instant_pot_mexican_rice.html',
+        'gnocchi': 'gnocchi_with_chard.html',
+        'gnocchi-with-chard': 'gnocchi_with_chard.html',
         'keylimepie': 'key_lime_pie.html',
         'key-lime-pie': 'key_lime_pie.html',
         'mujadara': 'mujadara.html',
@@ -35,6 +37,7 @@ def recipes(name=None):
         'piedough': 'pie_dough.html',
         'dutch-baby': 'dutch_baby.html',
         'dutchbaby': 'dutch_baby.html',
+        'cookies': 'chocolate_chip_cookies.html',
     }
     if name not in names:
         abort(404, f"404: recipe {name} not found")
