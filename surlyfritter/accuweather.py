@@ -33,7 +33,7 @@ DATE_FORMATS = ["%Y-%m-%dT%H:%M:%S-08:00", "%Y-%m-%dT%H:%M:%S-07:00"]
 #
 TODAY_TMPL = """
         <br/>Today
-        <br/>{description[Day]}; {description[Headline]}
+        <br/>{description[Day]}
         <br/>H {high:.0f}
         <br/>
         <br/>Tonight
