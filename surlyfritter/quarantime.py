@@ -20,10 +20,10 @@ def quarantime():
     day_of_quarantine = humanize.ordinal(td_13.days)
     return f"""
     <html>
-      <h1>
-        It is March {day_of_march}, 
+      <h1 style="text-align: center">
+        It is March {day_of_march}, 2020:
         the {day_of_quarantine} day of quarantine
-        (<a href="https://www.wunderground.com/maps/temperature/feels-like">feels like</a> day <a href="https://twitter.com/AgnesCallard/status/1358104983909134337">4,989,384</a>).
+        <!-- (<a href="https://www.wunderground.com/maps/temperature/feels-like">feels like</a> day <a href="https://twitter.com/AgnesCallard/status/1358104983909134337">4,989,384</a>) -->.
       </h1>
     </html>
 """
