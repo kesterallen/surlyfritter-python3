@@ -309,7 +309,7 @@ def picture_add():
         status = "succeeded" if len(names['fail']) == 0 else "failed"
 
         message = f'''
-            Your picture uploaded {status}. <br/>
+            Your picture upload {status}. <br/>
             Successful uploads {", ".join(names['success'])}. <br/>
             Failed uploads {", ".join(names['fail'])}. <br/>
             <a href="/p/{picture.imgp_id}">See pictures</a> <br/>
