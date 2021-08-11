@@ -21,8 +21,9 @@ class SurlyfritterImage:
     def submit(self):
         """Submit the SurlyfritterImage with a POST request to surlyfritter"""
 
+        # TODO s/b pictures, uploader uses:     imgs = request.files.getlist("pictures")
         with open(self.fname, 'rb') as image_fh:
-            files = {'file': image_fh}
+            files = {'pictures': image_fh}
             data = {}
             response = requests.post(SurlyfritterImage.UPLOAD_URL, files=files, data=data)
             response.raise_for_status()
@@ -46,7 +47,7 @@ def main(img_fnames):
     failures = []
 
     for i, image in enumerate(images):
-        msg = "{i+1} / {len(images)} {image}"
+        msg = f"{i+1} / {len(images)} {image}"
         if i < ONLY_DO_THIS_MANY_UPLOADS: # tweak this for debugging
             print("skipping", msg)
             continue
