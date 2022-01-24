@@ -13,6 +13,9 @@ def recipes(name=None):
     names = {
         'recipes': 'recipes.html',
         'pancakes': 'buttermilk_pancakes.html',
+        'gail_lambson_ihop_pancakes': 'gail_lambson_ihop_pancakes.html',
+        'gail': 'gail_lambson_ihop_pancakes.html',
+        'ihop': 'gail_lambson_ihop_pancakes.html',
         'crisp': 'fruit_crisp.html',
         'fruit-crisp': 'fruit_crisp.html',
         'rice': 'instant_pot_mexican_rice.html',

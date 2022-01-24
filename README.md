@@ -2,5 +2,4 @@
 
 ## Deploy:
 
-gcloud config set project surlyfritter-python3 && gcloud app deploy
-
+gcloud app deploy --quiet --project surlyfritter-python3 

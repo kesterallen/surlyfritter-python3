@@ -4,3 +4,4 @@ lib/
 .gcloudignore
 surlyfritter/__pycache__/
 keys.txt
+accuweather_key.txt
