@@ -16,11 +16,12 @@ LETTERS[letter]["no"] list. For example, this will produce "swill":
 
 """
 
-BAD_LETTERS = "ishortwrottropkvshoutcpr"
+BAD_LETTERS = "adushotcbmgh"
 LETTERS = dict(
-    a=dict(yes=[], no=[0, 1]),
-    d=dict(yes=[], no=[1]),
-    e=dict(yes=[], no=[3, 4]),
+    i=dict(yes=[2], no=[1]),
+    e=dict(yes=[3], no=[]),
+    r=dict(yes=[], no=[3]),
+    l=dict(yes=[], no=[3]),
 )
 
 DEFAULT_WORD_FILE = "/usr/share/dict/american-english"
@@ -49,21 +50,19 @@ def letter_locations_good(word, letters):
     """
     Does the word have the right letters in the right locations, and not in the
     wrong places?
+
+    1) Is the letter in the word? 2) if the letter's position(s) is
+    known, is the letter in that position? 3) if there are excluded spots
+    for the letter, is it NOT in the location?
     """
     goods = []
     for letter, locations in letters.items():
-        # Is the letter in the word?
-        goods.append(letter in word)
+        is_here = letter in word
+        in_right_places = all([word[i] == letter for i in locations["yes"]])
+        not_in_wrong_places = all([word[i] != letter for i in locations["no"]])
 
-        # If the letter's position is known, is the letter in that position?
-        if locations["yes"]:
-            for location in locations["yes"]:
-                goods.append(word[location] == letter)
+        goods.append(is_here and in_right_places and not_in_wrong_places)
 
-        # If there are excluded spots for the letter, is it NOT there in this word?
-        if locations["no"]:
-            for location in locations["no"]:
-                goods.append(word[location] != letter)
     return all(goods)
 
 
