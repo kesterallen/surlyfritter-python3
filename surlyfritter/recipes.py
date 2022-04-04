@@ -12,6 +12,8 @@ def recipes(name=None):
         name = "recipes"
     names = {
         'recipes': 'recipes.html',
+        'eggs': 'instant_pot_hard_boiled_eggs.html',
+        'pepitas-salsa': 'pepitas_salsa.html',
         'pancakes': 'buttermilk_pancakes.html',
         'gail_lambson_ihop_pancakes': 'gail_lambson_ihop_pancakes.html',
         'gail': 'gail_lambson_ihop_pancakes.html',
