@@ -16,18 +16,20 @@ LETTERS[letter]["no"] list. For example, this will produce "swill":
 
 """
 
-BAD_LETTERS = "adushotcbmgh"
+import sys
+
+
+BAD_LETTERS = "adieshthcely"
 LETTERS = dict(
-    i=dict(yes=[2], no=[1]),
-    e=dict(yes=[3], no=[]),
-    r=dict(yes=[], no=[3]),
-    l=dict(yes=[], no=[3]),
+    o=dict(yes=[1], no=[]),
+    u=dict(yes=[2], no=[]),
+    r=dict(yes=[3], no=[]),
 )
 
 DEFAULT_WORD_FILE = "/usr/share/dict/american-english"
 
 
-def is_wordle_word(line):
+def wordle_word_filter(line):
     """
     Does the input line contain a wordle word? (5-char, not a proper noun).
     If so, return it, otherwise return None.
@@ -41,7 +43,7 @@ def is_wordle_word(line):
 def get_words(word_file=DEFAULT_WORD_FILE):
     """Return every 5-character work in a word list file."""
     with open(word_file, encoding="utf8") as lines:
-        words = {is_wordle_word(l) for l in lines}
+        words = {wordle_word_filter(l) for l in lines}
     words.remove(None)
     return words
 
@@ -49,12 +51,13 @@ def get_words(word_file=DEFAULT_WORD_FILE):
 def letter_locations_good(word, letters):
     """
     Does the word have the right letters in the right locations, and not in the
-    wrong places?
+    wrong places? The input "letters" should be a dict with keys 
 
     1) Is the letter in the word? 2) if the letter's position(s) is
     known, is the letter in that position? 3) if there are excluded spots
     for the letter, is it NOT in the location?
     """
+
     goods = []
     for letter, locations in letters.items():
         is_here = letter in word
@@ -68,11 +71,29 @@ def letter_locations_good(word, letters):
 
 def validate_inputs():
     """Sanity check user inputs"""
-    errors = {b for b in BAD_LETTERS if b in LETTERS}
-    if errors:
-        error = ", ".join(errors)
-        print(f"Error: Letter(s) '{error}' are in both LETTERS and BAD_LETTERS")
+    error = None
 
+    duped_letters = {b for b in BAD_LETTERS if b in LETTERS}
+    if duped_letters:
+        dup_str = ", ".join(duped_letters)
+        error = f"Letters {dup_str} are in BAD_LETTERS and LETTERS"
+
+    if not isinstance(LETTERS, dict):
+        error = "LETTERS should be a dict"
+
+    for letter, locations in LETTERS.items():
+        if len(letter) != 1:
+            error = "LETTERS can only have single-character keys"
+        if not isinstance(locations, dict):
+            error = "LETTERS locations must be a dict"
+        if "yes" not in locations:
+            error = "LETTERS locations must have a yes array as a key"
+        if "no" not in locations:
+            error = "LETTERS locations must have a no array as a key"
+
+    if error:
+        print("Error", error)
+        sys.exit(1)
 
 def main():
     """Get the wordle"""

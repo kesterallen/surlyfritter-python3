@@ -165,7 +165,7 @@ a:active {
 }
 
 /*
-  Just the 6 SVG glyphs from fontawesome (via fontello) for:
+  Just the 6 SVG glyphs from fontawesome 
     map
     phone
     email
@@ -174,35 +174,48 @@ a:active {
     linkedin
   for header and footer links
 */
+
 @font-face {
   font-family: 'fontello';
-  src: url('/static/font/fontello.eot?53539485');
-  src: url('/static/font/fontello.eot?53539485#iefix') format('embedded-opentype'),
-       url('/static/font/fontello.woff?53539485') format('woff'),
-       url('/static/font/fontello.ttf?53539485') format('truetype'),
-       url('/static/font/fontello.svg?53539485#fontello') format('svg');
-  font-display: optional;
+  src: url('/static/font/fontello.eot?13630300');
+  src: url('/static/font/fontello.eot?13630300#iefix') format('embedded-opentype'),
+       url('/static/font/fontello.woff?13630300') format('woff'),
+       url('/static/font/fontello.ttf?13630300') format('truetype'),
+       url('/static/font/fontello.svg?13630300#fontello') format('svg');
   font-weight: normal;
   font-style: normal;
 }
-
-.icon {
+.fontello-icon {
   font-family: "fontello";
   font-style: normal;
   font-weight: normal;
-  speak: none;
-
+  speak: never;
+ 
   display: inline-block;
   text-decoration: inherit;
   width: 1em;
   margin-right: .2em;
   text-align: center;
-
-  /* For safety - reset parent styles, that can break glyph codes */
+  /* opacity: .8; */
+ 
+  /* For safety - reset parent styles, that can break glyph codes*/
   font-variant: normal;
   text-transform: none;
-
+ 
+  /* fix buttons height, for twitter bootstrap */
+  line-height: 1em;
+ 
+  /* Animation center compensation - margins should be symmetric */
+  /* remove if not needed */
+  margin-left: .2em;
+ 
+  /* You can be more comfortable with increased icons size */
+  /* font-size: 120%; */
+ 
   /* Font smoothing. That was taken from TWBS */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+ 
+  /* Uncomment for 3D effect */
+  /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }

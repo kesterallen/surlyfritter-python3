@@ -1,4 +1,32 @@
 runtime: python37
 
-#TODO: robots.txt
+handlers:
+  - url: /resume
+    static_files: surlyfritter/static/resume.html
+    upload: surlyfritter/static/resume.html
 
+  - url: /robots.txt
+    static_files: surlyfritter/static/robots.txt
+    upload: surlyfritter/static/robots.txt
+
+  - url: /air
+    static_files: surlyfritter/static/air_quality.html
+    upload: surlyfritter/static/air_quality.html
+
+  - url: /naga
+    static_files: surlyfritter/static/zoom.html
+    upload: surlyfritter/static/zoom.html
+
+  - url: /zoom
+    static_files: surlyfritter/static/zoom.html
+    upload: surlyfritter/static/zoom.html
+
+
+
+#  - url: /static
+#    static_dir: public
+#
+#  - url: /.*
+#    secure: always
+#    redirect_http_response_code: 301
+#    script: auto
