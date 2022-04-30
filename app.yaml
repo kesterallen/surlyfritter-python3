@@ -21,11 +21,12 @@ handlers:
     static_files: surlyfritter/static/zoom.html
     upload: surlyfritter/static/zoom.html
 
+  - url: /font
+    static_dir: surlyfritter/static/font
 
+  - url: /static
+    static_dir: surlyfritter/static
 
-#  - url: /static
-#    static_dir: public
-#
 #  - url: /.*
 #    secure: always
 #    redirect_http_response_code: 301
