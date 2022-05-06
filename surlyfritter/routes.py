@@ -439,6 +439,7 @@ def gone_with_the_wind():
         return _send_img_bytes_io(background)
     else:
         return render_template("gone_with_the_wind.html")
+
 def _kid_is(name:str, age_years:float):
     """
     Return a redirect the display page for kid "name" at age "age_years"
@@ -446,6 +447,17 @@ def _kid_is(name:str, age_years:float):
     with client.context():
         added_order= Picture.kid_is_index(name, age_years)
         return redirect(f"/p/{added_order}")
+
+@app.route("/jazz_show_name")
+@app.route("/jazz_oclock")
+@app.route("/jazz_o_clock")
+@app.route("/jazz")
+def jazz_show_name():
+    """
+    Return the name of the current jazz show
+    """
+    now = datetime.datetime.now().strftime("%H:%M O'clock")
+    return(f"The {now} Jazz Show")
 
 def _usgs_url(layer, box_str, width, height, map_):
     url = (
