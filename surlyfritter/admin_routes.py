@@ -36,8 +36,6 @@ from . import app, client
 
 DISABLE_DAMAGING_ENDPOINTS = True
 
-#TODO print --> logging (https://cloud.google.com/appengine/docs/standard/python/migrate-to-python3/migrate-to-cloud-logging) # pylint: disable=line-too-long
-
 def _counts():
     """Extract the count of pictures, blobs, tags, and comments"""
     with client.context():

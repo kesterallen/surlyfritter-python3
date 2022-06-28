@@ -297,19 +297,6 @@ def timejump(added_order:int, years:float):
         timejump_index = Picture.timejump_index(added_order, years)
         return redirect(f"/p/{timejump_index}")
 
-@app.route("/picture/date", methods=["GET", "POST"])
-def picture_date():
-    """ Test route for getting the exif date out of an uploaded image """
-    if request.method == "POST":
-        imgs = request.files.getlist("picture")
-        img = imgs[0]
-        img_file = io.BytesIO(img.read())
-        date = get_exif_date(img_file)
-        data = get_exif_data(img_file)
-        return f"date from get_exif_date in picture_date: <br/>{date}<hr>data: <br/>{data}"
-    else:
-        return render_template("date.html")
-
 @app.route("/picture/add", methods=["GET", "POST"])
 def picture_add():
     """
