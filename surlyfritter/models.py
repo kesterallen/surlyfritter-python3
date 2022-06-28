@@ -9,7 +9,7 @@ import math
 
 from google.cloud import ndb, storage
 
-from surlyfritter.utils import get_exif_date_from_url
+from surlyfritter.utils import get_exif_date_from_url, get_exif_date
 
 DOB = dict(
     miri=datetime.datetime(2007, 10, 26, 5, 30, 0),
@@ -91,7 +91,8 @@ class Picture(ndb.Model):
             Picture.blob_create(img, name)
 
             # Get the date from the exif data, if possible:
-            date = get_exif_date_from_url(Picture.blob_url(name))
+            img.seek(0)
+            date = get_exif_date(img)
             if date is None:
                 date = datetime.datetime.now()
 

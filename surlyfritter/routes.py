@@ -25,6 +25,7 @@ from surlyfritter.models import (
 )
 from surlyfritter.utils import (
     get_exif_data_from_url,
+    get_exif_data,
     get_exif_date,
     get_hash_from_url,
     render_template,
@@ -293,8 +294,21 @@ def display_date(date_str:str):
 def timejump(added_order:int, years:float):
     """Display the page for "years" + the date of Picture.added_order"""
     with client.context():
-        timejump_index= Picture.timejump_index(added_order, years)
+        timejump_index = Picture.timejump_index(added_order, years)
         return redirect(f"/p/{timejump_index}")
+
+@app.route("/picture/date", methods=["GET", "POST"])
+def picture_date():
+    """ Test route for getting the exif date out of an uploaded image """
+    if request.method == "POST":
+        imgs = request.files.getlist("picture")
+        img = imgs[0]
+        img_file = io.BytesIO(img.read())
+        date = get_exif_date(img_file)
+        data = get_exif_data(img_file)
+        return f"date from get_exif_date in picture_date: <br/>{date}<hr>data: <br/>{data}"
+    else:
+        return render_template("date.html")
 
 @app.route("/picture/add", methods=["GET", "POST"])
 def picture_add():
@@ -312,12 +326,8 @@ def picture_add():
                 now = datetime.datetime.now()
                 (name_root, ext) = os.path.splitext(img.filename)
                 name = f"{name_root}_{now.timestamp()}{ext}"
+
                 picture = Picture.create(img, name)
-
-                date = get_exif_date(img)
-                if date is None:
-                    date = now
-
                 names["success"].append(name)
             except UnboundLocalError as err:
                 names["fail"].append((name, err))
