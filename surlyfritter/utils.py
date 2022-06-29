@@ -5,6 +5,7 @@ import dateutil.parser
 import hashlib
 import io
 import os
+import re
 
 from flask import session, render_template as flask_render_template
 from PIL import Image, ExifTags
@@ -122,7 +123,12 @@ def get_exif_date(img_file) -> datetime.datetime:
         date = None
     else:
         date_str = img_exif.get(datetime_name, None)
-        date = dateutil.parser.parse(date_str) if date_str is not None else None
+        if date_str is None:
+            date = None
+        else:
+            # Convert weird exif YYYY:MM:DD (n.b. ":") format into YYYY-MM-DD, if present
+            date_str = re.sub("(\d{4}):(\d{2}):(\d{2})", r"\1-\2-\3", date_str)
+            date = dateutil.parser.parse(date_str)
 
     return date
 
