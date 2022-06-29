@@ -2,8 +2,6 @@
 Model classes for picture site
 """
 
-#TODO print --> logging
-
 import datetime
 import math
 
@@ -24,32 +22,39 @@ GCS_BUCKET_NAME_PREFIX = "surlyfritter-python3"
 GCS_BUCKET_NAME = f"{GCS_BUCKET_NAME_PREFIX}.appspot.com"
 
 client = ndb.Client(project=GCS_BUCKET_NAME_PREFIX)
-class Comment(ndb.Model): # pylint: disable=too-few-public-methods
+
+
+class Comment(ndb.Model):  # pylint: disable=too-few-public-methods
     """Freeform comments about a picture."""
+
     text = ndb.StringProperty()
     added_on = ndb.DateTimeProperty(auto_now_add=True)
 
-class Tag(ndb.Model): # pylint: disable=too-few-public-methods
+
+class Tag(ndb.Model):  # pylint: disable=too-few-public-methods
     """Freeform tag about a picture."""
+
     text = ndb.StringProperty()
     tag_count = ndb.IntegerProperty()
     # precompute the logarithm, useful for font sizing in tag cloud
     tag_count_log = ndb.FloatProperty()
     added_on = ndb.DateTimeProperty(auto_now_add=True)
 
+
 class Picture(ndb.Model):
     """The main object."""
+
     name = ndb.StringProperty()
     date = ndb.DateTimeProperty(auto_now_add=True)
     added_on = ndb.DateTimeProperty(auto_now_add=True)
     updated_on = ndb.DateTimeProperty(auto_now_add=True)
     added_order = ndb.IntegerProperty()
 
-    prev_pic_ref = ndb.KeyProperty(kind='Picture')
-    next_pic_ref = ndb.KeyProperty(kind='Picture')
+    prev_pic_ref = ndb.KeyProperty(kind="Picture")
+    next_pic_ref = ndb.KeyProperty(kind="Picture")
 
-    tag_refs = ndb.KeyProperty(kind='Tag', repeated=True)
-    comment_refs = ndb.KeyProperty(kind='Comment', repeated=True)
+    tag_refs = ndb.KeyProperty(kind="Tag", repeated=True)
+    comment_refs = ndb.KeyProperty(kind="Comment", repeated=True)
 
     img_rot = ndb.IntegerProperty()
 
@@ -75,8 +80,7 @@ class Picture(ndb.Model):
         next_pic = Picture.next_by_date(date)
         next_pic_key = None if next_pic is None else next_pic.key
 
-        return(prev_pic_key, next_pic_key)
-
+        return (prev_pic_key, next_pic_key)
 
     @classmethod
     def create(cls, img, name):
@@ -156,7 +160,7 @@ class Picture(ndb.Model):
         return picture
 
     @classmethod
-    def with_tag_count(cls, tag_text:str):
+    def with_tag_count(cls, tag_text: str):
         """How many pictures have a given tag, (hopefully inexpensive)"""
         tag_text = tag_text.lower().strip()
         tag = Tag.query(Tag.text == tag_text).get()
@@ -167,7 +171,7 @@ class Picture(ndb.Model):
         return count
 
     @classmethod
-    def with_tag(cls, tag_text:str, num=None):
+    def with_tag(cls, tag_text: str, num=None):
         """
         Get 'num' (or all if num is None) pictures with who contain a tag with
         .text of 'tag_text'.
@@ -175,8 +179,7 @@ class Picture(ndb.Model):
         tag_text = tag_text.lower().strip()
         tag = Tag.query(Tag.text == tag_text).get()
         if tag:
-            query = Picture.query(Picture.tag_refs == tag.key
-                ).order(-Picture.date)
+            query = Picture.query(Picture.tag_refs == tag.key).order(-Picture.date)
             pictures = query.fetch() if num is None else query.fetch(num)
         else:
             pictures = None
@@ -185,7 +188,8 @@ class Picture(ndb.Model):
     @classmethod
     def _timejump(cls, now_date, years) -> datetime:
         """Return the datetime object for years + now_date"""
-        timedelta = datetime.timedelta(days=DAYS_IN_YEAR*years)
+        days = DAYS_IN_YEAR * years
+        timedelta = datetime.timedelta(days=days)
         new_date = now_date + timedelta
         return new_date
 
@@ -196,7 +200,8 @@ class Picture(ndb.Model):
         'years' + the date of the Picture with .added_order= 'added_order'
         """
         picture = Picture.query(Picture.added_order == added_order).get()
-        timedelta = datetime.timedelta(days=DAYS_IN_YEAR*years)
+        days = DAYS_IN_YEAR * years
+        timedelta = datetime.timedelta(days=days)
         to_date = picture.date + timedelta
         dest_picture = Picture.from_date(to_date)
         return dest_picture.imgp_id
@@ -207,13 +212,13 @@ class Picture(ndb.Model):
         Return the .added_order for the Picture from 'name' at 'age' years old.
         """
         years = float(age)
-        now_date = DOB.get(name, 'miri')
+        now_date = DOB.get(name, "miri")
         to_date = Picture._timejump(now_date, years)
         dest_picture = Picture.from_date(to_date)
         return dest_picture.imgp_id
 
     @classmethod
-    def from_date(cls, date:datetime) -> int:
+    def from_date(cls, date: datetime) -> int:
         """
         Get the added_order of the Picture that is closest to 'date'
         """
@@ -262,10 +267,10 @@ class Picture(ndb.Model):
     def date_display(self):
         """Date string for UI display"""
         # TODO: time zones? some dates appear to be in UTC, mainly older pictures / uploaded from iphone
-        #utc_offset = datetime.timedelta(hours=8)
-        #return (self.date - utc_offset).strftime('%B %-d, %Y (%-I:%M %p)')
-        #return self.date.strftime('%B %-d, %Y (%-I:%M %p)')
-        return self.date.strftime('%B %-d, %Y')
+        # utc_offset = datetime.timedelta(hours=8)
+        # return (self.date - utc_offset).strftime('%B %-d, %Y (%-I:%M %p)')
+        # return self.date.strftime('%B %-d, %Y (%-I:%M %p)')
+        return self.date.strftime("%B %-d, %Y")
 
     @property
     def tags(self):
@@ -320,24 +325,20 @@ class Picture(ndb.Model):
         """JSON representation of object"""
         return dict(
             key=str(self.key),
-
             name=self.name,
             date=self.date,
             added_on=self.added_on,
             updated_on=self.updated_on,
             added_order=self.added_order,
-
             prev_ref=str(self.prev_pic_ref),
             next_ref=str(self.next_pic_ref),
-
             tags=[t.text for t in self.tags],
             comments=[c.text for c in self.comments],
-
             img_rot=self.img_rot,
             url=self.img_url,
         )
 
-    def add_tag(self, tag_text:str):
+    def add_tag(self, tag_text: str):
         """Add a tag to this Picture, avoiding duplicates"""
         tag_text = tag_text.lower().strip()
         tag = Tag.query(Tag.text == tag_text).get()
@@ -357,7 +358,7 @@ class Picture(ndb.Model):
             self.tag_refs.append(tag.key)
             self.put()
 
-    def add_comment(self, comment_text:str):
+    def add_comment(self, comment_text: str):
         """Add a comment to this Picture"""
         comment = Comment(text=comment_text)
         comment.put()
