@@ -5,6 +5,7 @@ Non-admin controllers for surlyfritter
 #TODO print --> logging
 
 import datetime
+import dateutil.parser
 import io
 import os
 import random
@@ -25,12 +26,9 @@ from surlyfritter.models import (
 )
 from surlyfritter.utils import (
     get_exif_data_from_url,
-    get_exif_data,
-    get_exif_date,
     get_hash_from_url,
     render_template,
     send_email,
-    string_to_date,
 )
 
 from . import app, client
@@ -280,7 +278,7 @@ def display_date(date_str:str):
     Display the picture closest to "date_str"
     """
     with client.context():
-        date = string_to_date(date_str)
+        date = dateutil.parser.parse(date_str)
         if date is None:
             return f"The input date {date_str} is not a valid date"
 

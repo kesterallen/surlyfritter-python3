@@ -1,6 +1,7 @@
 """Utility functions for surlyfritter"""
 
 import datetime
+import dateutil.parser
 import hashlib
 import io
 import os
@@ -115,57 +116,56 @@ def get_exif_date(img_file) -> datetime.datetime:
     #datetimeoriginal_name = "DateTimeOriginal"
     #assert ExifTags.TAGS[datetimeoriginal_key] == datetimeoriginal_name
 
-
     img_exif = get_exif_data(img_file)
     if img_exif is None:
         print("no exif data in image")
-        date_str = None
+        date = None
     else:
         date_str = img_exif.get(datetime_name, None)
+        date = dateutil.parser.parse(date_str) if date_str is not None else None
 
-    date = string_to_date(date_str)
     return date
 
-def string_to_date(date_str:str) -> datetime.datetime:
-    """
-    Try several formats to convert the date_str string into a datetime object.
-    """
-    if date_str is None:
-        return None
-
-    date_formats = [
-        '%Y:%m:%d %H:%M:%S',  # 2020:01:26 11:56:23
-        '%Y:%m:%d %H:%M:%SZ', # 2020:01:26 11:56:23Z
-        '%Y-%m-%d %H:%M:%S',  # 2020-01-26 11:56:23
-        '%Y-%m-%d %H:%M',     # 2020-01-26 11:56
-        '%Y-%m-%d',           # 2020-01-26
-        '%Y%m%d',             # 20200126
-        '%Y-%m',              # 2020-01
-        '%Y%m',               # 202001
-        '%Y',                 # 2020
-        '%Y %m %d %H:%M:%S',  # 2020 01 26 11:56:23
-        '%Y %m %d',           # 2020 01 26
-        '%Y %m',              # 2020 01
-        '%B %d, %Y',          # January 26, 2020
-        '%b %d %Y',           # Jan 26 2020
-        '%B %d, %Y',          # January 26, 2020
-        '%b %d %Y',           # Jan 26 2020
-        '%d %B %Y',           # 26 January 2020
-        '%d %b %Y',           # 26 Jan 2020
-        '%d %B, %Y',          # 26 January, 2020
-        '%d %b, %Y',          # 26 Jan, 2020
-        '%Y %d %B',           # 2020 26 January
-        '%Y %d %b',           # 2020 26 January
-    ]
-
-    date = None
-    for fmt in date_formats:
-        if date is None:
-            try:
-                date = datetime.datetime.strptime(date_str, fmt)
-            except ValueError as err:
-                print(err)
-    return date
+#def string_to_date(date_str:str) -> datetime.datetime:
+#    """
+#    Try several formats to convert the date_str string into a datetime object.
+#    """
+#    if date_str is None:
+#        return None
+#
+#    date_formats = [
+#        '%Y:%m:%d %H:%M:%S',  # 2020:01:26 11:56:23
+#        '%Y:%m:%d %H:%M:%SZ', # 2020:01:26 11:56:23Z
+#        '%Y-%m-%d %H:%M:%S',  # 2020-01-26 11:56:23
+#        '%Y-%m-%d %H:%M',     # 2020-01-26 11:56
+#        '%Y-%m-%d',           # 2020-01-26
+#        '%Y%m%d',             # 20200126
+#        '%Y-%m',              # 2020-01
+#        '%Y%m',               # 202001
+#        '%Y',                 # 2020
+#        '%Y %m %d %H:%M:%S',  # 2020 01 26 11:56:23
+#        '%Y %m %d',           # 2020 01 26
+#        '%Y %m',              # 2020 01
+#        '%B %d, %Y',          # January 26, 2020
+#        '%b %d %Y',           # Jan 26 2020
+#        '%B %d, %Y',          # January 26, 2020
+#        '%b %d %Y',           # Jan 26 2020
+#        '%d %B %Y',           # 26 January 2020
+#        '%d %b %Y',           # 26 Jan 2020
+#        '%d %B, %Y',          # 26 January, 2020
+#        '%d %b, %Y',          # 26 Jan, 2020
+#        '%Y %d %B',           # 2020 26 January
+#        '%Y %d %b',           # 2020 26 January
+#    ]
+#
+#    date = None
+#    for fmt in date_formats:
+#        if date is None:
+#            try:
+#                date = datetime.datetime.strptime(date_str, fmt)
+#            except ValueError as err:
+#                print(err)
+#    return date
 
 def render_template(*args, **kwargs):
     """Render template with the user_img inserted into the render"""

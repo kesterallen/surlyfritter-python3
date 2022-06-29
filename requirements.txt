@@ -5,6 +5,7 @@ pillow
 requests
 sendgrid
 pyjwt
+python-dateutil
 
 google-cloud-datastore<2.0.0dev
 google-cloud-ndb

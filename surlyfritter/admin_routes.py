@@ -3,6 +3,7 @@ Admin routes
 """
 
 import datetime
+import dateutil.parser
 import io
 import pprint
 import requests
@@ -24,7 +25,6 @@ from surlyfritter.utils import (
     is_logged_in,
     is_admin,
     get_exif_date_from_url,
-    string_to_date,
 )
 
 from surlyfritter.fixtures.correct_ordering import (
@@ -207,7 +207,7 @@ def _picture_edit_post(img_id:int):
         # Alter .date:
         new_date = request.form.get("new_date")
         if new_date:
-            date = string_to_date(new_date)
+            date = dateutil.parser.parse(new_date)
             picture.date = date
 
             # set prev_pic's .next_pic_ref to next_pic, if prev_pic exists (or None, if next_pic doesn't exist)

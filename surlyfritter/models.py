@@ -9,7 +9,7 @@ import math
 
 from google.cloud import ndb, storage
 
-from surlyfritter.utils import get_exif_date_from_url, get_exif_date
+from surlyfritter.utils import get_exif_date
 
 DOB = dict(
     miri=datetime.datetime(2007, 10, 26, 5, 30, 0),

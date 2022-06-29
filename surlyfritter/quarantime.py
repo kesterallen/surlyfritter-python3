@@ -1,10 +1,9 @@
 """How long has quarantine been going on now?"""
 
 import datetime
+import dateutil.parser
 import humanize
 import math
-
-from surlyfritter.utils import string_to_date
 
 from . import app
 
@@ -36,7 +35,7 @@ def brimley_line(dob_str:str):
     BRIMLEY_DAYS = 18530
 
     now = datetime.datetime.now()
-    dob = string_to_date(dob_str)
+    dob = dateutil.parser.parse(dob_str)
     td = now - dob
     is_past_line = td.days > BRIMLEY_DAYS
     msg = "is" if is_past_line else "is not"
