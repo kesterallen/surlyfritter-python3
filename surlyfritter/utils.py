@@ -1,32 +1,35 @@
 """Utility functions for surlyfritter"""
 
 import datetime
-import dateutil.parser
 import hashlib
 import io
 import os
 import re
 
+import dateutil.parser
 from flask import session, render_template as flask_render_template
 from PIL import Image, ExifTags
 import requests
 
-from sendgrid import SendGridAPIClient # https://github.com/sendgrid/sendgrid-python #pylint: disable=line-too-long
+# https://github.com/sendgrid/sendgrid-python
+from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
-ADMIN_EMAILS = ['kester@gmail.com', 'apaske@gmail.com']
+ADMIN_EMAILS = ["kester@gmail.com", "apaske@gmail.com"]
 
-def get_key(name='sendgrid_key', filename='keys.txt'):
+
+def get_key(name="sendgrid_key", filename="keys.txt"):
     """Get an entry from keys.txt"""
     site_root = os.path.realpath(os.path.dirname(__file__))
     file_url = os.path.join(site_root, filename)
     with open(file_url) as file:
         keys = file.readlines()
         for line in keys:
-            line_name, value = line.split('=')
+            line_name, value = line.split("=")
             if name == line_name:
                 return value.strip()
     return None
+
 
 def send_email(subject, body, to_email=ADMIN_EMAILS[0], from_email=ADMIN_EMAILS[0]):
     """
@@ -40,45 +43,44 @@ def send_email(subject, body, to_email=ADMIN_EMAILS[0], from_email=ADMIN_EMAILS[
         html_content=body,
     )
     try:
-        sendgrid_key = get_key('sendgrid_key')
+        sendgrid_key = get_key("sendgrid_key")
         sendgrid = SendGridAPIClient(sendgrid_key)
         response = sendgrid.send(message)
-        print(response.status_code)
-        print(response.body)
-        print(response.headers)
     except Exception as err:
         print(err)
 
+
 def is_logged_in() -> bool:
-    """Is there a user logged in"""
-    entries = ['user_img', 'user_email', 'user_name']
+    """Is a user logged in?"""
+    entries = ["user_img", "user_email", "user_name"]
     return all([e in session and session[e] is not None for e in entries])
 
-def is_admin() -> bool:
-    """Is there a user logged in with admin privs?"""
-    return(is_logged_in() and
-        session.get('user_email') in ADMIN_EMAILS)
 
-def get_exif_data_from_url(img_url:str) -> datetime.datetime:
+def is_admin() -> bool:
+    """Is an admin user logged in?"""
+    return is_logged_in() and session.get("user_email") in ADMIN_EMAILS
+
+
+def get_exif_data_from_url(img_url: str) -> datetime.datetime:
     """Extract the exif data of an image at img_url."""
     response = requests.get(img_url)
     img_file = io.BytesIO(response.content)
     return get_exif_data(img_file)
 
-def get_exif_date_from_url(img_url:str) -> datetime.datetime:
+
+def get_exif_date_from_url(img_url: str) -> datetime.datetime:
     """Extract the exif date of the image at img_url."""
     response = requests.get(img_url)
     img_file = io.BytesIO(response.content)
     return get_exif_date(img_file)
 
-def get_hash_from_url(img_url:str) -> str:
+
+def get_hash_from_url(img_url: str) -> str:
     """Extract the MD5 hash of the image at img_url."""
-    #headers = {"Range": "bytes=0-100"}  # first 100 bytes
-    #response = requests.get(img_url, headers=headers)
-    #return response.content
     response = requests.get(img_url)
     hash_resp = hashlib.md5(response.content).hexdigest()
     return hash_resp
+
 
 def get_exif_data(img_file) -> dict:
     """Extract the image's exif data and return as a human-readable dict."""
@@ -100,6 +102,7 @@ def get_exif_data(img_file) -> dict:
 
     return img_exif_dict
 
+
 def get_exif_date(img_file) -> datetime.datetime:
     """Extract the date from the img_file's exif data."""
     # TODO: this doesn't do timezones correctly for some exif data
@@ -109,13 +112,14 @@ def get_exif_date(img_file) -> datetime.datetime:
     datetime_name = "DateTime"
     assert ExifTags.TAGS[datetime_key] == datetime_name
 
-    #timezoneoffset_key = 34858
-    #timezoneoffset_name = "TimeZoneOffset"
-    #assert ExifTags.TAGS[timezoneoffset_key] == timezoneoffset_name
+    # TODO: timezone info for future dev
+    # timezoneoffset_key = 34858
+    # timezoneoffset_name = "TimeZoneOffset"
+    # assert ExifTags.TAGS[timezoneoffset_key] == timezoneoffset_name
 
-    #datetimeoriginal_key = 36867
-    #datetimeoriginal_name = "DateTimeOriginal"
-    #assert ExifTags.TAGS[datetimeoriginal_key] == datetimeoriginal_name
+    # datetimeoriginal_key = 36867
+    # datetimeoriginal_name = "DateTimeOriginal"
+    # assert ExifTags.TAGS[datetimeoriginal_key] == datetimeoriginal_name
 
     img_exif = get_exif_data(img_file)
     if img_exif is None:
@@ -132,7 +136,22 @@ def get_exif_date(img_file) -> datetime.datetime:
 
     return date
 
-#def string_to_date(date_str:str) -> datetime.datetime:
+
+def render_template(*args, **kwargs):
+    """Render template with the user_img inserted into the render"""
+    user_img = session.get("user_img")
+
+    html = flask_render_template(
+        *args,
+        **kwargs,
+        is_logged_in=is_logged_in(),
+        user_img=user_img,
+        is_admin=is_admin(),
+    )
+    return html
+
+
+# def string_to_date(date_str:str) -> datetime.datetime:
 #    """
 #    Try several formats to convert the date_str string into a datetime object.
 #    """
@@ -172,13 +191,3 @@ def get_exif_date(img_file) -> datetime.datetime:
 #            except ValueError as err:
 #                print(err)
 #    return date
-
-def render_template(*args, **kwargs):
-    """Render template with the user_img inserted into the render"""
-    user_img = session.get('user_img')
-
-    html = flask_render_template(
-        *args, **kwargs,
-        is_logged_in=is_logged_in(), user_img=user_img, is_admin=is_admin(),
-    )
-    return html
