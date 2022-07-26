@@ -19,10 +19,9 @@ LETTERS[letter]["no"] list. For example, this will produce "swill":
 import sys
 
 
-BAD_LETTERS = "adieshthcely"
+BAD_LETTERS = "dieushotpcw"
 LETTERS = dict(
-    o=dict(yes=[1], no=[]),
-    u=dict(yes=[2], no=[]),
+    a=dict(yes=[0], no=[2]),
     r=dict(yes=[3], no=[]),
 )
 

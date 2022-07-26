@@ -100,6 +100,11 @@ def get_exif_data(img_file) -> dict:
             readable_key = str(key)
         img_exif_dict[readable_key] = str(value)
 
+    if "DateTime" in img_exif_dict:
+        # Convert weird exif YYYY:MM:DD (n.b. ":") format into YYYY-MM-DD, if present.
+        date_str = img_exif_dict["DateTime"]
+        img_exif_dict["DateTimeWithHypens"] = re.sub("(\d{4}):(\d{2}):(\d{2})", r"\1-\2-\3", date_str)
+
     return img_exif_dict
 
 
@@ -107,10 +112,11 @@ def get_exif_date(img_file) -> datetime.datetime:
     """Extract the date from the img_file's exif data."""
     # TODO: this doesn't do timezones correctly for some exif data
 
-    # Sanity check on the magic _key numbers
+    # Sanity check on the magic _key numbers in the EXIF data
     datetime_key = 306
     datetime_name = "DateTime"
     assert ExifTags.TAGS[datetime_key] == datetime_name
+    datetime_name_fixed = "DateTimeWithHypens"
 
     # TODO: timezone info for future dev
     # timezoneoffset_key = 34858
@@ -126,12 +132,10 @@ def get_exif_date(img_file) -> datetime.datetime:
         print("no exif data in image")
         date = None
     else:
-        date_str = img_exif.get(datetime_name, None)
+        date_str = img_exif.get(datetime_name_fixed, None)
         if date_str is None:
             date = None
         else:
-            # Convert weird exif YYYY:MM:DD (n.b. ":") format into YYYY-MM-DD, if present
-            date_str = re.sub("(\d{4}):(\d{2}):(\d{2})", r"\1-\2-\3", date_str)
             date = dateutil.parser.parse(date_str)
 
     return date

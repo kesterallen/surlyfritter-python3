@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 
-{% block title %} Add Picture {% endblock %}
+{% block title %} 
+  {% if edit_picture %} Edit Picture {% else %} Add Pictures {% endif %}
+{% endblock %}
 
 {% block head %}
   {{ super() }}
@@ -12,11 +14,7 @@
 
   <div class="container-md">
     <h1>
-      {% if edit_picture %}
-        Edit Picture
-      {% else %}
-        Add Pictures
-      {% endif %}
+      {% if edit_picture %} Edit Picture {% else %} Add Pictures {% endif %}
     </h1>
 
     {% if message %}
@@ -29,7 +27,9 @@
           id="current_img"
           class="img-fluid"
           src="{{edit_picture.img_url}}" 
-          {% if edit_picture.img_rot %}style="transform:rotate({{edit_picture.img_rot}}deg);"{% endif %}
+          {% if edit_picture.img_rot %}
+            style="transform:rotate({{edit_picture.img_rot}}deg);"
+          {% endif %}
         >
     {% endif %}
 
@@ -40,27 +40,33 @@
       <div class="form-group">
         <label for="file">Select Picture{% if not edit_picture %}(s){% endif %}</label>
         <input type="file" 
-          {% if edit_picture %}
-            name="picture"
-          {% else %}
-            multiple name="pictures"
-          {% endif %}
+          {% if edit_picture %} name="picture" {% else %} multiple name="pictures" {% endif %}
         >
         {% if edit_picture %}
-          Rotate Image (click image to rotate 90 degrees clockwise)?
+          Rotate Image:
           <input type="number" id="img_rot" name="img_rot" min="0" step="90" max="270">
 
           <hr/>
           <ul>
-            <li>{{edit_picture.date}}</li>
-            <li>{{edit_picture.added_on}}</li>
-            <li>{{edit_picture.updated_on}}</li>
-            <li>{{edit_picture.img_rot}}</li>
+            <li>Picture.date {{edit_picture.date}}</li>
+            <li>Picture.added_on {{edit_picture.added_on}}</li>
+            <li>Picture.updated_on{{edit_picture.updated_on}}</li>
+            <li>Picture.img_rot{{edit_picture.img_rot}}</li>
           </ul>
           <input name="new_date">
           <label for="new_date">New date</label>
+
+          <hr/>
+          Remove tags:
+          <br/>
+          {% for tag in edit_picture.tags %}
+            <a href="/tag/remove?img_id={{edit_picture.added_order}}&tag_text={{tag.text}}">{{tag.text}}</a>
+          {% endfor %}
+
         {% endif %}
       </div>
+
+      <hr/>
       <button type="submit" class="btn btn-primary">
         {% if edit_picture %}
           Update Picture

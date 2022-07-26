@@ -295,12 +295,18 @@ class Picture(ndb.Model):
     @property
     def prev_pic(self):
         """The picture pointed to by the prev_pic_ref for this entity"""
-        return self.prev_pic_ref.get()
+        if self.prev_pic_ref is not None:
+            return self.prev_pic_ref.get()
+        else:
+            return None
 
     @property
     def next_pic(self):
         """The picture pointed to by the next_pic_ref for this entity"""
-        return self.next_pic_ref.get()
+        if self.next_pic_ref is not None:
+            return self.next_pic_ref.get()
+        else:
+            return None
 
     @property
     def imgp_id(self) -> int:
@@ -356,6 +362,28 @@ class Picture(ndb.Model):
             tag.put()
 
             self.tag_refs.append(tag.key)
+            self.put()
+
+    def remove_tag(self, tag_text: str):
+        """Remove a tag from this Picture"""
+        tag_text = tag_text.lower().strip()
+        tag = Tag.query(Tag.text == tag_text).get()
+
+        # Verify that this Tag already exists and is associated with this
+        # Picture. If it isn't, return. 
+        #
+        if tag is None:
+            return
+
+        if tag.key in self.tag_refs:
+            tag.tag_count -= 1
+            # TODO: replace the next two lines with REMOVING the tag if the count is 0
+            if tag.tag_count < 1:
+                tag.tag_count = 1
+            tag.tag_count_log = math.log10(tag.tag_count)
+            tag.put()
+
+            self.tag_refs.remove(tag.key)
             self.put()
 
     def add_comment(self, comment_text: str):

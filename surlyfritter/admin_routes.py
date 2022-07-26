@@ -107,7 +107,6 @@ def counts():
     counts_dict = _counts()
     return render_template('admin_report.html', counts=counts_dict)
 
-# TODO: remove this
 @app.route('/picture/nullrefs/<int:img_id>', methods=['POST'])
 def picture_null_refs(img_id:int):
     """
@@ -130,18 +129,17 @@ def picture_null_refs(img_id:int):
         picture.next_pic_ref = None
         picture.put()
 
-# TODO: remove this
 @app.route('/delete/all')
 def delete_everything():
     """Erase everything"""
-    # TODO: ask if user is sure before doing this
-
     # ABORT
     if DISABLE_DAMAGING_ENDPOINTS:
         abort(404, "delete-all is a disabled endpoint")
 
     if not is_admin():
         abort(404, "delete-all is admin-only")
+
+    # TODO: ask if user is sure before doing this
 
     deletes = dict(
         blobs=[],
@@ -212,11 +210,13 @@ def _picture_edit_post(img_id:int):
 
             # set prev_pic's .next_pic_ref to next_pic, if prev_pic exists (or None, if next_pic doesn't exist)
             if picture.next_pic_ref:
-                picture.prev_pic.next_pic_ref = picture.next_pic.key
+                if picture.prev_pic:
+                    picture.prev_pic.next_pic_ref = picture.next_pic.key
 
             # set next_pic's .prev_pic_ref to prev_pic, if next_pic exists (or None, if prev_pic doesn't exist)
             if picture.prev_pic_ref:
-                picture.next_pic.prev_pic_ref = picture.prev_pic.key
+                if picture.next_pic:
+                    picture.next_pic.prev_pic_ref = picture.prev_pic.key
 
             # set new next_pic and prev_pic to point to picture, and
             # picture.next_pic_ref and picture.prev_pic_ref to point to
@@ -224,8 +224,10 @@ def _picture_edit_post(img_id:int):
             prev_pic_key, next_pic_key = Picture.prev_next_pic_keys(date)
             picture.prev_pic_ref = prev_pic_key
             #TODO: need to picture.put() first?
-            picture.prev_pic.next_pic_ref = picture.key
-            picture.next_pic_ref = next_pic_key
+            if picture.prev_pic:
+                picture.prev_pic.next_pic_ref = picture.key
+            if next_pic_key:
+                picture.next_pic_ref = next_pic_key
             #TODO: need to picture.put() first?
             picture.next_pic.prev_pic_ref = picture.key
 

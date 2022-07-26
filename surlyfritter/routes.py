@@ -384,6 +384,19 @@ def tag_add():
     return redirect(f"/p/{added_order}")
 
 
+@app.route("/tag/remove", methods=["GET", "POST"])
+def tag_remove():
+    """remove a tag from a picture"""
+    tag_text = request.values.get("tag_text")
+    added_order = int(request.values.get("img_id"))
+
+    with client.context():
+        picture = Picture.query(Picture.added_order == added_order).get()
+        picture.remove_tag(tag_text)
+
+    return redirect(f"/p/{added_order}")
+
+
 @app.route("/comment/add", methods=["POST"])
 def comment_add():
     """Add a comment to a picture"""
