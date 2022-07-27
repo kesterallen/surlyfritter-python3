@@ -180,8 +180,6 @@ def delete_everything():
 
 def _picture_edit_post(img_id:int):
     """POST: Make the picture edit changes"""
-    # TODO remove/edit comment or tag
-
     try:
         picture = Picture.query(Picture.added_order == img_id).get()
         if picture is None:
@@ -208,28 +206,29 @@ def _picture_edit_post(img_id:int):
             date = dateutil.parser.parse(new_date)
             picture.date = date
 
-            # set prev_pic's .next_pic_ref to next_pic, if prev_pic exists (or None, if next_pic doesn't exist)
-            if picture.next_pic_ref:
-                if picture.prev_pic:
-                    picture.prev_pic.next_pic_ref = picture.next_pic.key
+            # Set the OLD prev/next pictures to point to each other, since the
+            # current Picture is moving in the date stream:
+            #
+            # a) point prev_pic's .next_pic_ref to next_pic, if prev_pic
+            #    exists (or None, if next_pic doesn't exist)
+            #
+            # b) point next_pic's .prev_pic_ref to prev_pic, if next_pic
+            #    exists (or None, if prev_pic doesn't exist)
+            #
+            if picture.next_pic_ref and picture.prev_pic:
+                picture.prev_pic.next_pic_ref = picture.next_pic.key
+            if picture.prev_pic_ref and picture.next_pic:
+                picture.next_pic.prev_pic_ref = picture.prev_pic.key
 
-            # set next_pic's .prev_pic_ref to prev_pic, if next_pic exists (or None, if prev_pic doesn't exist)
-            if picture.prev_pic_ref:
-                if picture.next_pic:
-                    picture.next_pic.prev_pic_ref = picture.prev_pic.key
-
-            # set new next_pic and prev_pic to point to picture, and
-            # picture.next_pic_ref and picture.prev_pic_ref to point to
-            # new next/prev
-            prev_pic_key, next_pic_key = Picture.prev_next_pic_keys(date)
-            picture.prev_pic_ref = prev_pic_key
-            #TODO: need to picture.put() first?
+            # Set the new adjacent Pictures (new next_pic and prev_pic) to
+            # point to picture, and picture.next_pic_ref and
+            # picture.prev_pic_ref to point to new next/prev
+            picture.prev_pic_ref = Picture.get_prev_pic_key(date)
+            picture.next_pic_ref = Picture.get_next_pic_key(date)
             if picture.prev_pic:
                 picture.prev_pic.next_pic_ref = picture.key
-            if next_pic_key:
-                picture.next_pic_ref = next_pic_key
-            #TODO: need to picture.put() first?
-            picture.next_pic.prev_pic_ref = picture.key
+            if picture.next_pic:
+                picture.next_pic.prev_pic_ref = picture.key
 
         picture.updated_on = datetime.datetime.now()
         picture.put()

@@ -1,7 +1,7 @@
 <form name="addtag" action="/tag/add" method="post">
   <div class="form-group">
     <input type="hidden" name="img_id" value="{{pictures[0].imgp_id}}">
-    <input class="form-control" type="text" name="tag_text" placeholder="Add tags">
+    <input class="form-control" type="text" id="tag_input" name="tag_text" placeholder="Add tags">
   </div>
 </form>
 
@@ -10,6 +10,6 @@
 <form name="addcomment" action="/comment/add" method="post">
   <div class="form-group">
     <input type="hidden" name="img_id" value="{{pictures[0].imgp_id}}">
-    <input class="form-control" type="text" name="comment_text" placeholder="Add comments"/>
+    <input class="form-control" type="text" id="comment_input" name="comment_text" placeholder="Add comments"/>
   </div>
 </form>

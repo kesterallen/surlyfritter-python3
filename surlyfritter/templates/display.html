@@ -6,9 +6,16 @@
   {{ super() }}
   {% if pictures and pictures|length == 1 %}
     <script>
-      // TODO: change this to a smaller smaller element, not 'document'.
-      // TODO: or supress this in text fields on page
       document.onkeyup = function (e) {
+
+        // Supress arrow action in tag and comment fields on page
+        var tag_input = document.getElementById("tag_input");
+        var comment_input = document.getElementById("comment_input");
+        if (tag_input === document.activeElement || comment_input === document.activeElement) {
+            return true;
+        }
+
+        // Otherwise use arrow keys for forward/backwards in photo stream
         e = e || window.event;
         var key = e.which;
         if(key == 39) { // right arrow
