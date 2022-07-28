@@ -67,6 +67,13 @@
             >
           </a>
 
+          <!-- show next/prev info for admin -->
+          {% if is_admin %}
+             prev: {{picture.prev_pic.added_order}} -- {{picture.prev_pic.date}}
+             <br/>
+             next: {{picture.next_pic.added_order}} -- {{picture.next_pic.date}}
+          {% endif %}
+
           <!-- If this is a single picture, show the forms to add comments/tags -->
           {% include 'add_tag_comment.html' %}
         </div>

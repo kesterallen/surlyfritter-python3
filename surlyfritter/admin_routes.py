@@ -2,6 +2,11 @@
 Admin routes
 """
 
+# TODO: https://www.surlyfritter.com/p/4055
+# TODO: https://www.surlyfritter.com/p/7044
+# TODO: https://www.surlyfritter.com/p/4056
+
+
 import datetime
 import dateutil.parser
 import io
@@ -221,9 +226,10 @@ def _picture_edit_post(img_id:int):
                 picture.next_pic.prev_pic_ref = picture.prev_pic.key
 
             # Set picture.next_pic_ref and # picture.prev_pic_ref to point to
-            # new next/prev:
-            picture.prev_pic_ref = Picture.get_prev_pic_key(date)
-            picture.next_pic_ref = Picture.get_next_pic_key(date)
+            # new next/prev. Use or_equal_to = False to avoid getting the
+            # self-same picture back:
+            picture.prev_pic_ref = Picture.get_prev_pic_key(date, or_equal_to=False)
+            picture.next_pic_ref = Picture.get_next_pic_key(date, or_equal_to=False)
 
             # Set the NEW adjacent Pictures (new next_pic and prev_pic) to
             # point to the current picture

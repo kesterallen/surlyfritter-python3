@@ -72,23 +72,26 @@ class Picture(ndb.Model):
         return f"https://storage.googleapis.com/{GCS_BUCKET_NAME}/{name}"
 
     @classmethod
-    def get_prev_pic_key(cls, date):
+    def get_prev_pic_key(cls, date, or_equal_to=True):
         """Get the previous picture reference key"""
-        prev_pic = Picture.prev_by_date(date)
+        prev_pic = Picture.prev_by_date(date, or_equal_to)
         prev_pic_key = None if prev_pic is None else prev_pic.key
         return prev_pic_key
 
     @classmethod
-    def get_next_pic_key(cls, date):
+    def get_next_pic_key(cls, date, or_equal_to=True):
         """Get the next picture reference key"""
-        next_pic = Picture.next_by_date(date)
+        next_pic = Picture.next_by_date(date, or_equal_to)
         next_pic_key = None if next_pic is None else next_pic.key
         return next_pic_key
 
     @classmethod
-    def prev_next_pic_keys(cls, date):
+    def prev_next_pic_keys(cls, date, or_equal_to=True):
         """Get the previous and next picture reference keys"""
-        return (Picture.get_prev_pic_key(date), Picture.get_next_pic_key(date))
+        return (
+            Picture.get_prev_pic_key(date, or_equal_to),
+            Picture.get_next_pic_key(date, or_equal_to),
+        )
 
     @classmethod
     def create(cls, img, name):
@@ -378,7 +381,7 @@ class Picture(ndb.Model):
         tag = Tag.query(Tag.text == tag_text).get()
 
         # Verify that this Tag already exists and is associated with this
-        # Picture. If it isn't, return. 
+        # Picture. If it isn't, return.
         #
         if tag is None:
             return
