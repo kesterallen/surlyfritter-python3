@@ -220,18 +220,23 @@ def _picture_edit_post(img_id:int):
             if picture.prev_pic_ref and picture.next_pic:
                 picture.next_pic.prev_pic_ref = picture.prev_pic.key
 
-            # Set the new adjacent Pictures (new next_pic and prev_pic) to
-            # point to picture, and picture.next_pic_ref and
-            # picture.prev_pic_ref to point to new next/prev
+            # Set picture.next_pic_ref and # picture.prev_pic_ref to point to
+            # new next/prev:
             picture.prev_pic_ref = Picture.get_prev_pic_key(date)
             picture.next_pic_ref = Picture.get_next_pic_key(date)
+
+            # Set the NEW adjacent Pictures (new next_pic and prev_pic) to
+            # point to the current picture
             if picture.prev_pic:
                 picture.prev_pic.next_pic_ref = picture.key
+                picture.prev_pic.put()
             if picture.next_pic:
                 picture.next_pic.prev_pic_ref = picture.key
+                picture.next_pic.put()
 
         picture.updated_on = datetime.datetime.now()
         picture.put()
+
     except NotFound as err: # blob not found
         abort(404, f"Blob with {picture.name} not found, exiting ({err})")
 
@@ -590,7 +595,7 @@ def revert_to_old_site_date_order():
                 picture.put()
                 prev_picture.put()
             elif i == (len(old_site_date_orders)-1):
-                print("special earliest picture logic")
+                # Special earliest picture logic
                 next_picture = _get_next_picture(i)
                 next_picture.prev_pic_ref = picture.key
                 picture.next_pic_ref = next_picture.key
@@ -600,7 +605,7 @@ def revert_to_old_site_date_order():
                 picture.put()
                 next_picture.put()
             else:
-                #print("regular case")
+                # Regular case
                 prev_picture = _get_prev_picture(i)
                 prev_picture.next_pic_ref = picture.key
                 picture.prev_pic_ref = prev_picture.key
