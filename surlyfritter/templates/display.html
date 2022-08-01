@@ -56,7 +56,9 @@
 
         <div class="col-lg-8 col-sm-12 float-start me-4 mb-10">
           {% include 'phone_buttons.html' %}
-          {% if is_admin %} {% include 'admin_rotation_buttons.html' %} {% endif %}
+          {% if is_admin %}
+            {% include 'admin_rotation_buttons.html' %}
+          {% endif %}
 
           <!-- The image -->
           <a href="/p/{{picture.imgp_id}}">
@@ -66,13 +68,6 @@
               {% if picture.img_rot %} style="transform:rotate({{picture.img_rot}}deg);" {% endif %}
             >
           </a>
-
-          <!-- show next/prev info for admin -->
-          {% if is_admin %}
-             prev: {{picture.prev_pic.added_order}} -- {{picture.prev_pic.date}}
-             <br/>
-             next: {{picture.next_pic.added_order}} -- {{picture.next_pic.date}}
-          {% endif %}
 
           <!-- If this is a single picture, show the forms to add comments/tags -->
           {% include 'add_tag_comment.html' %}
