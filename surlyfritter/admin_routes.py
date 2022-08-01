@@ -1,18 +1,12 @@
 """
 Admin routes
 """
-
-# TODO: https://www.surlyfritter.com/p/4055
-# TODO: https://www.surlyfritter.com/p/7044
-# TODO: https://www.surlyfritter.com/p/4056
-
-
 import datetime
-import dateutil.parser
 import io
 import pprint
 import requests
 
+import dateutil.parser
 import jwt
 from flask import redirect, request, abort, session
 
@@ -93,10 +87,11 @@ def gauth():
     # Get credential and set user info:
     credential = request.values.get('credential')
     decoded = jwt.decode(credential, options={"verify_signature": False})
-    #client_id = get_key('onetap_key')
-    #decoded_token = jwt.decode(csrf_token_body, options={"verify_signature": False}) # pylint: disable=line-too-long
-
-    #idinfo = id_token.verify_oauth2_token(decoded_token, g_requests.Request(), client_id) # pylint: disable=line-too-long
+    #client_id = get_key("onetap_key")
+    #decoded_token = jwt.decode(csrf_token_body, options={"verify_signature": False})
+    #idinfo = id_token.verify_oauth2_token(
+    #    decoded_token, g_requests.Request(), client_id
+    #)
 
     session['user_img'] = decoded['picture']
     session['user_email'] = decoded['email']
@@ -118,7 +113,6 @@ def picture_null_refs(img_id:int):
     Null the next / previous links for this picture. Used for date linkage
     cleanup.
     """
-
     # ABORT
     if DISABLE_DAMAGING_ENDPOINTS:
         abort(404, "delete-all is a disabled endpoint")
@@ -183,6 +177,43 @@ def delete_everything():
     message = "Delete report:"
     return render_template('admin_report.html', deletes=deletes, message=message)
 
+def _update_adjacent_pictures(picture):
+    """
+    Set the OLD prev/next pictures to point to each other, since the
+    current Picture is moving in the date stream:
+
+    a) point prev_pic's .next_pic_ref to next_pic, if prev_pic
+       exists (or None, if next_pic doesn't exist)
+
+    b) point next_pic's .prev_pic_ref to prev_pic, if next_pic
+       exists (or None, if prev_pic doesn't exist)
+    """
+    # Nominal case: prev_pic and next_pic both exist
+    # Set them to point to each other
+    if picture.prev_pic and picture.next_pic:
+        picture.prev_pic.next_pic_ref = picture.next_pic.key
+        picture.next_pic.prev_pic_ref = picture.prev_pic.key
+        picture.next_pic.put()
+        picture.prev_pic.put()
+    else:
+        # Three possible non-nominal cases:
+        #
+        # 1) Next_pic exists but prev_pic does not: this is the earliest
+        #    picture (or broken links). Set the next_pic's previous link to None.
+        # 2) Prev_pic exists, but next_pic does not: this is the latest
+        #    picture (or broken links). Set the previous_pic's next link to None
+        # 3) Neither exist. First picture added? Or broken links. Do nothing.
+        #
+        if picture.next_pic:
+            picture.next_pic.prev_pic_ref = None
+            picture.next_pic.put()
+        elif picture.prev_pic:
+            picture.prev_pic.next_pic_ref = None
+            picture.prev_pic.put()
+        else:
+            pass
+
+
 def _picture_edit_post(img_id:int):
     """POST: Make the picture edit changes"""
     try:
@@ -210,29 +241,25 @@ def _picture_edit_post(img_id:int):
         if new_date:
             date = dateutil.parser.parse(new_date)
             picture.date = date
+            picture.put()
 
-            # Set the OLD prev/next pictures to point to each other, since the
-            # current Picture is moving in the date stream:
-            #
-            # a) point prev_pic's .next_pic_ref to next_pic, if prev_pic
-            #    exists (or None, if next_pic doesn't exist)
-            #
-            # b) point next_pic's .prev_pic_ref to prev_pic, if next_pic
-            #    exists (or None, if prev_pic doesn't exist)
-            #
-            if picture.next_pic_ref and picture.prev_pic:
-                picture.prev_pic.next_pic_ref = picture.next_pic.key
-            if picture.prev_pic_ref and picture.next_pic:
-                picture.next_pic.prev_pic_ref = picture.prev_pic.key
+            _update_adjacent_pictures(picture)
 
-            # Set picture.next_pic_ref and # picture.prev_pic_ref to point to
-            # new next/prev. Use or_equal_to = False to avoid getting the
-            # self-same picture back:
-            picture.prev_pic_ref = Picture.get_prev_pic_key(date, or_equal_to=False)
-            picture.next_pic_ref = Picture.get_next_pic_key(date, or_equal_to=False)
+            # Set the current picture's prev/next references to point to its
+            # new adjacent pictures.  Use or_equal_to = False to avoid getting
+            # "self" as the previous or next, and verify that neither reference
+            # is pointing to self (this can happen adjusting the date of the
+            # most recent photo):
+            prev_pic_ref = Picture.get_prev_pic_key(date, or_equal_to=False)
+            next_pic_ref = Picture.get_next_pic_key(date, or_equal_to=False)
+            if prev_pic_ref != picture.key:
+                picture.prev_pic_ref = prev_pic_ref
+            if next_pic_ref != picture.key:
+                picture.next_pic_ref = next_pic_ref
 
-            # Set the NEW adjacent Pictures (new next_pic and prev_pic) to
-            # point to the current picture
+            # Set the NEW adjacent Pictures (new prev_pic and next_pic) to
+            # point to the current picture with their next/prev references,
+            # respectively.
             if picture.prev_pic:
                 picture.prev_pic.next_pic_ref = picture.key
                 picture.prev_pic.put()
@@ -433,14 +460,12 @@ def fix_next_prev_links():
     return render_template('admin_report.html', fixes=fixes, message=message)
 
 @app.route('/smoke-test')
-def smoke_test():
+def smoke_test(do_hash_check=False):
     """
     Smoke test for the
         next/prev links
         picture count
     """
-    DO_HASH_CHECK = False
-
     if not is_admin():
         abort(404, "smoke-test is admin-only")
 
@@ -449,7 +474,7 @@ def smoke_test():
 
     raw_counts = _counts()
 
-    if DO_HASH_CHECK:
+    if do_hash_check:
         ihash = 0
         image_hashes = dict()
 
@@ -485,7 +510,7 @@ def smoke_test():
                 abort(400, msg)
             visited_pics[picture.imgp_id] = tmp.imgp_id
 
-            if DO_HASH_CHECK:
+            if do_hash_check:
                 # Check for duplicate images. SLOW
                 hash_value = get_hash_from_url(picture.img_url)
                 ihash += 1
@@ -513,7 +538,7 @@ def smoke_test():
 
         message = f"date ordering {date_status} / counts match {count_status}"
 
-        if DO_HASH_CHECK:
+        if do_hash_check:
             # Flag any duplicate images:
             duplicate_images = []
             for hash_value, imgp_ids in image_hashes.items():
