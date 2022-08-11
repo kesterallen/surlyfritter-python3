@@ -60,11 +60,11 @@
     {% include "navbar.html" %}
 
     <!-- Ref: https://developers.google.com/identity/sign-in/web/backend-auth -->
-
+    <!-- TODO: just "/gauth" below for data-login_uri ? -->
     {% if not is_logged_in %}
       <div id="g_id_onload"
         data-client_id="75715567093-1nhb1mtio6jvfoika3rradalj3c0q7n8.apps.googleusercontent.com",
-        data-login_uri="https://www.surlyfritter.com/gauth" <!-- TODO: just "/gauth" ? -->
+        data-login_uri="https://www.surlyfritter.com/gauth"
         data-auto_select="true"
       >
       </div>

@@ -15,14 +15,11 @@ def tour_de_cure():
 @app.route("/tourdonate")
 @app.route("/tourdecuredonate")
 @app.route("/tour_de_cure_donate")
-def tour_de_cure_donate():
-    return redirect("http://main.diabetes.org/goto/kester")
-
 @app.route("/tourdonatedirect")
 @app.route("/tourdecuredonatedirect")
 @app.route("/tour_de_cure_donate_direct")
-def tour_de_cure_donate_direct():
-    return redirect("https://donations.diabetes.org/site/Donation2?idb=605003176&df_id=22368&FR_ID=13306&mfc_pref=T&PROXY_ID=15794662&22368.donation=form1&PROXY_TYPE=20")
+def tour_de_cure_donate():
+    return redirect("https://donations.diabetes.org/site/Donation2?idb=504997804&df_id=22747&FR_ID=13455&mfc_pref=T&22747.donation=form1&PROXY_ID=15794662&PROXY_TYPE=20")
 
 @app.route("/tourmap")
 @app.route("/tourdecuremap")
