@@ -19,19 +19,23 @@ LETTERS[letter]["no"] list. For example, this will produce "swill":
 import sys
 
 
-BAD_LETTERS = "dieushotpcw"
+BAD_LETTERS = "dieshorclpm"
 LETTERS = dict(
-    a=dict(yes=[0], no=[2]),
-    r=dict(yes=[3], no=[]),
+    a=dict(yes=[], no=[0,2,3]),
+    u=dict(yes=[], no=[1,3,4]),
+    t=dict(yes=[4], no=[]),
 )
 
 DEFAULT_WORD_FILE = "/usr/share/dict/american-english"
 
 
-def wordle_word_filter(line):
+def wordle_filter(line):
     """
-    Does the input line contain a wordle word? (5-char, not a proper noun).
-    If so, return it, otherwise return None.
+    Is the input line a wordle word? 
+        * 5 characters
+        * no apostrophes
+        * all lower-case (to remove proper nouns)
+    If so return it, otherwise return None.
     """
     word = line.strip()
     if len(word) != 5 or "'" in word or not word.islower():
@@ -42,7 +46,7 @@ def wordle_word_filter(line):
 def get_words(word_file=DEFAULT_WORD_FILE):
     """Return every 5-character work in a word list file."""
     with open(word_file, encoding="utf8") as lines:
-        words = {wordle_word_filter(l) for l in lines}
+        words = {wordle_filter(line) for line in lines}
     words.remove(None)
     return words
 
@@ -99,7 +103,7 @@ def main():
     validate_inputs()
 
     for word in get_words():
-        no_bad_letters = all((l not in word for l in BAD_LETTERS))
+        no_bad_letters = all((bl not in word for bl in BAD_LETTERS))
         in_right_places = letter_locations_good(word, LETTERS)
 
         if no_bad_letters and in_right_places:
