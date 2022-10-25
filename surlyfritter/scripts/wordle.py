@@ -19,11 +19,11 @@ LETTERS[letter]["no"] list. For example, this will produce "swill":
 import sys
 
 
-BAD_LETTERS = "dieshorclpm"
+BAD_LETTERS = "dieshorc"
 LETTERS = dict(
-    a=dict(yes=[], no=[0,2,3]),
-    u=dict(yes=[], no=[1,3,4]),
-    t=dict(yes=[4], no=[]),
+    a=dict(yes=[], no=[0,2]),
+    l=dict(yes=[], no=[1]),
+    u=dict(yes=[], no=[3,4]),
 )
 
 DEFAULT_WORD_FILE = "/usr/share/dict/american-english"
