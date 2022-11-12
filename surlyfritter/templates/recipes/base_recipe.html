@@ -1,0 +1,61 @@
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/static/recipes.css">
+  <link rel="shortcut icon" href="/static/pancakes.ico" type="image/x-icon"/>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  
+  <!-- Twitter card -->
+  <meta name="twitter:card"        content="photo"/>
+  <meta name="twitter:site"        content="@eastbaypancakes"/>
+  <meta name="twitter:creator"     content="@eastbaypancakes"/>
+  <meta name="twitter:url"         content="https://kesterallen.com/{{page}}"/>
+  <meta name="twitter:title"       content="{{title}}"/>
+  <meta name="twitter:text:title"  content="{{subtitle}}"/>
+  <meta name="twitter:description" content=""/>
+  <meta name="twitter:image"       content="https://kesterallen.com/images/pancakes.jpg"/>
+  
+  <!-- Facebook preview-->
+  <meta property="og:title"        content="{{title}}"/>
+  <meta property="og:description"  content=""/>
+  <meta property="og:type"         content="article"/>
+  <meta property="og:url"          content="https://kesterallen.com/{{page}}"/>
+  <meta property="og:image"        content="https://kesterallen.com/images/pancakes.jpg"/>
+  <meta property="og:image:height" content="800"/>
+  <meta property="og:image:width"  content="800"/>
+  <meta property="og:site_name"    content="{{subtitle}}"/>
+  <meta property="fb:admins"       content="eastbaypancakes"/>
+  <meta property="fb:app_id"       content="2092545157500591"/>
+</head>
+
+<body>
+  <div class="container">
+    <div class="row headline-block">
+      <div class="col-md-2 col-md-offset-2 col-xs-12">
+        <a href="/recipes"><h1>Recipes</h1></a>
+      </div>
+      <div class="col-md-5 col-xs-12">
+        {% block headline %}{% endblock %}
+      </div>
+    </div>
+
+    <div class="row recipe-block">
+      <div class="col-xs-8 col-xs-offset-2 col-md-4 col-md-offset-1">
+        {% block ingredients %}{% endblock %}
+      </div>
+      <div class="col-xs-8 col-xs-offset-2 col-md-4 col-md-offset-1">
+        {% block instructions %}{% endblock %}
+      </div>
+
+      <div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1 photos-block">
+        {% block photos %}{% endblock %}
+      </div>
+
+    </div>
+  </div>
+</body>
+
+</html>
