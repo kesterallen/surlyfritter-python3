@@ -541,3 +541,11 @@ def usgs_mercury(box_str: float, width: int, height: int):
     layer = "MESSENGER_Color"
     map_ = "/maps/mercury/mercury_simp_cyl.map"
     return redirect(_usgs_url(layer, box_str, width, height, map_))
+
+
+@app.route("/bakes")
+@app.route("/scrummy")
+@app.route("/scrummybakes")
+def scrummybakes():
+    """ Redirect to scrummy bakes page """
+    return redirect("https://sites.google.com/view/scrummybakes")
