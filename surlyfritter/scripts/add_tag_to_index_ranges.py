@@ -9,12 +9,20 @@ DIRECTION = "next_added_order" if FORWARD else "prev_added_order"
 METADATA_URL = "https://www.surlyfritter.com/p/meta/"
 TAG_URL = "https://www.surlyfritter.com/tag/add"
 
+PLACES = {
+    # "paris": [7311, 7334],
+    # "brussells": [7281, 7274],
+    # "germany": [7364, 7386],
+    "optical illusion museum": [7255, 7271],
+}
+
 
 def indices_set(start_index, end_index):
     """
     Navigate the next-image links from meta.next_added_order to get the list of
     images between start_index and end_index
     """
+    # TODO: add a number-of-tries exit?
     indices = set([end_index])
     index = start_index
     while index not in indices:
@@ -26,17 +34,11 @@ def indices_set(start_index, end_index):
     return indices
 
 
-places = {
-    "paris": [7311, 7334],
-    "brussells": [7281, 7274],
-    "germany": [7364, 7386],
-}
-
 # For each place, start at the picture for the first index and generate a set
 # of the images indices in date order between the start index and the stop
 # index:
 #
-place_indices = {name: indices_set(*indices) for name, indices in places.items()}
+place_indices = {name: indices_set(*indices) for name, indices in PLACES.items()}
 
 # Apply the name tag to each index:
 #
