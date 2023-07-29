@@ -72,26 +72,16 @@ class Picture(ndb.Model):
         return f"https://storage.googleapis.com/{GCS_BUCKET_NAME}/{name}"
 
     @classmethod
-    def get_prev_pic_key(cls, date, or_equal_to=True):
+    def prev_pic_key(cls, date, or_equal_to=True):
         """Get the previous picture reference key"""
         prev_pic = Picture.prev_by_date(date, or_equal_to)
-        prev_pic_key = None if prev_pic is None else prev_pic.key
-        return prev_pic_key
+        return None if prev_pic is None else prev_pic.key
 
     @classmethod
-    def get_next_pic_key(cls, date, or_equal_to=True):
+    def next_pic_key(cls, date, or_equal_to=True):
         """Get the next picture reference key"""
         next_pic = Picture.next_by_date(date, or_equal_to)
-        next_pic_key = None if next_pic is None else next_pic.key
-        return next_pic_key
-
-    @classmethod
-    def prev_next_pic_keys(cls, date, or_equal_to=True):
-        """Get the previous and next picture reference keys"""
-        return (
-            Picture.get_prev_pic_key(date, or_equal_to),
-            Picture.get_next_pic_key(date, or_equal_to),
-        )
+        return None if next_pic is None else next_pic.key
 
     @classmethod
     def create(cls, img, name):
@@ -112,14 +102,13 @@ class Picture(ndb.Model):
                 date = datetime.datetime.now()
 
             # Get prev/next keys and instantiate the new Picture:
-            prev_pic_key, next_pic_key = Picture.prev_next_pic_keys(date)
             picture = Picture(
                 name=name,
                 date=date,
                 added_on=datetime.datetime.now(),
                 added_order=Picture.next_added_order(),
-                prev_pic_ref=prev_pic_key,
-                next_pic_ref=next_pic_key,
+                prev_pic_ref=Picture.prev_pic_key(date, or_equal_to=False),
+                next_pic_ref=Picture.next_pic_key(date, or_equal_to=False),
             )
             picture.put()
 
@@ -141,7 +130,7 @@ class Picture(ndb.Model):
         return the entity with the lowest added_order. Return None if there are no
         entites with .date > 'date'
 
-        Default for '>', override this if you want to not return an identical
+        Default for '>', override this if you want to return an identical
         Picture item.
         """
         if or_equal_to:
@@ -159,7 +148,7 @@ class Picture(ndb.Model):
         return the entity with the highest added_order. Return None if there
         are no entites with .date <= 'date'
 
-        Default for '<=', override this for /fix-next-prev if you want too not
+        Default for '<=', override this for /fix-next-prev if you want to not
         return an identical Picture item.
         """
         if or_equal_to:
@@ -340,6 +329,8 @@ class Picture(ndb.Model):
     @property
     def json(self):
         """JSON representation of object"""
+        prev_added_order = self.prev_pic.added_order if self.prev_pic else None
+        next_added_order = self.next_pic.added_order if self.next_pic else None
         return dict(
             key=str(self.key),
             name=self.name,
@@ -348,7 +339,9 @@ class Picture(ndb.Model):
             updated_on=self.updated_on,
             added_order=self.added_order,
             prev_ref=str(self.prev_pic_ref),
+            prev_added_order=prev_added_order,
             next_ref=str(self.next_pic_ref),
+            next_added_order=next_added_order,
             tags=[t.text for t in self.tags],
             comments=[c.text for c in self.comments],
             img_rot=self.img_rot,
