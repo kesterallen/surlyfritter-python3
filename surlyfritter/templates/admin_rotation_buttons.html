@@ -1,6 +1,12 @@
 <div class="row">
 
-  <div class="col-6">
+  <div class="col-4">
+    {% if picture.prev_pic %} {{picture.prev_pic.date.strftime('%Y-%m-%d %H:%M:%S')}} {{picture.prev_pic.added_order}} prev <br/> {% endif %}
+    {% if picture.date %} {{picture.date.strftime('%Y-%m-%d %H:%M:%S')}} {{picture.added_order}} this <br/> {% endif %}
+    {% if picture.next_pic %} {{picture.next_pic.date.strftime('%Y-%m-%d %H:%M:%S')}} {{picture.next_pic.added_order}} next {% else %} (last) {% endif %}
+  </div>
+
+  <div class="col-4">
     {% set new_rot_cw = picture.img_rot + 90 if picture.img_rot else 90 %}
     <form
       action="/picture/edit/{{picture.imgp_id}}"
@@ -11,7 +17,7 @@
     </form>
   </div>
 
-  <div class="col-6">
+  <div class="col-4">
     {% set new_rot_ccw = picture.img_rot + 270 if picture.img_rot else 270 %}
     <form
       action="/picture/edit/{{picture.imgp_id}}"
@@ -23,10 +29,7 @@
   </div>
 </div>
 
-<div class="row">
-  <div class="col-4"> prev <br/> {{picture.prev_pic.added_order}} <br/> {{picture.prev_pic.date}} </div>
-  <div class="col-4"> this <br/> {{picture.added_order}}          <br/> {{picture.date}}          </div>
-  <div class="col-4"> next <br/> {{picture.next_pic.added_order}} <br/> {{picture.next_pic.date}} </div>
 </div>
+
 
 <br/>
