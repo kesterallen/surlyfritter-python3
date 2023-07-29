@@ -400,12 +400,12 @@ def tag_remove():
 @app.route("/comment/add", methods=["POST"])
 def comment_add():
     """Add a comment to a picture"""
-    comment_text = request.values.get("comment_text")
-    added_order = int(request.values.get("img_id"))
-
-    with client.context():
-        picture = Picture.query(Picture.added_order == added_order).get()
-        picture.add_comment(comment_text)
+    # TODO remove this
+    #comment_text = request.values.get("comment_text")
+    #added_order = int(request.values.get("img_id"))
+    #with client.context():
+        #picture = Picture.query(Picture.added_order == added_order).get()
+        #picture.add_comment(comment_text)
 
     return redirect(f"/p/{added_order}")
 
