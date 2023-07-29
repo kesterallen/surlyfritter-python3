@@ -250,8 +250,8 @@ def _picture_edit_post(img_id:int):
             # "self" as the previous or next, and verify that neither reference
             # is pointing to self (this can happen adjusting the date of the
             # most recent photo):
-            prev_pic_ref = Picture.get_prev_pic_key(date, or_equal_to=False)
-            next_pic_ref = Picture.get_next_pic_key(date, or_equal_to=False)
+            prev_pic_ref = Picture.prev_pic_key(date, or_equal_to=False)
+            next_pic_ref = Picture.next_pic_key(date, or_equal_to=False)
             if prev_pic_ref != picture.key:
                 picture.prev_pic_ref = prev_pic_ref
             if next_pic_ref != picture.key:
