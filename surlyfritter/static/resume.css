@@ -126,11 +126,11 @@ a:active {
   width: 100%;
 }
 .entry .summary .title {
-  width: 35%;
+  width: 45%;
   float: left;
 }
 .entry .summary .company {
-  width: 45%;
+  width: 35%;
   float: left;
 }
 .entry .summary .dates {
