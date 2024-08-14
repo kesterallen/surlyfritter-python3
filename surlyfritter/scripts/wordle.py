@@ -19,14 +19,6 @@ LETTERS[letter]["no"] list. For example, this will produce "swill":
 import re
 import sys
 
-# BAD_LETTERS = "adusort"
-# LETTERS = dict(
-#    # a=dict(yes=[], no=[0, 1, 2]),
-#    e=dict(yes=[], no=[3]),
-#    i=dict(yes=[2], no=[]),
-#    h=dict(yes=[], no=[1]),
-# )
-
 DEFAULT_WORD_FILE = "/usr/share/dict/american-english"
 
 
@@ -66,9 +58,6 @@ def is_possible_word(word: str, letters: dict) -> bool:
     for the letter, is it NOT in the location?
     """
 
-    # TODO: validate word
-    # TODO: validate letters
-
     goods = []
     for letter, locations in letters.items():
         is_here = letter in word
@@ -84,7 +73,74 @@ class BadInput(Exception):
     pass
 
 
-def parse_inputs(inputs):
+def parse_good_letter_yes_no_input(good_letter_input):
+    """
+    Parse a single good-letter input_gl of the form:
+        +12
+    or
+        -45
+    and return data to update good_letters with.
+    """
+    CHAR_LIMIT = (1, 5)
+
+    # Skip empty inputs, which will occur if only one of + or -,  but not both
+    # are specified:
+    #
+    if good_letter_input is None:
+        return
+
+    # The first char should be + or -; if so translate it to yes
+    # or no, if not bail out:
+    #
+    firstchar = good_letter_input[0]
+    if firstchar not in ("+", "-"):
+        raise BadInput(f"input {good_letter_input} is invalid")
+    yesno = "yes" if firstchar == "+" else "no"
+
+    positions = [int(p) for p in good_letter_input[1:]]
+    if any([p > CHAR_LIMIT[1] or p < CHAR_LIMIT[0] for p in positions]):
+        raise BadInput(f"input {good_letter_input} is invalid")
+
+    # User inputs are 1-based, string indices are 0-based
+    return yesno, [p-1 for p in positions]
+
+
+def parse_good_letter_input(good_letters, cli_input):
+    """
+    Parse a single good-letter input of the form:
+        r+1-34
+    (The wordle word has an "r" for the first letter, and the third and fourth letters are NOT "r".)
+        b+23
+    ("b" is the second and third letter)
+        m-1345
+    ("m" is a letter, but not the first, third, fourth, or fifth letter in the word)
+
+    and update the good_letters dict in place.
+
+    Note that e.g. "r+1-34" is exactly equivilent to "r-34+1".
+    """
+
+    # This regex splits a string of the form "x+123-45" into ("x", "+", "12", "-", "45")
+    #
+    # GOOD_LETTER_REGEX = r"(\w)([-+]?)(\w*)([-+]?)(\w*)"
+    GOOD_LETTER_REGEX = r"(\w)([-+]\w*)?([-+]\w*)?"
+    result = re.search(GOOD_LETTER_REGEX, cli_input)
+    if result is None:
+        raise BadInput(f"good-letter argument {cli_input} isn't valid")
+
+    (letter, limits1, limits2) = result.groups()
+    if letter not in good_letters:
+        good_letters[letter] = {"yes": [], "no": []}
+
+    for limits in (limits1, limits2):
+        if limits is None:
+            continue
+        yesno, positions = parse_good_letter_yes_no_input(limits)
+        print(letter, yesno, positions)
+        good_letters[letter][yesno].extend(positions)
+
+
+def parse_inputs(cli_inputs):
     """
     Parse input of the form:
         BAD_LETTERS goodletter+location-nothere_nothere_nothere
@@ -100,41 +156,19 @@ def parse_inputs(inputs):
             h=dict(yes=[4], no=[1, 2]),
     )
     """
-    # badlettters g+1-2
-
-    GOOD_LETTER_REGEX = r"(\w)([-+]?)(\w*)([-+]?)(\w*)"
-    GOOD_LETTER_DIRECTIONS = {"+": "yes", "-": "no", "": "yes"}
 
     bad_letters = ""
     good_letters = {}
 
-    for input in inputs:
-        if "+" in input or "-" in input:
-            result = re.search(GOOD_LETTER_REGEX, input)
-            if result is None:
-                raise BadInput(f"good-letter argument {input} isn't valid")
-            (letter, dir1, pos1, dir2, pos2) = result.groups()
-
-            for dir, pos_str in ((dir1, pos1), (dir2, pos2)):
-                name = GOOD_LETTER_DIRECTIONS[dir]
-                if name:
-                    if letter not in good_letters:
-                        good_letters[letter] = {"yes": [], "no": []}
-                    for p in pos_str:
-                        try:
-                            pos = int(p)
-                            if pos > 5 or pos < 1:
-                                raise BadInput(f"pos is {pos}, should be 1, 2, 3, 4, or 5")
-                            pos_0based = pos - 1
-                            # TODO check pos between 1 and 5, inclusive
-                        except ValueError:
-                            continue
-                        good_letters[letter][name].append(pos_0based)
+    for cli_input in cli_inputs:
+        if "+" in cli_input or "-" in cli_input:
+            parse_good_letter_input(good_letters, cli_input)
         else:
             # check for bad_letters
-            bad_letters += input
+            bad_letters += cli_input
 
     validate_inputs(bad_letters, good_letters)
+    print(bad_letters, good_letters)
     return bad_letters, good_letters
 
 
@@ -153,11 +187,11 @@ def validate_inputs(bad_letters, letters):
         if len(letter) != 1:
             errors.append("LETTERS can only have single-character keys")
         if not isinstance(locations, dict):
-            errors.append("LETTERS locations must be a dict, not {locations}")
+            errors.append(f"LETTERS locations must be a dict, not {locations}")
         if "yes" not in locations:
-            errors.append("LETTERS locations must have a 'yes' array as a key")
+            errors.append(f"LETTERS locations must have a 'yes' array as a key {locations}")
         if "no" not in locations:
-            errors.append("LETTERS locations must have a 'no' array as a key")
+            errors.append(f"LETTERS locations must have a 'no' array as a key {locations}")
     if errors:
         raise BadInput(";".join(errors))
 
@@ -174,6 +208,7 @@ def main():
         for word in get_wordle_words():
             if no_bad_letters(word, bad_letters) and is_possible_word(word, letters):
                 print(word)
+                pass
     except BadInput as err:
         print(err)
 
