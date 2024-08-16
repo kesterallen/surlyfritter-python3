@@ -1,12 +1,17 @@
 """
 Wordle "assistance" program
 
-Specify inputs for excluded letters and letters that are or are not at a location with this syntax:
+Specify inputs for excluded letters and letters that are or are not at a
+location with this syntax:
 
         adst e-123 i+3 h+5-12
 
-(The letters a, d, s, and t are excluded, e is present but is NOT the first, second,
-or third letter, and h is the fifth letter but not the first or second.)
+    or (pluses are optional):
+        adst e-123 i3 h5-12
+
+(The letters a, d, s, and t are excluded, e is present but is NOT the first,
+second, or third letter, i is the third letter, and h is the fifth letter but
+not the first or second.)
 """
 
 import re
@@ -15,6 +20,8 @@ import sys
 DEBUG = False
 DEFAULT_WORD_FILE = "/usr/share/dict/american-english"
 WORDLE_LENGTH = 5
+YES = "yes"
+NO = "no"
 
 
 class BadInput(Exception):
@@ -28,16 +35,17 @@ def is_wordle_word(word: str) -> bool:
         * no apostrophes
         * all lower-case (to remove proper nouns)
     """
-    return word.islower() and len(word.strip()) == WORDLE_LENGTH and "'" not in word
+    word = word.strip()  # just in case
+    return word.islower() and len(word) == WORDLE_LENGTH and "'" not in word
 
 
 def all_wordle_words(word_file: str = DEFAULT_WORD_FILE) -> set[str]:
-    """Return a set of every WORDLE_LENGTH-character word in a word list file."""
+    """Return a set of all WORDLE_LENGTH-character words in a word list file."""
     with open(word_file, encoding="utf8") as words:
         return {w.strip() for w in words if is_wordle_word(w)}
 
 
-def location_ok(word: str, letter_locations: dict) -> bool:
+def location_ok(word: str, location_info: dict) -> bool:
     """
     Does the word have the right letters in the right locations, and not in the
     wrong places? The input "locations" should be a dict with key/value pairs
@@ -57,12 +65,12 @@ def location_ok(word: str, letter_locations: dict) -> bool:
     3) if there are excluded spots for the letter, is it NOT in the position?
     """
     is_location_ok = set()
-    for letter, locations in letter_locations.items():
-        is_here = letter in word
-        all_right_places = all(word[i] == letter for i in locations["yes"])
-        no_wrong_places = all(word[i] != letter for i in locations["no"])
+    for letter, locations in location_info.items():
+        is_present = letter in word
+        all_right_places = all(word[i] == letter for i in locations[YES])
+        no_wrong_places = all(word[i] != letter for i in locations[NO])
 
-        is_location_ok.update((is_here, all_right_places, no_wrong_places))
+        is_location_ok.update((is_present, all_right_places, no_wrong_places))
 
     return all(is_location_ok)
 
@@ -74,7 +82,7 @@ def parse_location(letter_locs_input: str | None) -> tuple[str, list[int]]:
         (or 12)
     or
         -45
-    and return data to update letter_locations with.
+    and return data to update location_info with.
     """
     # Skip empty inputs, which will occur if only one of + or -,  but not both
     # are specified:
@@ -88,12 +96,12 @@ def parse_location(letter_locs_input: str | None) -> tuple[str, list[int]]:
     firstchar = letter_locs_input[0]
     if firstchar not in ("+", "-"):
         if firstchar.isdigit():
-            yesno = "yes"
+            yesno = YES
             digits = letter_locs_input
         else:
             raise BadInput(f"input {letter_locs_input} is invalid, no leading +/-")
     else:
-        yesno = "yes" if firstchar == "+" else "no"
+        yesno = YES if firstchar == "+" else NO
         digits = letter_locs_input[1:]
 
     positions = [int(p) for p in digits]
@@ -104,9 +112,9 @@ def parse_location(letter_locs_input: str | None) -> tuple[str, list[int]]:
     return yesno, [p - 1 for p in positions]
 
 
-def parse_letter_location(_input: str) -> dict:
+def parse_letter_location(location_input: str) -> dict:
     """
-    Parse a single good-letter _input of the form:
+    Parse a single good-letter input of the form:
 
         r+1-34
     (The wordle word has an "r" for the first letter, and the third and fourth
@@ -120,34 +128,36 @@ def parse_letter_location(_input: str) -> dict:
 
     or:
         m-1345
-    ("m" is a letter, but not the first, third, fourth, or fifth letter in the word)
+    ("m" is a letter, but not the first, third, fourth, or fifth letter in the
+    word)
 
-    and return an update for the letter_locations dict.
+    and return an update for the location_info dict.
 
     Note that e.g. "r+1-34" is exactly equivalent to "r-34+1",
     """
-    # This regex splits a string of the form
-    #   "x+123-45" into ("x", "+123", "-45")
-    #   or "y45-12" into ("y", "+45", "-12")
-    #   or "z-14" into ("z", "-14", None)
+    letter = location_input[0]
+    if not letter.isalpha():
+        raise BadInput(f"good-letter argument {location_input} isn't valid")
+
+    # This regex / findall generates lists like:
+    #   "+123-45" -> ["+123", "-45"]
+    #   or "45-12" -> ["45", "-12"]
+    #   or "-14" -> ["-14"]
     #
-    letter_locs_regex = r"(\w)([-+]?\d+)([-+]?\d+)?"
-    result = re.search(letter_locs_regex, _input)
-    if result is None:
-        raise BadInput(f"good-letter argument {_input} isn't valid")
+    locations_regex = r"([-+]?\d+)"
+    locations = re.findall(locations_regex, location_input)
+    if len(locations) == 0:
+        raise BadInput(f"good-letter argument {location_input} isn't valid")
 
-    (letter, location1, location2) = result.groups()
-    letter_location = {letter: {"yes": [], "no": []}}
-
-    for location in (location1, location2):
-        if location is not None:
-            yesno, positions = parse_location(location)
-            letter_location[letter][yesno].extend(positions)
+    letter_location = {letter: {YES: [], NO: []}}
+    for location in locations:
+        yesno, positions = parse_location(location)
+        letter_location[letter][yesno].extend(positions)
 
     return letter_location
 
 
-def parse_inputs(inputs: list[str]) -> tuple[str, dict]:
+def parse_inputs(user_inputs: list[str]) -> tuple[str, dict]:
     """
     Parse input of the form:
         BAD_LETTERS goodletter+location-nothere_nothere_nothere
@@ -164,62 +174,57 @@ def parse_inputs(inputs: list[str]) -> tuple[str, dict]:
     )
     """
     bad_letters = ""
-    letter_locations = {}
+    location_info = {}
 
-    # If there's a number in the input, it's a good letter
-    # Otherwise it's a bad letter
-    for _input in inputs:
-        if any(c.isdigit() for c in _input):
-            letter_location = parse_letter_location(_input)
-            letter_locations.update(letter_location)
+    # If there's a number in the input, it's a good letter-location-input,
+    # otherwise it's a bad letter input:
+    for user_input in user_inputs:
+        if any(c.isdigit() for c in user_input):
+            letter_location = parse_letter_location(user_input)
+            location_info.update(letter_location)
         else:
-            bad_letters += _input
+            bad_letters += user_input
 
-    validate_inputs(bad_letters, letter_locations)
-    return bad_letters, letter_locations
+    validate_inputs(bad_letters, location_info)
+    return bad_letters, location_info
 
 
-def validate_inputs(bad_letters: str, letter_locations: dict) -> None:
-    """Sanity check user inputs"""
+def validate_inputs(bad_letters: str, location_info: dict) -> None:
+    """Sanity-check user inputs"""
 
-    duplicated_letters = {b for b in bad_letters if b in letter_locations}
+    duplicated_letters = {b for b in bad_letters if b in location_info}
     if duplicated_letters:
         raise BadInput(f"Dups {duplicated_letters} in BAD_LETTERS and LETTERS")
 
-    if not isinstance(letter_locations, dict):
+    if not isinstance(location_info, dict):
         raise BadInput("LETTERS should be a dict")
 
     errors = []
-    for letter, locations in letter_locations.items():
+    for letter, locations in location_info.items():
         if len(letter) != 1:
-            errors.append("LETTER LOCS can only have single-character keys")
+            errors.append("Location Info can only have single-character keys")
         if not isinstance(locations, dict):
-            errors.append(f"LETTER LOCS must be a dict, not {locations}")
-        if "yes" not in locations:
-            errors.append(f"LETTER LOCS must have a 'yes' array as a key {locations}")
-        if "no" not in locations:
-            errors.append(f"LETTER LOCS must have a 'no' array as a key {locations}")
+            errors.append(f"Location Info must be a dict, not {locations}")
+        if YES not in locations:
+            errors.append(f"Location Info must have a '{YES}' list {locations}")
+        if NO not in locations:
+            errors.append(f"Location Info must have a '{NO}' list{locations}")
     if errors:
         raise BadInput(";".join(errors))
 
 
-def no_bad_letters(word: str, bad_letters: str) -> bool:
+def not_bad(word: str, bad_letters: str) -> bool:
     """Determine if 'word' contains any of the characters in BAD_LETTERS"""
-    return not any(bl in word for bl in bad_letters)
-
-
-def is_possible_word(word: str, bad_letters: str, letter_locations: dict) -> bool:
-    """Is the word a possible solution?"""
-    return no_bad_letters(word, bad_letters) and location_ok(word, letter_locations)
+    return not any(b in word for b in bad_letters)
 
 
 def main():
-    """Get the wordle"""
+    """ "Solve" today's wordle puzzle"""
     try:
-        bad_letters, letter_locations = parse_inputs(sys.argv[1:])
+        bad_letters, location_info = parse_inputs(sys.argv[1:])
         words = []
         for word in all_wordle_words():
-            if is_possible_word(word, bad_letters, letter_locations):
+            if not_bad(word, bad_letters) and location_ok(word, location_info):
                 words.append(word)
 
         print("\n".join(words))
@@ -228,7 +233,7 @@ def main():
             print("")
             print(f"Count: {len(words)}")
             print(f"Excluded letters: {bad_letters}")
-            print(f"Included letters: {letter_locations}")
+            print(f"Included letters: {location_info}")
     except BadInput as err:
         print(err)
 
