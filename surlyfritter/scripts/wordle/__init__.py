@@ -1,0 +1,3 @@
+"""
+Wordle "assistance" module
+"""
