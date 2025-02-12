@@ -25,7 +25,7 @@ def main():
         words = WordList()
         for word in words:
             if word.satisfies_constraints(constraints):
-                print(f"{word.score:.2f} {word}")
+                print(f"{word.score:.3f} {word}")
     except BadInput as err:
         print(err)
 

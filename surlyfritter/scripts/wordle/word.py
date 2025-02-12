@@ -107,21 +107,28 @@ class WordList:
         for word in self:
             word.score = self.word_score(word)
 
-        max_word_score = max(word.score for word in self)
-        for word in self:
-            word.score /= max_word_score
-
     def make_letter_scores(self):
+        """Determine how frequent each letter is in this word set"""
         self.letter_scores = {}
         letter_counts = Counter([letter for word in self.words for letter in word])
         for letter, count in letter_counts.items():
             self.letter_scores[letter] = count / letter_counts.total()
 
+        # Normalize
+        max_letter_score = max(self.letter_scores.values())
+        for letter, count in self.letter_scores.items():
+            self.letter_scores[letter] = count / max_letter_score
+
     def word_score(self, word):
-        """Give this word a frequency score, higher is better"""
-        letter_commonness = sum(self.letter_scores[letter] for letter in word)
-        letter_count_score = len(set(word)) / 5
-        return letter_commonness + letter_count_score
+        """
+        Assign a score for this word. Higher is better. Favor letter commonness
+        (for the set of letters in wordle words) and larger numbers of unique
+        letters.
+        """
+        wordle_length = 5
+        commonness_score = sum(self.letter_scores[c] for c in word) / wordle_length
+        count_score = len(set(word)) / wordle_length
+        return (commonness_score + count_score) / 2.0
 
     def __iter__(self) -> Iterator:
         """Make this class's words attribute the iterable"""
