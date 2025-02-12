@@ -15,15 +15,19 @@ class LocationConstraint:
 
     YES = "yes"
     NO = "no"
+    LOCATIONS_REGEX = r"([-+]?\d+)"
 
     def __init__(self, constraint_input: str) -> None:
         """
         Parse and load a single good-letter input of the form:
-            r+1-34
-        (The wordle word has an "r" for the first letter, and the third and fourth
-        letters are NOT "r".)
 
-        If specified first, the + can be skipped, i.e. r+1-34 is the same as r1-34.
+            r+1-34
+        (The wordle word has an "r" for the first letter, and the third and
+        fourth letters are NOT "r".)
+        (i.e. a letter, then one or more matches to LOCATIONS_REGEX)
+
+        If specified first, the + can be skipped, i.e. r+1-34 is the same as
+        r1-34.
 
         or:
             b+23
@@ -31,8 +35,8 @@ class LocationConstraint:
 
         or:
             m-1345
-        ("m" is a letter, but not the first, third, fourth, or fifth letter in the
-        word)
+        ("m" is a letter, but not the first, third, fourth, or fifth letter
+        in the word)
 
         and return an update for the location_constraints dict.
 
@@ -50,10 +54,8 @@ class LocationConstraint:
         #   "+123-45" -> ["+123", "-45"]
         #   or "45-12" -> ["45", "-12"]
         #   or "-14" -> ["-14"]
-        #   or "23" -> ["23"]
         #
-        locations_regex = r"([-+]?\d+)"
-        locations = re.findall(locations_regex, constraint_input)
+        locations = re.findall(self.LOCATIONS_REGEX, constraint_input)
         if not locations:
             raise BadInput(f"constraint input {constraint_input} has no matches")
 
@@ -82,16 +84,23 @@ class LocationConstraint:
         location_constraints with.
         """
 
-        # The first char should be + or -; if so translate it to yes or no, if not
-        # bail out. If there are just digits, assume that firstchar should be "+":
+        if not re.match(self.LOCATIONS_REGEX, location):
+            raise BadInput(
+                f"Location {location} should match {self.LOCATIONS_REGEX}, doesn't"
+            )
+
+        # The first char should be + or -; if so translate it to yes or no, if
+        # not bail out. If there are just digits, assume that firstchar is "+":
         #
         firstchar = location[0]
+
         if firstchar in ("+", "-"):
             yesno = self.YES if firstchar == "+" else self.NO
             digits = location[1:]
         else:
             if not firstchar.isdigit():
-                raise BadInput(f"input {location} is invalid, no leading +/-")
+                err = f"Input {location} is invalid: no leading +/-, not numbers"
+                raise BadInput(err)
             yesno = self.YES
             digits = location
 
@@ -103,18 +112,18 @@ class LocationConstraint:
         positions = [p - 1 for p in positions]
         self.coordinates[yesno].extend(positions)
 
+    def word_has_letter(self, word):
+        return self.letter in word
+
     def all_yeses(self, word: str) -> bool:
-        """Does the word match all of the required positions for this constraint?"""
+        """Does the word match every required position for this constraint?"""
         yeses = {word[i] == self.letter for i in self.yes}
         return all(yeses)
 
     def no_forbiddens(self, word: str) -> bool:
-        """Does the word match all of the forbidden positions for this constraint?"""
+        """Does the word have none of forbidden positions for this constraint?"""
         forbiddens = {word[i] == self.letter for i in self.no}
         return not any(forbiddens)
-
-        symmetrical
-        symetrical
 
 
 class WordleConstraints:
@@ -146,6 +155,11 @@ class WordleConstraints:
             else:
                 for letter in input_str:
                     self.bad_letters.add(letter)
+
+        # Check that bad letters aren't in location_constraints
+        for lc in self.location_constraints:
+            if lc.letter in self.bad_letters:
+                raise BadInput(f"Letter '{lc.letter}' can't be in both GOOD and BAD")
 
     def __iter__(self) -> Iterator:
         """Make this class's location_constraints attribute the iterable"""

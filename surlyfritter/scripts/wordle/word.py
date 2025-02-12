@@ -2,6 +2,7 @@
 
 import os
 from collections.abc import Iterator
+from collections import Counter
 from pathlib import Path
 
 from .constraints import LENGTH, LocationConstraint, WordleConstraints
@@ -17,9 +18,13 @@ class WordleWord:
     """
 
     @property
+    def right_length(self):
+        return len(self.word) == LENGTH
+
+    @property
     def is_wordle_word(self) -> bool:
         """Is this a valid Wordle word?"""
-        return self.word.islower() and len(self.word) == LENGTH and "'" not in self.word
+        return self.word.islower() and self.right_length and "'" not in self.word
 
     def __init__(self, word: str) -> None:
         self.word = word.strip()
@@ -40,21 +45,21 @@ class WordleWord:
         if self.contains_bad_letters(constraints):
             return False
 
-        # for constraint in constraints:
-        #    if not self.satisfies_one(constraint):
-        #        return False
-        # return True
-        return all(self.satisfies_one(c) for c in constraints)
+        for constraint in constraints:
+            if not self.satisfies_one(constraint):
+                return False
+        return True
 
     def satisfies_one(self, constraint: LocationConstraint) -> bool:
         """
         For the given constraint, is this word a possible solution?
 
-        Does the word have the right letters in the right locations, and not in the
-        wrong places? The input "constraint" is a LocationConstraint object
-        indicating for one letter where it is or is not allowed. E.g. in the below,
-        "a" is the third letter, and cannot be in the second or fourth position;
-        "b" is in the word but cannot be the fourth letter, and "c" is the second letter:
+        Does the word have the right letters in the right locations, and not
+        in the wrong places? The input "constraint" is a LocationConstraint
+        object indicating for one letter where it is or is not allowed. E.g.
+        in the below, "a" is the third letter, and cannot be in the second or
+        fourth position; "b" is in the word but cannot be the fourth letter,
+        and "c" is the second letter:
 
                 "a" -> dict(yes=[2], no=[1,3]),
                 "b" -> dict(yes=[], no=[3]),
@@ -65,10 +70,14 @@ class WordleWord:
         3) if there are excluded spots for the letter, is it NOT in the position?
         """
         return (
-            constraint.letter in self.word
+            constraint.word_has_letter(self.word)
             and constraint.all_yeses(self.word)
             and constraint.no_forbiddens(self.word)
         )
+
+    def __iter__(self) -> Iterator:
+        """Iterate over the characters of this word"""
+        return self.word.__iter__()
 
 
 class WordList:
@@ -78,9 +87,12 @@ class WordList:
     FILE = "/usr/share/dict/american-english"
 
     def __init__(self, envar_name: str = ENVAR) -> None:
-        """Create a wordlist from the file specified in the environment variable"""
+        """
+        Create a wordlist from the file specified in the environment variable
+        """
         self.words = set()
 
+        # Read in words
         word_file = Path(os.environ.get(envar_name, WordList.FILE))
         with word_file.open() as lines:
             for line in lines:
@@ -89,6 +101,27 @@ class WordList:
                     self.words.add(wordle_word)
                 except BadWordleWord:
                     continue
+
+        # Calculate each word's score, which requires runing make_letter_scores first
+        self.make_letter_scores()
+        for word in self:
+            word.score = self.word_score(word)
+
+        max_word_score = max(word.score for word in self)
+        for word in self:
+            word.score /= max_word_score
+
+    def make_letter_scores(self):
+        self.letter_scores = {}
+        letter_counts = Counter([letter for word in self.words for letter in word])
+        for letter, count in letter_counts.items():
+            self.letter_scores[letter] = count / letter_counts.total()
+
+    def word_score(self, word):
+        """Give this word a frequency score, higher is better"""
+        letter_commonness = sum(self.letter_scores[letter] for letter in word)
+        letter_count_score = len(set(word)) / 5
+        return letter_commonness + letter_count_score
 
     def __iter__(self) -> Iterator:
         """Make this class's words attribute the iterable"""

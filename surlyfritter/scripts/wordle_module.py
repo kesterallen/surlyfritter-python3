@@ -15,17 +15,17 @@ not the first or second.)
 """
 
 import sys
-from wordle.constraints import BadInput, WordleConstraints
-from wordle.word import WordList
+from wordle import BadInput, WordleConstraints, WordList
 
 
 def main():
     """Supply 'help' for today's wordle puzzle"""
     try:
         constraints = WordleConstraints(sys.argv[1:])
-        for word in WordList():
+        words = WordList()
+        for word in words:
             if word.satisfies_constraints(constraints):
-                print(word)
+                print(f"{word.score:.2f} {word}")
     except BadInput as err:
         print(err)
 
