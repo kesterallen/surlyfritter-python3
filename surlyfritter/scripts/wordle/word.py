@@ -24,10 +24,10 @@ class WordleWord:
     @property
     def is_wordle_word(self) -> bool:
         """Is this a valid Wordle word?"""
-        return self.word.islower() and self.right_length and "'" not in self.word
+        return self.right_length and "'" not in self.word
 
     def __init__(self, word: str) -> None:
-        self.word = word.strip()
+        self.word = word.strip().lower()
         if not self.is_wordle_word:
             raise BadWordleWord(f"{word} is not a valid wordle entry")
 
@@ -125,9 +125,8 @@ class WordList:
         (for the set of letters in wordle words) and larger numbers of unique
         letters.
         """
-        wordle_length = 5
-        commonness_score = sum(self.letter_scores[c] for c in word) / wordle_length
-        count_score = len(set(word)) / wordle_length
+        commonness_score = sum(self.letter_scores[c] for c in word) / LENGTH
+        count_score = len(set(word)) / LENGTH
         return (commonness_score + count_score) / 2.0
 
     def __iter__(self) -> Iterator:
