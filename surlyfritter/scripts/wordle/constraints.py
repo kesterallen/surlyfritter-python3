@@ -59,7 +59,7 @@ class LocationConstraint:
         if not locations:
             raise BadInput(f"constraint input {constraint_input} has no matches")
 
-        self.coordinates = {self.YES: [], self.NO: []}
+        self.coordinates = {self.YES: set(), self.NO: set()}
         for location in locations:
             self.update_coordinates(location)
 
@@ -85,9 +85,7 @@ class LocationConstraint:
         """
 
         if not re.match(self.LOCATIONS_REGEX, location):
-            raise BadInput(
-                f"Location {location} should match {self.LOCATIONS_REGEX}, doesn't"
-            )
+            raise BadInput(f"Location {location} must match {self.LOCATIONS_REGEX}, doesn't")
 
         # The first char should be + or -; if so translate it to yes or no, if
         # not bail out. If there are just digits, assume that firstchar is "+":
@@ -109,8 +107,12 @@ class LocationConstraint:
             raise BadInput(f"input {location}: numbers must be between 1 and 5")
 
         # User inputs are 1-based, string indices are 0-based
-        positions = [p - 1 for p in positions]
-        self.coordinates[yesno].extend(positions)
+        positions = {p - 1 for p in positions}
+        self.coordinates[yesno].update(positions)
+
+        # Check that the user hasn't inputted an impossible constraint, e.g. "a1-1"
+        if overlap := self.yes.intersection(self.no):
+            raise BadInput(f"Input error {self.letter} has a yes and a no for {overlap}")
 
     def word_has_letter(self, word):
         return self.letter in word
