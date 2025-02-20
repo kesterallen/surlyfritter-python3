@@ -24,10 +24,10 @@ class WordleWord:
     @property
     def is_wordle_word(self) -> bool:
         """Is this a valid Wordle word?"""
-        return self.right_length and "'" not in self.word
+        return self.word.islower() and self.right_length and "'" not in self.word
 
     def __init__(self, word: str) -> None:
-        self.word = word.strip().lower()
+        self.word = word.strip()
         if not self.is_wordle_word:
             raise BadWordleWord(f"{word} is not a valid wordle entry")
 
@@ -86,48 +86,47 @@ class WordList:
     ENVAR = "WORDS"
     FILE = "/usr/share/dict/american-english"
 
-    def __init__(self, envar_name: str = ENVAR) -> None:
+    def __init__(self, wordlist_input: str = ENVAR, read_from_file: bool=True) -> None:
         """
         Create a wordlist from the file specified in the environment variable
         """
         self.words = set()
 
-        # Read in words
-        word_file = Path(os.environ.get(envar_name, WordList.FILE))
-        with word_file.open() as lines:
-            for line in lines:
-                try:
-                    wordle_word = WordleWord(line)
-                    self.words.add(wordle_word)
-                except BadWordleWord:
-                    continue
+        if read_from_file:
+            # Read in words from $WORDS
+            word_file = Path(os.environ.get(wordlist_input, WordList.FILE))
+            with word_file.open() as lines:
+                for line in lines:
+                    try:
+                        wordle_word = WordleWord(line)
+                        self.words.add(wordle_word)
+                    except BadWordleWord:
+                        continue
+        else:
+            # list of words
+            wordle_word = WordleWord(wordlist_input)
+            self.words.add(wordle_word)
 
         # Calculate each word's score, which requires runing make_letter_scores first
         self.make_letter_scores()
         for word in self:
             word.score = self.word_score(word)
 
+        max_word_score = max(word.score for word in self)
+        for word in self:
+            word.score /= max_word_score
+
     def make_letter_scores(self):
-        """Determine how frequent each letter is in this word set"""
         self.letter_scores = {}
         letter_counts = Counter([letter for word in self.words for letter in word])
         for letter, count in letter_counts.items():
             self.letter_scores[letter] = count / letter_counts.total()
 
-        # Normalize
-        max_letter_score = max(self.letter_scores.values())
-        for letter, count in self.letter_scores.items():
-            self.letter_scores[letter] = count / max_letter_score
-
     def word_score(self, word):
-        """
-        Assign a score for this word. Higher is better. Favor letter commonness
-        (for the set of letters in wordle words) and larger numbers of unique
-        letters.
-        """
-        commonness_score = sum(self.letter_scores[c] for c in word) / LENGTH
-        count_score = len(set(word)) / LENGTH
-        return (commonness_score + count_score) / 2.0
+        """Give this word a frequency score, higher is better"""
+        letter_commonness = sum(self.letter_scores[letter] for letter in word)
+        letter_count_score = len(set(word)) / 5
+        return letter_commonness + letter_count_score
 
     def __iter__(self) -> Iterator:
         """Make this class's words attribute the iterable"""
