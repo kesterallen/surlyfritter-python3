@@ -60,7 +60,7 @@ class LocationConstraint:
         if not locations:
             raise BadInput(f"constraint input {constraint_input} has no matches")
 
-        self.coordinates = {self.YES: [], self.NO: []}
+        self.coordinates = {self.YES: set(), self.NO: set()}
         for location in locations:
             self.update_coordinates(location)
 
@@ -111,7 +111,7 @@ class LocationConstraint:
 
         # User inputs are 1-based, string indices are 0-based
         positions = [p - 1 for p in positions]
-        self.coordinates[yesno].extend(positions)
+        self.coordinates[yesno].update(positions)
 
     def word_has_letter(self, word):
         return self.letter in word
@@ -166,15 +166,15 @@ class WordleConstraints:
             if lc.letter in self.bad_letters:
                 raise BadInput(f"Letter '{lc.letter}' can't be in both GOOD and BAD")
 
-    def update_location_constraints(self, lc: LocationConstraint):
+    def update_location_constraints(self, lc: LocationConstraint) -> None:
         if lc.letter in self.location_constraints:
             for yesno in LocationConstraint.YESNO:
                 coords = lc.coordinates[yesno]
-                self.location_constraints[lc.letter].coordinates[yesno].extend(coords)
+                self.location_constraints[lc.letter].coordinates[yesno].update(coords)
         else:
             self.location_constraints[lc.letter] = lc
 
-    def update_constraints(self, other):
+    def update_constraints(self, other) -> None:
         self.bad_letters = self.bad_letters.union(other.bad_letters)
         for lc in other:
             self.update_location_constraints(lc)
