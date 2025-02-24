@@ -60,6 +60,8 @@ def solve_wordle(target: str, words: WordList, verbose: bool):
         if verbose:
             print(f"guess {match.guess_count}: {guess[0]}")
         raise match
+    except IndexError as fail:
+        print("no guesses for", target, " with ", constraints)
     raise WordMatchFail(f"no match for {target}")
 
 def solve_and_report(words: WordList) -> None:
