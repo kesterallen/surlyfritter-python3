@@ -5,6 +5,7 @@ from collections.abc import Iterator
 from collections import Counter
 from pathlib import Path
 
+from . import BadInput
 from .constraints import LENGTH, LocationConstraint, WordleConstraints
 
 
@@ -111,6 +112,9 @@ class WordList:
                 if not from_filename:
                     print(f"{word} is not a valid wordle entry")
                 continue
+
+        if len(self.words) == 0:
+            raise  BadInput(f"No valid wordle words in {words_input}")
 
         # Calculate each word's score, which requires runing make_letter_scores first
         self.make_letter_scores()
