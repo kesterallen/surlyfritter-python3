@@ -86,26 +86,31 @@ class WordList:
     ENVAR = "WORDS"
     FILE = "/usr/share/dict/american-english"
 
-    def __init__(self, wordlist_input: str = ENVAR, read_from_file: bool=True) -> None:
+    def __init__(self, words_input: [list[str]|str] = ENVAR) -> None:
         """
-        Create a wordlist from the file specified in the environment variable
+        Create a wordlist from either a list of words or a file specified via
+        environment variable
         """
         self.words = set()
 
-        if read_from_file:
-            # Read in words from $WORDS
-            word_file = Path(os.environ.get(wordlist_input, WordList.FILE))
+        # Read in words from file or a list of words
+        from_filename = isinstance(words_input, str)
+        if from_filename:
+            word_file = Path(os.environ.get(words_input, WordList.FILE))
             with word_file.open() as lines:
-                for line in lines:
-                    try:
-                        wordle_word = WordleWord(line)
-                        self.words.add(wordle_word)
-                    except BadWordleWord:
-                        continue
+                words = [w for w in lines]
         else:
-            # list of words
-            wordle_word = WordleWord(wordlist_input)
-            self.words.add(wordle_word)
+            words = words_input
+
+        # Convert to WordleWord objects
+        for word in words:
+            try:
+                wordle_word = WordleWord(word)
+                self.words.add(wordle_word)
+            except BadWordleWord:
+                if not from_filename:
+                    print(f"{word} is not a valid wordle entry")
+                continue
 
         # Calculate each word's score, which requires runing make_letter_scores first
         self.make_letter_scores()
@@ -131,3 +136,7 @@ class WordList:
     def __iter__(self) -> Iterator:
         """Make this class's words attribute the iterable"""
         return self.words.__iter__()
+
+    def __contains__(self, word: WordleWord) -> bool:
+        """Override the "in" operator"""
+        return any(word.word == str(w) for w in self.words)

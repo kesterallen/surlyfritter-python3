@@ -50,38 +50,41 @@ def solve_wordle(target: str, words: WordList, verbose: bool):
     constraints = WordleConstraints([])
     try:
         for i in range(NUM_GUESSES):
-            guess = matching_words(words, constraints, 1)
-            new_constraints = get_constraints(target, guess[0])
+            guess = matching_words(words, constraints, 1)[0]
+            new_constraints = get_constraints(target, guess)
             constraints.update_constraints(new_constraints)
             if verbose:
-                print(f"guess {i+1}: {guess[0]}, {constraints}")
+                print(f"guess {i+1} for {target}: {guess}, {constraints}")
     except WordMatch as match:
         match.guess_count = i + 1
         if verbose:
-            print(f"guess {match.guess_count}: {guess[0]}")
+            print(f"guess {match.guess_count}: {guess}")
         raise match
-    except IndexError as fail:
-        print("no guesses for", target, " with ", constraints)
     raise WordMatchFail(f"no match for {target}")
 
 def solve_and_report(words: WordList) -> None:
-    only_one_word = len(words.words) == 1
     all_words = WordList()
+    is_specified_words = len(words.words) != len(all_words.words)
+
     matches = []
     fails = []
     for i, word in enumerate(words):
-        if i % 500 == 0 and not only_one_word:
-            print(f"{i} / {len(words.words)}, {word} {len(matches)} {len(fails)}")
+        if i % 500 == 0 and not is_specified_words:
+            print(f"{i+1} / {len(words.words)}, {word} {len(matches)} {len(fails)}")
         try:
-            solve_wordle(target=str(word), words=all_words, verbose=only_one_word)
+            solve_wordle(target=str(word), words=all_words, verbose=is_specified_words)
         except WordMatch as match:
             matches.append(match)
         except WordMatchFail as fail:
+            if is_specified_words:
+                msg = f"Can't solve '{word}': "
+                msg += f"not in the Wordle word list" if word not in all_words else f"{fail}"
+                print(msg)
+
             fail.guess_count = NUM_GUESSES + 1
-            matches.append(fail)
             fails.append(word)
 
-    if not only_one_word:
+    if not is_specified_words:
         success_rate = (len(matches) + 1) / (len(words.words) + 1)
         guess_counts = [match.guess_count for match in matches]
 
@@ -118,6 +121,8 @@ def matching_words(words: WordList, constraints: WordleConstraints, num=None):
     if constraints:
         words = [w for w in words if w.satisfies_constraints(constraints)]
     words = sorted(words, key=lambda x: x.score)
+    if not words:
+        raise WordMatchFail(f"no words for constrains {constraints}")
     return words[-num:] if num else words
 
 
@@ -126,7 +131,7 @@ def main():
     try:
         if len(sys.argv) > 1 and sys.argv[1] == "-s":
             if len(sys.argv) > 2:
-                words = WordList(sys.argv[2], read_from_file=False)
+                words = WordList(sys.argv[2:])
             else:
                 words = WordList()
 
@@ -140,6 +145,8 @@ def main():
                 args_start = 1
             suggest_next_words(num, args_start)
 
+    except WordMatchFail as err:
+        print(err)
     except BadInput as err:
         print(err)
 
