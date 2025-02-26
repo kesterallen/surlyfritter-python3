@@ -99,7 +99,7 @@ class WordList:
         if from_filename:
             word_file = Path(os.environ.get(words_input, WordList.FILE))
             with word_file.open() as lines:
-                words = [w for w in lines]
+                words = list(lines)
         else:
             words = words_input
 

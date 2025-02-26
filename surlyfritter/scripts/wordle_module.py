@@ -73,15 +73,14 @@ def solve_and_report(words: WordList) -> None:
         if i % 500 == 0 and not is_specified_words:
             print(f"{i+1} / {len(words.words)}, {word} {len(matches)} {len(fails)}")
         try:
+            if word not in all_words:
+                raise WordMatchFail("not in Wordle list")
             solve_wordle(target=str(word), words=all_words, verbose=is_specified_words)
         except WordMatch as match:
             matches.append(match)
         except WordMatchFail as fail:
             if is_specified_words:
-                msg_pref = f"Can't solve '{word}':"
-                msg_suff = f"{fail}" if word in all_words else "not in Wordle list"
-                print(msg_pref, msg_suff)
-
+                print(f"Can't solve '{word}': {fail}")
             fail.guess_count = NUM_GUESSES + 1
             fails.append(word)
 
@@ -106,7 +105,7 @@ def solve_and_report(words: WordList) -> None:
             print(k, v)
         print()
         print("Failed words:")
-        print([w for w in sorted(fails, key=lambda x: x.word)])
+        print(list(sorted(fails, key=lambda x: x.word)))
 
 
 def suggest_next_words(num, args_start):
