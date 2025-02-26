@@ -87,7 +87,7 @@ class WordList:
     ENVAR = "WORDS"
     FILE = "/usr/share/dict/american-english"
 
-    def __init__(self, words_input: [list[str]|str] = ENVAR) -> None:
+    def __init__(self, words_input: [list[str] | str] = ENVAR) -> None:
         """
         Create a wordlist from either a list of words or a file specified via
         environment variable
@@ -114,7 +114,7 @@ class WordList:
                 continue
 
         if len(self.words) == 0:
-            raise  BadInput(f"No valid wordle words in {words_input}")
+            raise BadInput(f"No valid wordle words in {words_input}")
 
         # Calculate each word's score, which requires runing make_letter_scores first
         self.make_letter_scores()

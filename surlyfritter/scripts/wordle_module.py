@@ -62,6 +62,7 @@ def solve_wordle(target: str, words: WordList, verbose: bool):
         raise match
     raise WordMatchFail(f"no match for {target}")
 
+
 def solve_and_report(words: WordList) -> None:
     all_words = WordList()
     is_specified_words = len(words.words) != len(all_words.words)
@@ -77,9 +78,9 @@ def solve_and_report(words: WordList) -> None:
             matches.append(match)
         except WordMatchFail as fail:
             if is_specified_words:
-                msg = f"Can't solve '{word}': "
-                msg += f"not in the Wordle word list" if word not in all_words else f"{fail}"
-                print(msg)
+                msg_pref = f"Can't solve '{word}':"
+                msg_suff = f"{fail}" if word in all_words else "not in Wordle list"
+                print(msg_pref, msg_suff)
 
             fail.guess_count = NUM_GUESSES + 1
             fails.append(word)
@@ -116,6 +117,7 @@ def suggest_next_words(num, args_start):
     for word in words:
         if word.satisfies_constraints(constraints):
             print(f"{word.score:.3f} {word}")
+
 
 def matching_words(words: WordList, constraints: WordleConstraints, num=None):
     if constraints:

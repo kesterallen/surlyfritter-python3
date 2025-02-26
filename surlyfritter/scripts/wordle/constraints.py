@@ -127,9 +127,10 @@ class LocationConstraint:
         return not any(forbiddens)
 
     def __str__(self) -> str:
-        yes = "".join([str(i+1) for i in self.yes])
-        no = "-" + "".join([str(i+1) for i in self.no]) if self.no else ""
+        yes = "".join([str(i + 1) for i in self.yes])
+        no = "-" + "".join([str(i + 1) for i in self.no]) if self.no else ""
         return f"{self.letter}{yes}{no}"
+
 
 class WordleConstraints:
     """
@@ -182,10 +183,10 @@ class WordleConstraints:
     def __str__(self) -> str:
         output = ["".join(sorted(self.bad_letters))]
         for lc in self.location_constraints.values():
-            output.append(str(lc) )
+            output.append(str(lc))
         return " ".join(output)
 
     def __iter__(self) -> Iterator:
         """Make this class's location_constraints attribute the iterable"""
         return self.location_constraints.values().__iter__()
-        #return self.location_constraints.__iter__()
+        # return self.location_constraints.__iter__()
