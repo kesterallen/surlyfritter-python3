@@ -29,6 +29,7 @@ class WordleWord:
 
     def __init__(self, word: str) -> None:
         self.word = word.strip()
+        self.letters = set(c for c in self.word)
         if not self.is_wordle_word:
             raise BadWordleWord(f"{word} is not a valid wordle entry")
 
@@ -36,8 +37,8 @@ class WordleWord:
         return self.word
 
     def contains_bad_letters(self, constraints: WordleConstraints) -> bool:
-        """Determine if 'word' contains any of the characters in BAD_LETTERS"""
-        return any(c in constraints.bad_letters for c in self.word)
+        """Determine if self.word contains any of the characters in BAD_LETTERS"""
+        return constraints.bad_letters.intersection(self.letters)
 
     def satisfies_constraints(self, constraints: WordleConstraints) -> bool:
         """
@@ -71,7 +72,7 @@ class WordleWord:
         3) if there are excluded spots for the letter, is it NOT in the position?
         """
         return (
-            constraint.word_has_letter(self.word)
+            constraint.word_has_letter(self.letters)
             and constraint.all_yeses(self.word)
             and constraint.no_forbiddens(self.word)
         )
