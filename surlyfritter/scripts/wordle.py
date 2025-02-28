@@ -123,7 +123,7 @@ def matching_words(words: WordList, constraints: WordleConstraints, num=None):
         words = [w for w in words if w.satisfies_constraints(constraints)]
     words = sorted(words, key=lambda x: x.score)
     if not words:
-        raise WordMatchFail(f"no words for constrains {constraints}")
+        raise WordMatchFail(f"no words for constraints {constraints}")
     return words[-num:] if num else words
 
 
