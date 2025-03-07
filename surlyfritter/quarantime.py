@@ -57,22 +57,20 @@ def brimley_line(dob_str: str):
 def pi_day_route(month: int = 3, day: int = 14):
     """Is it Pi-Day?"""
 
-    def _ratio(now: datetime.datetime, month: int, day: int) -> float:
+    def _nowratio(month: int, day: int) -> float:
         """Goofy decimal date ratio between "now" and pi day's month.day"""
-        ratio = (now.month + now.day / 100.0) / (month + day / 100.0)
-        return ratio
+        now = datetime.datetime.now()
+        if now.month == month and now.day == day:
+            return 1  # distrust floating point division
+        return (now.month + now.day / 100.0) / (month + day / 100.0)
 
     is_pi = (month, day) == (3, 14)
     is_tau = (month, day) == (6, 28)
     mode = "π" if is_pi else "τ" if is_tau else f"{month}-{day}"
 
     # If it's Pi day, celebrate! Otherwise present the fractional result.
-    now = datetime.datetime.now()
-    if now.month == month and now.day == day:
-        msg = " "
-    else:
-        ratio = _ratio(now, month, day)
-        msg = f" {ratio:.3f} "
+    ratio = _nowratio(month, day)
+    msg = " " if ratio == 1 else f" {ratio:.3f} "
 
     return f"<html><h1>Happy{msg}{mode} Day!</h1></html>"
 
