@@ -7,10 +7,11 @@ import math
 
 from . import app
 
-@app.route('/quarantime')
+
+@app.route("/quarantime")
 def quarantime():
     """Quarantine calendar"""
-    march_1st = datetime.datetime(2020, 3,  1, 0, 0)
+    march_1st = datetime.datetime(2020, 3, 1, 0, 0)
     march_13th = datetime.datetime(2020, 3, 13, 0, 0)
     now = datetime.datetime.now()
     td_13 = now - march_13th
@@ -27,11 +28,12 @@ def quarantime():
     </html>
 """
 
-@app.route('/brimley/<dob_str>')
-@app.route('/brimleyline/<dob_str>')
-@app.route('/brimley_line/<dob_str>')
-@app.route('/brimley-line/<dob_str>')
-def brimley_line(dob_str:str):
+
+@app.route("/brimley/<dob_str>")
+@app.route("/brimleyline/<dob_str>")
+@app.route("/brimley_line/<dob_str>")
+@app.route("/brimley-line/<dob_str>")
+def brimley_line(dob_str: str):
     BRIMLEY_DAYS = 18530
 
     now = datetime.datetime.now()
@@ -48,35 +50,36 @@ def brimley_line(dob_str:str):
     </html>
     """
 
-@app.route('/pi_day')
-@app.route('/pi-day')
-@app.route('/piday')
-def pi_day_route(piday_month=3, piday_dom=14):
+
+@app.route("/pi_day")
+@app.route("/pi-day")
+@app.route("/piday")
+def pi_day_route(month: int = 3, day: int = 14):
+    """Is it Pi-Day?"""
+
+    def _ratio(now: datetime.datetime, month: int, day: int) -> float:
+        """Goofy decimal date ratio between "now" and pi day's month.day"""
+        ratio = (now.month + now.day / 100.0) / (month + day / 100.0)
+        return ratio
+
+    is_pi = (month, day) == (3, 14)
+    is_tau = (month, day) == (6, 28)
+    mode = "π" if is_pi else "τ" if is_tau else f"{month}-{day}"
+
+    # If it's Pi day, celebrate! Otherwise present the fractional result.
     now = datetime.datetime.now()
-
-    if piday_month == 3 and piday_dom == 14:
-        glyph = "π"
-    elif piday_month == 6 and piday_dom == 28:
-        glyph = "τ"
+    if now.month == month and now.day == day:
+        msg = " "
     else:
-        glyph = f"{piday_month}-{piday_dom}"
+        ratio = _ratio(now, month, day)
+        msg = f" {ratio:.3f} "
 
-    if now.month == piday_month and now.day == piday_dom:
-        msg = ""
-    else:
-        now_day = float(f"{now.month:02d}.{now.day:02d}")
-        pi_day_ratio = now_day / (piday_month + piday_dom/100.0)
-        msg = f"{pi_day_ratio:.3f} "
+    return f"<html><h1>Happy{msg}{mode} Day!</h1></html>"
 
-    return f"""
-    <html>
-      <h1>
-        Happy {msg}{glyph} Day!
-      </h1>
-    </html>
-    """
-@app.route('/tau_day')
-@app.route('/tau-day')
-@app.route('/tauday')
-def tau_day_route(piday_month=6, piday_dom=28):
-    return pi_day_route(piday_month, piday_dom)
+
+@app.route("/tau_day")
+@app.route("/tau-day")
+@app.route("/tauday")
+def tau_day_route(month: int = 6, day: int = 28):
+    """This one's for you, Colin"""
+    return pi_day_route(month, day)
