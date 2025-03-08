@@ -58,7 +58,7 @@ def pi_day_route(month: int = 3, day: int = 14):
     """Is it Pi-Day?"""
 
     def _nowratio(month: int, day: int) -> float:
-        """Goofy decimal date ratio between "now" and pi day's month.day"""
+        """Goofy ratio between "now" and pi day's month.day 'decimal date'"""
         now = datetime.datetime.now()
         if now.month == month and now.day == day:
             return 1  # distrust floating point division
