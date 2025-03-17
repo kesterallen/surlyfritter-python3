@@ -15,6 +15,7 @@ not the first or second.)
 """
 
 import collections
+import getpass
 import sys
 import statistics
 
@@ -63,7 +64,7 @@ def solve_wordle(target: str, words: WordList, verbose: bool):
     raise WordMatchFail(f"no match for {target}")
 
 
-def solve_and_report(words: WordList) -> None:
+def solve_and_report(words: WordList, is_secret=False) -> None:
     all_words = WordList()
     is_specified_words = len(words.words) != len(all_words.words)
 
@@ -75,7 +76,8 @@ def solve_and_report(words: WordList) -> None:
         try:
             if word not in all_words:
                 raise WordMatchFail("not in Wordle list")
-            solve_wordle(target=str(word), words=all_words, verbose=is_specified_words)
+            verbose = is_specified_words and not is_secret
+            solve_wordle(target=str(word), words=all_words, verbose=verbose)
         except WordMatch as match:
             matches.append(match)
         except WordMatchFail as fail:
@@ -83,6 +85,12 @@ def solve_and_report(words: WordList) -> None:
                 print(f"Can't solve '{word}': {fail}")
             fail.guess_count = NUM_GUESSES + 1
             fails.append(word)
+
+    if is_secret:
+        if matches:
+            print(f"Guesses to find word: {matches[0].guess_count}")
+        if fails:
+            print(f"Couldn't find {[w for w in words]}")
 
     if not is_specified_words:
         success_rate = (len(matches) + 1) / (len(words.words) + 1)
@@ -130,13 +138,24 @@ def matching_words(words: WordList, constraints: WordleConstraints, num=None):
 def main():
     """Supply 'help' for today's wordle puzzle"""
     try:
-        if len(sys.argv) > 1 and sys.argv[1] == "-s":
-            if len(sys.argv) > 2:
-                words = WordList(sys.argv[2:])
-            else:
-                words = WordList()
+        print(sys.argv, len(sys.argv))
+        is_solve_all        = len(sys.argv) == 2 and sys.argv[1] == "-s"
+        is_solve_one        = len(sys.argv) > 2  and sys.argv[1] == "-s"
+        is_solve_one_secret = len(sys.argv) == 2  and sys.argv[1] == "-S"
+        is_solve = is_solve_one or is_solve_one_secret or is_solve_all
 
-            solve_and_report(words)
+        if is_solve:
+            if is_solve_one:
+                words = WordList(sys.argv[2:])
+            elif is_solve_one_secret:
+                word = getpass.getpass("Wordle word to solve: ")
+                words = WordList([word])
+            elif is_solve_all:
+                words = WordList()
+            else:
+                raise BadInput("bad solve args???")
+            solve_and_report(words, is_solve_one_secret)
+
         else:
             if len(sys.argv) > 1 and sys.argv[1] == "-a":
                 num = None
