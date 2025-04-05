@@ -48,6 +48,8 @@ def get_constraints(word: str, guess: WordleWord) -> WordleConstraints:
 
 
 def solve_wordle(target: str, words: WordList, verbose: bool):
+    if verbose:
+        print(f"{target}:")
     constraints = WordleConstraints([])
     try:
         for i in range(NUM_GUESSES):
@@ -55,11 +57,11 @@ def solve_wordle(target: str, words: WordList, verbose: bool):
             new_constraints = get_constraints(target, guess)
             constraints.update_constraints(new_constraints)
             if verbose:
-                print(f"guess {i+1} for {target}: {guess}, {constraints}")
+                print(f"\tguess {i+1}: {guess}, {constraints}")
     except WordMatch as match:
         match.guess_count = i + 1
         if verbose:
-            print(f"guess {match.guess_count}: {guess}")
+            print(f"\tguess {match.guess_count}: {guess}")
         raise match
     raise WordMatchFail(f"no match for {target}")
 
@@ -82,7 +84,8 @@ def solve_and_report(words: WordList, is_secret=False) -> None:
             matches.append(match)
         except WordMatchFail as fail:
             if is_specified_words:
-                print(f"Can't solve '{word}': {fail}")
+                fail_word = "secret word" if is_secret else f"'word'"
+                print(f"Can't solve {fail_word}: {fail}")
             fail.guess_count = NUM_GUESSES + 1
             fails.append(word)
 
@@ -138,10 +141,16 @@ def matching_words(words: WordList, constraints: WordleConstraints, num=None):
 def main():
     """Supply 'help' for today's wordle puzzle"""
     try:
-        print(sys.argv, len(sys.argv))
-        is_solve_all        = len(sys.argv) == 2 and sys.argv[1] == "-s"
-        is_solve_one        = len(sys.argv) > 2  and sys.argv[1] == "-s"
-        is_solve_one_secret = len(sys.argv) == 2  and sys.argv[1] == "-S"
+        # Solve mode: one or more args, and the first arg is either -s or -S.
+        #     Just the -s or -S arg:
+        #         -s: solve every wordle word and print statistics about it
+        #         -S: read a word in without displaying it (password mode) to avoid spoilers
+        #     two or more args:
+        #         -s: solve the word given as the 2+-th args
+        #
+        is_solve_all = len(sys.argv) == 2 and sys.argv[1] == "-s"
+        is_solve_one = len(sys.argv) > 2 and sys.argv[1] == "-s"
+        is_solve_one_secret = len(sys.argv) == 2 and sys.argv[1] == "-S"
         is_solve = is_solve_one or is_solve_one_secret or is_solve_all
 
         if is_solve:
@@ -161,6 +170,8 @@ def main():
                 num = None
                 args_start = 2
             else:
+                if len(sys.argv) > 1 and sys.argv[1] == "-S":
+                    raise BadInput("Error: if used, -S should be the only arg")
                 num = 1
                 args_start = 1
             suggest_next_words(num, args_start)
