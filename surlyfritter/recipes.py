@@ -11,8 +11,10 @@ def recipes(name=None):
     if name is None:
         name = "recipes"
     names = {
-        'spinach-artichoke-mac-and-cheese': 'spinach_mac_and_cheese.html',
         'recipes': 'recipes.html',
+        'spinach-artichoke-mac-and-cheese': 'spinach_mac_and_cheese.html',
+        'cornbread': 'cornbread.html',
+        'broccoli-noodles': 'broccoli_noodles.html',
         'spin': 'green_chile.html',
         'green-chile': 'green_chile.html',
         'matzo_lasagne': 'matzo_lasagne.html',
@@ -45,6 +47,9 @@ def recipes(name=None):
         'pumpkinpie': 'pumpkin_pie.html',
         'pie': 'pumpkin_pie.html',
         'pumpkin-pie': 'pumpkin_pie.html',
+        'pumpkin-muffin': 'pumpkin_muffins.html',
+        'pumpkin-muffins': 'pumpkin_muffins.html',
+        'pie-dough-jkla': 'pie_dough_lopez-alt.html',
         'crust': 'pie_dough.html',
         'pie-dough': 'pie_dough.html',
         'piedough': 'pie_dough.html',
