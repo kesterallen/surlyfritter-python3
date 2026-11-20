@@ -25,6 +25,7 @@ from surlyfritter.models import (
 from surlyfritter.utils import (
     get_exif_data_from_url,
     get_hash_from_url,
+    is_admin,
     render_template,
     send_email,
 )
@@ -116,6 +117,9 @@ def display(img_id: int = None):
     Display the picture that img_id == Picture.added_order for. If that doesn't
     exist, serve Picture.most_recent.
     """
+    if not is_admin():
+        abort(404, "this route is admin-only")
+
     with client.context():
         if img_id is not None:
             picture = Picture.query(Picture.added_order == img_id).get()
@@ -132,6 +136,9 @@ def display(img_id: int = None):
 @app.route("/d/highest")
 def display_highest():
     """Show the picture page for the picture with the most recent date"""
+    if not is_admin():
+        abort(404, "this route is admin-only")
+
     with client.context():
         picture = Picture.most_recent()
     return redirect(f"/p/{picture.added_order}")
@@ -143,6 +150,9 @@ def display_highest():
 @app.route("/d/highestp")
 def display_newest():
     """Show the picture page for the picture that was added most recently"""
+    if not is_admin():
+        abort(404, "this route is admin-only")
+
     with client.context():
         picture = Picture.last_added()
     return redirect(f"/p/{picture.added_order}")
@@ -156,6 +166,9 @@ def display_newest():
 @app.route("/d/highestp")
 def display_oldest():
     """Show the picture page for the oldest picture"""
+    if not is_admin():
+        abort(404, "this route is admin-only")
+
     with client.context():
         picture = Picture.least_recent()
     return redirect(f"/p/{picture.added_order}")
@@ -164,6 +177,9 @@ def display_oldest():
 #@app.route("/random")
 #def random_page():
 #    """Load a random picture"""
+#    if not is_admin():
+#        abort(404, "this route is admin-only")
+#
 #    with client.context():
 #        num_pics = Picture.query().count()
 #        pic_not_selected = True
@@ -194,6 +210,9 @@ def pictures_for_tags_all(tag_text: str):
     """
     Display all pictures with the tag "tag_text"
     """
+    if not is_admin():
+        abort(404, "this route is admin-only")
+
     return pictures_for_tags(tag_text=tag_text, max_num=None)
 
 
@@ -203,6 +222,9 @@ def pictures_for_tags(tag_text: str, max_num: int = 5):
     """
     Display N pictures with the tag "tag_text"
     """
+    if not is_admin():
+        abort(404, "this route is admin-only")
+
     with client.context():
         # Run a separate count in case the unfiltered Pictures array would be
         # large:
@@ -220,6 +242,9 @@ def _kid_is(name: str, age_years: float):
     """
     Return a redirect the display page for kid "name" at age "age_years"
     """
+    if not is_admin():
+        abort(404, "this route is admin-only")
+
     with client.context():
         added_order = Picture.kid_is_index(name, age_years)
         return redirect(f"/p/{added_order}")
@@ -231,6 +256,9 @@ def miri_is(age_years: float):
     """
     Return a redirect the display page for miri at age "age_years"
     """
+    if not is_admin():
+        abort(404, "this route is admin-only")
+
     return _kid_is("miri", age_years)
 
 
@@ -240,6 +268,9 @@ def julia_is(age_years: float):
     """
     Return a redirect the display page for julia at age "age_years"
     """
+    if not is_admin():
+        abort(404, "this route is admin-only")
+
     return _kid_is("julia", age_years)
 
 
@@ -249,6 +280,9 @@ def linus_is(age_years: float):
     """
     Return a redirect the display page for linus at age "age_years"
     """
+    if not is_admin():
+        abort(404, "this route is admin-only")
+
     return _kid_is("linus", age_years)
 
 
@@ -259,6 +293,9 @@ def same_age(age_years=None):
     """
     Return a redirect the display page for linus at age "age_years"
     """
+    if not is_admin():
+        abort(404, "this route is admin-only")
+
     if age_years is None:
         linus_age = datetime.datetime.now() - DOB["linus"]
         age_years = random.uniform(0, linus_age.days / DAYS_IN_YEAR)
@@ -277,6 +314,9 @@ def same_age(age_years=None):
 @app.route("/m/<int:img_id1>/<int:img_id2>/<int:img_id3>/")
 def side_by_side(img_id1: int, img_id2: int, img_id3: int):
     """Display the three images on one page"""
+    if not is_admin():
+        abort(404, "this route is admin-only")
+
     with client.context():
         pictures = [
             Picture.query(Picture.added_order == img_id1).get(),
@@ -289,6 +329,9 @@ def side_by_side(img_id1: int, img_id2: int, img_id3: int):
 @app.route("/mm/<img_ids_str>")
 def side_by_side_list(img_ids_str: str):
     """Display a list of images on one page"""
+    if not is_admin():
+        abort(404, "this route is admin-only")
+
     img_ids = [int(i) for i in img_ids_str.split(",")]
     with client.context():
         pictures = []
@@ -303,6 +346,9 @@ def display_date(date_str: str):
     """
     Display the picture closest to "date_str"
     """
+    if not is_admin():
+        abort(404, "this route is admin-only")
+
     with client.context():
         date = dateutil.parser.parse(date_str)
         if date is None:
@@ -484,6 +530,9 @@ def _kid_is(name: str, age_years: float):
     """
     Return a redirect the display page for kid "name" at age "age_years"
     """
+    if not is_admin():
+        abort(404, "this route is admin-only")
+
     with client.context():
         added_order = Picture.kid_is_index(name, age_years)
         return redirect(f"/p/{added_order}")
