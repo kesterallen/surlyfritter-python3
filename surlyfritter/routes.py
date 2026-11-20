@@ -32,11 +32,11 @@ from surlyfritter.utils import (
 from . import app, client
 
 
-@app.errorhandler(404)
-def page_not_found(error):
-    """Render a nice 404 page"""
-    # Note 404 status is set explicitly
-    return render_template("error_404.html", error=error), 404
+#@app.errorhandler(404)
+#def page_not_found(error):
+    #"""Render a nice 404 page"""
+    ## Note 404 status is set explicitly
+    #return render_template("error_404.html", error=error), 404
 
 
 @app.route("/imgperm/<int:added_order>")
@@ -161,20 +161,20 @@ def display_oldest():
     return redirect(f"/p/{picture.added_order}")
 
 
-@app.route("/random")
-def random_page():
-    """Load a random picture"""
-    with client.context():
-        num_pics = Picture.query().count()
-        pic_not_selected = True
-        max_num_tries = 100
-        num_tries = 0
-        while pic_not_selected and num_tries < max_num_tries:
-            index = random.randrange(0, num_pics)
-            num_tries += 1
-            pic_not_selected = Picture.query(Picture.added_order == index).count() == 0
-
-        return redirect(f"/p/{index}")
+#@app.route("/random")
+#def random_page():
+#    """Load a random picture"""
+#    with client.context():
+#        num_pics = Picture.query().count()
+#        pic_not_selected = True
+#        max_num_tries = 100
+#        num_tries = 0
+#        while pic_not_selected and num_tries < max_num_tries:
+#            index = random.randrange(0, num_pics)
+#            num_tries += 1
+#            pic_not_selected = Picture.query(Picture.added_order == index).count() == 0
+#
+#        return redirect(f"/p/{index}")
 
 
 @app.route("/feed")
@@ -312,15 +312,15 @@ def display_date(date_str: str):
         return redirect(f"/p/{picture.imgp_id}")
 
 
-@app.route("/timejump/<int:added_order>/<int(signed=True):years>")
-@app.route("/timejump/<int:added_order>/<float(signed=True):years>")
-@app.route("/tj/<int:added_order>/<int(signed=True):years>")
-@app.route("/tj/<int:added_order>/<float(signed=True):years>")
-def timejump(added_order: int, years: float):
-    """Display the page for "years" + the date of Picture.added_order"""
-    with client.context():
-        timejump_index = Picture.timejump_index(added_order, years)
-        return redirect(f"/p/{timejump_index}")
+#@app.route("/timejump/<int:added_order>/<int(signed=True):years>")
+#@app.route("/timejump/<int:added_order>/<float(signed=True):years>")
+#@app.route("/tj/<int:added_order>/<int(signed=True):years>")
+#@app.route("/tj/<int:added_order>/<float(signed=True):years>")
+#def timejump(added_order: int, years: float):
+#    """Display the page for "years" + the date of Picture.added_order"""
+#    with client.context():
+#        timejump_index = Picture.timejump_index(added_order, years)
+#        return redirect(f"/p/{timejump_index}")
 
 
 @app.route("/picture/add", methods=["GET", "POST"])
@@ -347,20 +347,16 @@ def picture_add():
 
         status = "succeeded" if len(names["fail"]) == 0 else "failed"
 
-        message = f"""
-            Your picture upload {status}: 
-                {len(names["success"])} successful, 
-                {len(names["fail"])} failed. 
-            <br/> <a href="/p/{picture.imgp_id}">New pictures</a> <br/>
-        """
+        message = status
+        #message = f"Your picture upload {status}: {len(names["success"])} successful, {len(names["fail"])} failed.  <br/> <a href="/p/{picture.imgp_id}">New pictures</a> <br/>"
 
-        send_email(
-            subject=f"Added: /p/{picture.imgp_id}",
-            body=f"""
-                Added picture {picture.img_url} (/p/{picture.imgp_id})
-                {message}
-            """,
-        )
+        #send_email(
+        #    subject=f"Added: /p/{picture.imgp_id}",
+        #    body=f"""
+        #        Added picture {picture.img_url} (/p/{picture.imgp_id})
+        #        {message}
+        #    """,
+        #)
         return redirect(f"/picture/add?message={message}")
     else:
         # GET: Render form with optional message

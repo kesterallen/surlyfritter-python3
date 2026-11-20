@@ -103,7 +103,7 @@ def get_exif_data(img_file) -> dict:
     if "DateTime" in img_exif_dict:
         # Convert weird exif YYYY:MM:DD (n.b. ":") format into YYYY-MM-DD, if present.
         img_exif_dict["DateTime"] = re.sub(
-            "(\d{4}):(\d{2}):(\d{2})",
+            r"(\d{4}):(\d{2}):(\d{2})",
             r"\1-\2-\3",
             img_exif_dict["DateTime"],
         )

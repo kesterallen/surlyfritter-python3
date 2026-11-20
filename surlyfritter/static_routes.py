@@ -6,12 +6,13 @@ Static file routes via Flask.
 from flask import redirect
 from . import app
 
-@app.route("/tour")
-@app.route("/tourdecure")
-@app.route("/tour_de_cure")
-def tour_de_cure():
-    return app.send_static_file("tour_de_cure.html")
+#@app.route("/tour")
+#@app.route("/tourdecure")
+#@app.route("/tour_de_cure")
+#def tour_de_cure():
+#    return app.send_static_file("tour_de_cure.html")
 
+@app.route("/diabetes")
 @app.route("/tourdonate")
 @app.route("/tourdecuredonate")
 @app.route("/tour_de_cure_donate")
@@ -19,26 +20,28 @@ def tour_de_cure():
 @app.route("/tourdecuredonatedirect")
 @app.route("/tour_de_cure_donate_direct")
 def tour_de_cure_donate():
-    return redirect("https://donations.diabetes.org/site/Donation2?idb=504997804&df_id=22747&FR_ID=13455&mfc_pref=T&22747.donation=form1&PROXY_ID=15794662&PROXY_TYPE=20")
+    return redirect("https://tour-diabetes.donordrive.com/index.cfm?fuseaction=donate.participant&participantID=37001")
 
-@app.route("/tourmap")
-@app.route("/tourdecuremap")
-@app.route("/tour_de_cure_map")
-@app.route("/deliverymap")
-@app.route("/delivery_map")
-@app.route("/tour_de_cure_delivery_map")
-@app.route("/tourmap/<int:travel_time>")
-@app.route("/tourdecuremap/<int:travel_time>")
-@app.route("/tour_de_cure_map/<int:travel_time>")
-@app.route("/deliverymap/<int:travel_time>")
-@app.route("/delivery_map/<int:travel_time>")
-@app.route("/tour_de_cure_delivery_map/<int:travel_time>")
-def tour_de_cure_map(travel_time=70):
-    return redirect(f"https://app.traveltime.com/search/0-lng=-122.2807966&0-lat=37.8542692&0-tt={travel_time}&0-mode=cycling-ferry&0-title=Team%20Amyris%20Goodies%20Zone")
+#@app.route("/tourmap")
+#@app.route("/tourdecuremap")
+#@app.route("/tour_de_cure_map")
+#@app.route("/deliverymap")
+#@app.route("/delivery_map")
+#@app.route("/tour_de_cure_delivery_map")
+#@app.route("/tourmap/<int:travel_time>")
+#@app.route("/tourdecuremap/<int:travel_time>")
+#@app.route("/tour_de_cure_map/<int:travel_time>")
+#@app.route("/deliverymap/<int:travel_time>")
+#@app.route("/delivery_map/<int:travel_time>")
+#@app.route("/tour_de_cure_delivery_map/<int:travel_time>")
+#def tour_de_cure_map(travel_time=70):
+#    return redirect(f"https://app.traveltime.com/search/0-lng=-122.2807966&0-lat=37.8542692&0-tt={travel_time}&0-mode=cycling-ferry&0-title=Team%20Amyris%20Goodies%20Zone")
 
+@app.route("/purecanepuregain")
+@app.route("/purecane")
 @app.route("/pcpg")
 def strava_purecane_pure_gain_club():
-    return redirect("https://donations.diabetes.org/site/TR/TourdeCure/TourAdmin;jsessionid=00000000.app20043b?pg=team&fr_id=13306&team_id=755425&NONCE_TOKEN=28A04A598E539E0D9360C55304E3A8AD")
+    return redirect("https://donations.diabetes.org/site/TR/TourdeCure/TourAdmin?team_id=757704&pg=team&fr_id=13455")
 
 @app.route("/xmas-music")
 @app.route("/music/xmas")
