@@ -3,7 +3,6 @@
 import datetime
 import dateutil.parser
 import humanize
-import math
 
 from . import app
 
@@ -35,20 +34,12 @@ def quarantime():
 @app.route("/brimley-line/<dob_str>")
 def brimley_line(dob_str: str):
     BRIMLEY_DAYS = 18530
-
-    now = datetime.datetime.now()
-    dob = dateutil.parser.parse(dob_str)
-    td = now - dob
-    is_past_line = td.days > BRIMLEY_DAYS
-    msg = "is" if is_past_line else "is not"
-
-    return f"""
-    <html>
-      <h1>
-        {dob_str} {msg} past the Brimley/Cocoon Line
-      </h1>
-    </html>
-    """
+    dob_diff = datetime.datetime.now() - dateutil.parser.parse(dob_str)
+    days_diff = dob_diff.days - BRIMLEY_DAYS
+    days = "day" if days_diff == 1 else "days"
+    dir_ = "past" if days_diff > 0 else "until"
+    msg = "exactly on" if days_diff == 0 else f"{abs(days_diff)} {days} {dir_}"
+    return f"<html><h1>{dob_str} is {msg} the Brimley/Cocoon Line</h1></html>"
 
 
 @app.route("/pi_day")
