@@ -53,6 +53,7 @@ def recipes(name=None):
         'crust': 'pie_dough.html',
         'pie-dough': 'pie_dough.html',
         'piedough': 'pie_dough.html',
+        'potatoes-au-gratin': 'potatoes_au_gratin.html',
         'dutch-baby': 'dutch_baby.html',
         'dutchbaby': 'dutch_baby.html',
         'cookies': 'chocolate_chip_cookies.html',
