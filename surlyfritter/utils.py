@@ -15,7 +15,14 @@ import requests
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
-ADMIN_EMAILS = ["kester@gmail.com", "apaske@gmail.com"]
+ADMIN_EMAILS = [
+    "kester@gmail.com",
+    "apaske@gmail.com",
+    "miriam.robin.allen@gmail.com",
+    "miriamrobinallen@gmail.com",
+    "julia.saide.allen@gmail.com",
+    "juliasaideallen@gmail.com",
+]
 
 
 def get_key(name="sendgrid_key", filename="keys.txt"):
