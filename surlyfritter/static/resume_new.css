@@ -1,4 +1,4 @@
-/* Fast, responsive resume stylesheet: system fonts, no icon-font downloads. */
+/* Fast, responsive resume stylesheet: system fonts + inline SVG icons. */
 :root {
   color-scheme: light;
   --ink: #202a36;
@@ -16,7 +16,7 @@ body {
   padding: clamp(0px, 2vw, 24px);
   color: var(--ink);
   background: var(--page);
-  font: 16px/1.55 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font: 16px/1.35 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 a { color: var(--link); text-decoration: none; text-underline-offset: .15em; }
 a:hover { text-decoration: underline; }
@@ -54,23 +54,24 @@ a:focus-visible { outline: 3px solid #f0b429; outline-offset: 3px; border-radius
   list-style: none;
 }
 .main-head li, .main-footer li { font-size: .92rem; white-space: nowrap; }
+.main-head a, .main-footer a { display: inline-flex; align-items: center; gap: .35em; }
+.icon { width: .95em; height: .95em; fill: currentColor; flex-shrink: 0; }
 .main-column-first { grid-area: content; }
 .main-column-second { grid-area: sidebar; }
 .main-footer { grid-area: footer; text-align: center; }
 h2 {
-  margin: 0 0 15px;
+  margin: 20px 0 -5px; /* 3 values: Top | Left & Right | Bottom */
   padding-bottom: 7px;
   color: var(--accent);
   font-size: 1.28rem;
   line-height: 1.25;
-  border-bottom: 1px solid var(--line);
 }
 .entry { margin: 0 0 26px; }
 .entry:last-child { margin-bottom: 0; }
 .entry h3 { margin: 16px 0 3px; font-size: 1rem; }
-.entry p { margin: 5px 0 12px; }
-.entry ul { margin: 9px 0 0; padding-left: 1.25rem; }
-.entry li { margin: 0 0 7px; padding-left: 2px; }
+.entry p { margin: 4px 0 8px; }
+.entry ul { margin: 6px 0 0; padding-left: 0.0rem; list-style-type: none; }
+.entry li { margin: 0 0 12px 8px; } /* 4 values: top right bottom left */
 .summary {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) auto;
@@ -79,12 +80,11 @@ h2 {
   margin: 22px 0 0;
   padding: 0 0 5px;
   font-weight: 650;
-  line-height: 1.35;
+  line-height: 1.25;
 }
 .entry > .summary:first-child { margin-top: 0; }
 .summary .title, .summary .company { min-width: 0; }
 .summary .dates { color: var(--muted); font-size: .88rem; font-weight: 600; text-align: right; white-space: nowrap; }
-.main-column-second hr { height: 1px; margin: 22px 0; border: 0; background: var(--line); }
 .main-footer { padding-block: 18px; }
 .main-footer span { display: block; margin-bottom: 8px; font-size: 1.05rem; font-weight: 700; }
 .tex sub, .latex sub, .latex sup { text-transform: uppercase; }
@@ -112,7 +112,6 @@ h2 {
     margin: 0;
   }
   .main-column-second { display: contents; }
-  .main-column-second > hr { display: none; }
   .main-head { order: 1; }
   .career-focus { order: 2; }
   .main-column-first { order: 3; }
@@ -130,7 +129,7 @@ h2 {
 }
 @media print {
   @page { margin: 12mm; }
-  body { padding: 0; color: #111; background: #fff; font-size: 9.5pt; line-height: 1.4; }
+  body { padding: 0; color: #111; background: #fff; font-size: 9.5pt; line-height: 1.25; }
   .wrapper {
     display: grid;
     grid-template-columns: minmax(0, 1.75fr) minmax(180px, .85fr);
