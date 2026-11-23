@@ -1,0 +1,214 @@
+<!--
+This page is a small experiment in CSS Grid and a lightweight responsive layout.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="Description" content="Kester Allen's resume.">
+  <title>Kester Allen's Resume</title>
+  <link rel="stylesheet" href="/static/resume_new.css">
+  <link rel="icon" href="/images/resume_avi_small.ico">
+</head>
+<body>
+  <main class="wrapper">
+    <header class="main-head">
+      <h1>Christopher (Kester) Allen</h1>
+      <ul>
+        <li><a href="https://www.google.com/maps/place/Berkeley">Berkeley</a></li>
+        <li><a href="tel:(510) 229-2665">(510) 229-2665</a></li>
+        <li><a href="mailto:kester@gmail.com">kester@gmail.com</a></li>
+        <li><a href="https://www.linkedin.com/in/kesterallen" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+        <li><a href="https://www.github.com/kesterallen/" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+      </ul>
+    </header>
+
+    <section class="main-column-first">
+      <h2>Experience</h2>
+      <article class="entry">
+        <div class="summary"><span class="title">Senior Research Manager,<br>Data Science and Engineering Department</span><span class="company"><a href="https://www.novonesis.com" target="_blank" rel="noopener noreferrer">Novonesis (formerly Novozymes)</a></span><span class="dates">2024 - present</span></div>
+        <ul>
+          <li>Led the hybrid Data Science and Engineering department: 4 software engineers and 9 data scientists.</li>
+          <li>Drove collaboration between large coalitions of cross-functional international data science, software engineering, and research teams.</li>
+          <li>Coordinated strategic bioinformatics tooling and processes plans across many (~10) small international, geographically-widespread groups.</li>
+          <li>Led AI developement and adoption. Focus on raising larger strategic goals for individual contributors as coding became more AI-assisted. Evaluation of AI tools and techniques with measureable increases in productivity and ensuring company data protections. Coordination with international collaborators on AI integration into existing workflows and new AI-based workflows for strain engineering.</li>
+          <li>Participated in negotiations and persuasion efforts to align geographically-dispersed and functionally-disparate teams on a single integrated toolset. Dramatically increased knowledge sharing, data discoverability and scientific usefulness as a result, which enabled faster delivery of products to market and customers.</li>
+          <li>Coached and mentored a diverse department of software engineers and data scientists. Provided management training for new group leaders. Demonstrated and taught software best practices.</li>
+          <li>Designed and managed hiring process for the Data Science and Engineering department.</li>
+        </ul>
+      </article>
+
+      <article class="entry">
+        <div class="summary"><span class="title">Associate Director,<br>Software Engineering</span><span class="company"><a href="https://amyris.com" target="_blank" rel="noopener noreferrer">Amyris</a></span><span class="dates">2018 - 2024</span></div>
+        <ul>
+          <li>Managed nine direct reports with a focus on collaboration, career development, and diversity improvement. Worked on support and retention of software team through a 60% company RIF and Chapter 11.</li>
+          <li>Directed strategic planning for software engineering department, especially weighing pros and cons of maintainability vs. development speed with science leads on software/science interactions.</li>
+          <li>Negotiated for project resource allocations and organized software priorities.</li>
+          <li>Designed and led effort to continuously reduce technical debt with strangler fig pattern: parallelize new development on legacy apps into modern frameworks.</li>
+          <li>Software best practices leadership: created curriculum and taught (code review, test design, git workflow, continuous integration usage) course for biologists and chemists interested in learning coding.</li>
+          <li>Led the Software Support Group, a tiger team to fix high-priority bugs across a large and heterogeneous software suite.</li>
+          <li>Coordinated hiring 25 software engineers, designed hiring process.</li>
+        </ul>
+        <div class="summary"><span class="title">Staff Software Engineer</span><span class="company"><a href="https://amyris.com" target="_blank" rel="noopener noreferrer">Amyris</a></span><span class="dates">2013 - 2018</span></div>
+        <ul>
+          <li>Managed five direct reports.</li><li>Mentored junior members of Software Engineering team.</li>
+          <li>Designed and implemented NGS QC workflow improvements, reduced 16 FTE hours/month to 30 FTE minutes/month.</li>
+          <li>Led and managed international team to create web interface/API to Amyris's biofoundry for DNA constructs.</li>
+          <li>Major re-architecting of legacy systems, leading to multiple-order-of-magnitude efficiency increases.</li>
+          <li>Led architectural discussions on how to increase efficiency.</li>
+          <li>Developed web apps to improve bioengineering processes through analysis automation. (Python, F#)</li>
+          <li>Designed and implemented upgrades to automated strain engineering, resulting robot efficiency improvements.</li>
+        </ul>
+      </article>
+
+      <article class="entry">
+        <div class="summary"><span class="title">Senior Software Engineer</span><span class="company"><a href="http://www.vigilent.com/" target="_blank" rel="noopener noreferrer">Vigilent</a></span><span class="dates">2011 - 2013</span></div>
+        <ul>
+          <li>Wrote SNMP subagent to monitor, issue, and publish alarms for mission-critical hardware (AgentX, Python, Java).</li>
+          <li>Designed and implemented a data layer to manage, track, and propagate real-time alerts for high-value data centers.</li>
+          <li>Created a template system that allows customers to rapidly set up temperature monitoring of hundreds of data centers.</li>
+          <li>Developed commissioning tool that automatically assigned hundreds of wireless temperature sensors into meshed groups and created production database. Reduced setup time by 90%.</li>
+          <li>Designed and implemented automated test harnesses for hardware control algorithm (Python).</li>
+        </ul>
+      </article>
+
+      <article class="entry">
+        <div class="summary"><span class="title">Senior Principal Software Engineer</span><span class="company"><a href="https://science.nasa.gov/mission/kepler" target="_blank" rel="noopener noreferrer">Kepler Space Telescope</a> &bull; Orbital Sciences &bull; <a href="https://www.nasa.gov/ames" target="_blank" rel="noopener noreferrer">NASA Ames</a></span><span class="dates">2005 - 2011</span></div>
+        <ul>
+          <li>Won <a href="http://www.spaceref.com/news/viewpr.html?pid=31770" target="_blank" rel="noopener noreferrer">"NASA Software of the Year" (2010)</a> award for Kepler Science Operations Center pipeline software.</li>
+          <li>Created and maintained a suite of tools to extract Kepler data products from custom datastore for analysis (MATLAB).</li>
+          <li>Developed analysis algorithms to help detect habitable planets.</li>
+          <li>Designed and implemented libraries to manage, update, and persist photometer calibration data (Java).</li>
+          <li>Maintained and substantially optimized mission-critical and high-profile sky-to-pixel transformation software (MATLAB, C++).</li>
+          <li>Wrote pipeline modules to calculate and report metrics to characterize analysis efficiency (MATLAB).</li>
+          <li>Extended and modified official Kepler data simulator (MATLAB).</li>
+          <li>Wrote pipeline modules, analysis tools (MATLAB, Java, C++).</li>
+          <li>Participated in start-to-finish software life cycle.</li>
+          <li>Upgraded cluster-deploy scripts to increase reliability and improve error reporting.</li>
+        </ul>
+      </article>
+
+      <article class="entry">
+        <div class="summary"><span class="title">Computer Scientist</span><span class="company"><a href="https://llnl.gov/" target="_blank" rel="noopener noreferrer">Lawrence Livermore National Laboratory</a> &bull; <a href="https://lasers.llnl.gov/" target="_blank" rel="noopener noreferrer">National Ignition Facility</a></span><span class="dates">2004 - 2005</span></div>
+        <ul><li>Wrote and implemented software requirements and test plans.</li><li>Operated test instruments for NIF laser test firings.</li></ul>
+      </article>
+
+      <article class="entry">
+        <div class="summary"><span class="title">Data Specialist</span><span class="company"><a href="https://www.cfa.harvard.edu/sao" target="_blank" rel="noopener noreferrer">Smithsonian Astrophysical Observatory</a> &bull; <a href="https://science.nasa.gov/mission/chandra" target="_blank" rel="noopener noreferrer">Chandra X-Ray Observatory</a></span><span class="dates">2002 - 2004</span></div>
+        <ul><li>Wrote calibration software (Perl, C++) for Chandra Optics Group.</li><li>Developed new X-ray optics analysis methods.</li><li>Created official parameterization of Chandra optics.</li><li>Wrote binary data filter (C++) for Chandra raytrace simulator.</li><li>Created pipeline-integrated graphing module (Perl, PDL).</li></ul>
+      </article>
+
+      <article class="entry">
+        <div class="summary"><span class="title">Software Engineer</span><span class="company"><a href="https://www.hpe.com" target="_blank" rel="noopener noreferrer">Hewlett-Packard Company</a></span><span class="dates">2000 - 2002</span></div>
+        <ul><li>Developed software test automation (Perl, C, WinRunner).</li><li>Managed 3-person test team.</li><li>Authored test plans, performed manual and automated software testing.</li><li>Designed and created OS-installing automation harness.</li></ul>
+      </article>
+
+      <article class="entry">
+        <div class="summary"><span class="title">Software Test Engineer</span><span class="company"><a href="https://www.cadence.com/" target="_blank" rel="noopener noreferrer">Cadence Design Systems</a></span><span class="dates">1999 - 2000</span></div>
+        <ul><li>Led QA group (4 engineers)</li><li>Tested EDA web tools and client software.</li><li>Wrote test automation, test plans, test cases, analysis scripts (ASP / SQL).</li></ul>
+      </article>
+
+      <article class="entry">
+        <div class="summary"><span class="title">Computer Specialist</span><span class="company"><a href="https://www.cfa.harvard.edu/sao" target="_blank" rel="noopener noreferrer">Smithsonian Astrophysical Observatory</a> &bull; <a href="http://www.nasa.gov/mission_pages/chandra/main" target="_blank" rel="noopener noreferrer">Chandra X-Ray Observatory</a></span><span class="dates">1997 - 1999</span></div>
+        <ul><li>Analyzed Chandra Space Telescope calibration data.</li><li>Wrote analysis software (C, Perl, FORTRAN, IDL, awk).</li><li>Produced quantum efficiency datasets for space-based X-ray cameras.</li></ul>
+      </article>
+
+      <section class="entry publications">
+        <h2>Publications</h2>
+        <ul>
+          <li>"The Occurrence of Rocky Habitable Zone Planets Around Solar-Like Stars from Kepler Data", Bryson, et al, The Astrophysical Journal, <a href="https://arxiv.org/abs/2010.14812" target="_blank" rel="noopener noreferrer">arXiv:2010.14812</a></li>
+          <li>"Low-cost, high-throughput sequencing of DNA assemblies using a highly multiplexed Nextera process", Shapland, et al, <a href="http://pubs.acs.org/doi/abs/10.1021/sb500362n" target="_blank" rel="noopener noreferrer">ASC Synthetic Biology, 2012</a></li>
+          <li>"Transit Timing Observations from Kepler : II. Confirmation of Two Multiplanet Systems via a Non-parametric Correlation Analysis", Ford, et al, Astrophysical Journal Supplement (2012), <a href="http://arxiv.org/abs/1201.5409" target="_blank" rel="noopener noreferrer">arXiv:1201.5409v1</a></li>
+          <li>"Characteristics of Planetary Candidates Observed by Kepler. II. Analysis of the First Four Months of Data", Borucki, et al, <a href="https://arxiv.org/abs/1102.0541" target="_blank" rel="noopener noreferrer">Astrophysical Journal 736 (2011)</a></li>
+          <li>"Solar-like oscillations as a Probe of the Convective Envelope of a Delta Scuti Star", Nature, 29 September, 2011. <a href="http://arxiv.org/abs/1109.4285" target="_blank" rel="noopener noreferrer">Abstract</a></li>
+          <li>"Kepler-10c, a 2.2-Earth radius transiting planet in a multiple system" <a href="https://arxiv.org/abs/1105.4647" target="_blank" rel="noopener noreferrer">Astrophysical Journal, April 9, 2011; manuscript #: ApJ83508</a></li>
+          <li>Kepler Planet-Detection Mission: Introduction and First Results, <a href="https://science.sciencemag.org/content/327/5968/977" target="_blank" rel="noopener noreferrer">Science 19 February 2010:Vol. 327. no. 5968, pp. 977 – 980</a></li>
+          <li>Kepler Mission's Focal Plane Characterization Models Implementation, SPIE 2010 Proceedings</li>
+          <li>Kepler Science Operations Center Architecture, SPIE 2010 Proceedings</li>
+          <li>Data Validation in the Kepler Science Operations Center Pipeline Frameworks, SPIE 2010 Proceedings</li>
+          <li>The Kepler Science Operations Center Pipeline Framework, SPIE 2010 Proceedings</li>
+          <li>The Kepler Science Operations Center Pipeline Framework Extensions, SPIE 2010 Proceedings</li>
+          <li>Semi-weekly Monitoring of the Performance and Attitude of Kepler, SPIE 2010 Proceedings</li>
+          <li>Photometer Performance Assessment in Kepler Science Data Processing, SPIE 2010 Proceedings</li>
+          <li>Pixel-level Calibration in the Kepler Science Operations Center Pipeline, SPIE 2010 Proceedings</li>
+          <li>A Framework for Propagation of Uncertainties in the Kepler Data Analysis Pipeline, SPIE 2010 Proceedings</li>
+          <li>"Solar-like oscillations in red giants observed with Kepler: comparison of global oscillation parameters from different methods", Hekker et al, <a href="https://www.aanda.org/articles/aa/full_html/2011/01/aa15185-10/aa15185-10.html" target="_blank" rel="noopener noreferrer">Astronomy and Astrophysics, August 2010</a></li>
+          <li>"Discovery and Rossiter-McLaughlin Effect of Exoplanet Kepler-8b0", Jenkins, et al, Astrophysical Journal 724 (2010) 1108-1119 <a href="http://iopscience.iop.org/0004-637X/724/2/1108/" target="_blank" rel="noopener noreferrer">Abstract</a></li>
+          <li>"A Parameterization of the Chandra Point Spread Function, 2003 Chandra Calibration Workshop, Christopher Allen, Diab Jerius, Terry Gaetz <a href="http://cxc.harvard.edu/ccw/proceedings/03_proc/presentations/allen/index.html" target="_blank" rel="noopener noreferrer">Abstract</a></li>
+          <li>"A Parameterization of the Chandra Point Spread Function, X-Ray Instruments and Missions, SPIE Meeting Volume 5165,Christopher L. Allen et al, August 2003. ISBN# 0-8194-5038-3</li>
+          <li>"Interstellar Matter Near the Pleiades. V. Observations of Na I toward 36 Stars." Richard E. White, et al, 2000, Astrophysical Journal Supplement, volume 132, pg 253 <a href="http://adsabs.harvard.edu/abs/2001ApJS..132..253W" target="_blank" rel="noopener noreferrer">Abstract</a></li>
+          <li>"Analysis of the AXAF HRMA+ACIS Effective Area Measurements from the XRCF," X-Ray Instruments and Missions, SPIE Meeting Volume 3444, Christopher L. Allen, et al, Ed. Hoover and Walker, October 1998. ISBN# 0-8194-2899-X</li>
+          <li>"He I 1083 nm Oscillations and Downflows near the North Solar Pole." M. J. Penn and C. L. Allen, 1997, Solar Physics, volume 174, pps 359-366</li>
+          <li>"An Interstellar Three-Body Encounter at the Pleiades?", Richard E. White and Christopher L. Allen. An abstract presented at the June 1996 American Astronomical Society meeting</li>
+          <li>Near-IR images of Jupiter of the <a href="https://en.wikipedia.org/wiki/Comet_Shoemaker%E2%80%93Levy_9" target="_blank" rel="noopener noreferrer">SL9 comet</a> collision with Jupiter taken by myself and Dr Michael Skrutskie of <a href="https://www.umass.edu/" target="_blank" rel="noopener noreferrer">UMass Amherst</a> appeared in <a href="https://www.astronomy.com/issues/1995/" target="_blank" rel="noopener noreferrer">Astronomy Magazine (July 1995)</a>, and <a href="https://www.amazon.com/Great-Comet-Crash-Collision-Shoemaker-Levy/dp/0521482747" target="_blank" rel="noopener noreferrer">The Great Comet Crash, Ed. John R. Spencer and Jacqueline Mitton</a>.</li>
+        </ul>
+      </section>
+    </section>
+
+    <aside class="main-column-second">
+      <section class="entry career-focus">
+        <h2>Career Focus</h2>
+        <p>Collaborating with scientist domain experts to translate groundbreaking ideas into high-performance maintainable software systems.</p>
+        <p>Over a decade of biotechnology software and data science leadership.</p>
+        <p>Ten years of NASA software development for space telescopes on the <a href="https://www.nasa.gov/mission_pages/kepler/overview/index.html" target="_blank" rel="noopener noreferrer">Kepler</a> and <a href="http://www.nasa.gov/mission_pages/chandra/main" target="_blank" rel="noopener noreferrer">Chandra</a> missions.</p>
+      </section>
+      <hr>
+      <section class="entry">
+        <h2>Technical Background</h2>
+        <p>Python/Pandas/NumPy/SciPy, SQL, Rust, Julia, Java, C++/C, PHP, JavaScript, Fetch API, JQuery, React, F#, Perl, MATLAB, IDL, PDL, FORTRAN, linux shell</p>
+        <p>Matplotlib, gnuplot, D3, plotly</p>
+        <p>Docker/Apptainer, Nextflow, Jupyter notebooks, git and other version control, Gitlab CI/CD</p>
+        <p>SqlAlchemy, nosetest/pytest/unittest, JUnit, Hibernate, mapboxgl, Jenkins, ant, make, awk, openGL, geopython, <span class="latex">L<sup>a</sup>T<sub>e</sub>X</span></p>
+        <p>AWS, Google App Engine, Hadoop</p>
+        <p>Astronomy Tools: FTOOLS, FUNTOOLS, IRAF, AIPS</p>
+      </section>
+      <hr>
+      <section class="entry">
+        <h2>Side Projects</h2>
+        <h3><a href="https://readtheplaque.com" target="_blank" rel="noopener noreferrer">Read The Plaque</a></h3>
+        <p>The historical marker project from <a href="http://99percentinvisible.org/" target="_blank" rel="noopener noreferrer">99% Invisible</a> (<a href="https://github.com/kesterallen/read-the-plaque" target="_blank" rel="noopener noreferrer">repo</a>) (<a href="https://cloud.google.com/appengine" target="_blank" rel="noopener noreferrer">Google App Engine</a>)</p>
+        <h3><a href="https://timeghost.pythonanywhere.com" target="_blank" rel="noopener noreferrer">Timeghost</a></h3>
+        <p>Humorous date comparison app (<a href="https://github.com/kesterallen/timeghost-python3" target="_blank" rel="noopener noreferrer">repo</a>, <a href="https://github.com/kesterallen/timeghost" target="_blank" rel="noopener noreferrer">old version</a>) (<a href="https://cloud.google.com/appengine" target="_blank" rel="noopener noreferrer">Google App Engine</a>)</p>
+        <h3>Wordle Solvers</h3>
+        <p><a href="https://github.com/kesterallen/rust-exploration/tree/main/wordle/" target="_blank" rel="noopener noreferrer">Rust</a>, <a href="https://github.com/kesterallen/surlyfritter-python3/blob/main/surlyfritter/scripts/wordle.py" target="_blank" rel="noopener noreferrer">Python</a>, and <a href="https://github.com/kesterallen/julia-lang/blob/main/wordle.jl" target="_blank" rel="noopener noreferrer">Julia</a> "helper" programs for <a href="https://www.nytimes.com/games/wordle/index.html" target="_blank" rel="noopener noreferrer">Josh Wardle's six-guess five-letter word game</a>. Fun explorations of flexible / fast solutions to a well-bounded problem.</p>
+        <h3><a href="https://botsin.space/@magellanvenus" target="_blank" rel="noopener noreferrer">Magellan Venus Bot</a></h3>
+        <p>Venus Imagery Social Media Bot (and backing library <a href="https://github.com/kesterallen/twitterbots" target="_blank" rel="noopener noreferrer">Twitterbots</a>) (<a href="https://developer.twitter.com/en/docs" target="_blank" rel="noopener noreferrer">Twitter API</a>)</p>
+        <h3><a href="https://www.surlyfritter.com" target="_blank" rel="noopener noreferrer">Surlyfritter</a></h3>
+        <p>Online image slideshow app (<a href="https://cloud.google.com/appengine" target="_blank" rel="noopener noreferrer">Google App Engine</a>)</p>
+        <h3><a href="https://poresopropongo.mx" target="_blank" rel="noopener noreferrer">Por Eso Propongo (now offline)</a></h3>
+        <p>Political campaign postcard server (<a href="https://cloud.google.com/appengine" target="_blank" rel="noopener noreferrer">Google App Engine</a>) (<a href="https://github.com/kesterallen/poresopropongomx" target="_blank" rel="noopener noreferrer">repo</a>)</p>
+      </section>
+      <hr>
+      <section class="entry">
+        <h2>Education</h2>
+        <h3><a href="https://amherst.edu/" target="_blank" rel="noopener noreferrer">Amherst College</a></h3>
+        <p>Bachelor of Arts, Double major in Physics and Astronomy</p>
+        <h3><a href="https://extension.harvard.edu/" target="_blank" rel="noopener noreferrer">Harvard Extension School</a></h3>
+        <p>Introduction to Graphics Programming</p><p>Algorithms and Data Structures</p><p>Object-Oriented C++ Programming</p>
+        <h3>Continuing Education</h3>
+        <p>Navigator Leadership Training (Novonesis internal ~100 hour leadership program)</p>
+        <p><a href="http://conjuntoconsulting.com/about-1" target="_blank" rel="noopener noreferrer">Leadership Fundamentals Training, (Karen Seidman)</a></p>
+        <p>Hadoop for Java Developers (<a href="https://www.cloudera.com/about/training.html" target="_blank" rel="noopener noreferrer">Cloudera Training</a>)</p>
+        <p><a href="https://www.nasa.gov/centers/ames/engineering/divisions/missiondesigndivision" target="_blank" rel="noopener noreferrer">Space Missions Design</a> (Internal NASA Ames class)</p>
+        <p>Perl Data Munging (<a href="http://damian.conway.org/" target="_blank" rel="noopener noreferrer">Conway Perl Consulting</a>)</p>
+      </section>
+      <hr>
+      <section class="entry">
+        <h2>Interests</h2>
+        <p><a href="https://twitter.com/search?q=berkeley%20bicycle%20bingo&src=typed_query&f=live" target="_blank" rel="noopener noreferrer">Biking</a> and <a href="https://bikeeastbay.org/" target="_blank" rel="noopener noreferrer">bicycle</a> <a href="https://www.strava.com/athletes/60190103" target="_blank" rel="noopener noreferrer">commuting</a></p>
+        <p><a href="https://en.wikipedia.org/wiki/Team_of_Rivals" target="_blank" rel="noopener noreferrer">Abraham</a> <a href="https://www.goodreads.com/book/show/1283566.This_Republic_of_Suffering" target="_blank" rel="noopener noreferrer">Lincoln</a> biographies</p>
+        <p><a href="https://99percentinvisible.org" target="_blank" rel="noopener noreferrer">Scripted</a> <a href="https://thememorypalace.us" target="_blank" rel="noopener noreferrer">nonfiction</a> <a href="https://www.wnycstudios.org/podcasts/anthropocene-reviewed" target="_blank" rel="noopener noreferrer">podcasts</a></p>
+        <p><a href="https://kesterallen.com/pancakes" target="_blank" rel="noopener noreferrer">Buttermilk</a> <a href="https://bsky.app/profile/eastbaypancakes.bsky.social" target="_blank" rel="noopener noreferrer">pancakes</a></p>
+        <p><a href="https://allpoetry.com/poem/15179170-Three-Foxes-by-the-Edge-of-the-Field-at-Twilight-by-Jane-Hirshfield" target="_blank" rel="noopener noreferrer">Narrative</a> <a href="https://www.slowdownshow.org/" target="_blank" rel="noopener noreferrer">free</a> <a href="https://www.poetry-chaikhana.com/" target="_blank" rel="noopener noreferrer">verse</a> <a href="https://allpoetry.com/" target="_blank" rel="noopener noreferrer">first-person poetry</a></p>
+        <p><a href="https://readtheplaque.com/plaque/web-browser" target="_blank" rel="noopener noreferrer">Historical</a> <a href="https://readtheplaque.com/plaque/beginning-of-the-internet-age" target="_blank" rel="noopener noreferrer">Markers</a></p>
+      </section>
+    </aside>
+
+    <footer class="main-footer">
+      <span>Kester Allen</span>
+      <ul><li><a href="tel:(510) 229-2665">(510) 229-2665</a></li><li><a href="mailto:kester@gmail.com">kester@gmail.com</a></li></ul>
+    </footer>
+  </main>
+</body>
+</html>
