@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Administrator Sign In{% endblock %}
+
+{% block content %}
+  {{ super() }}
+  <main class="container-md text-center py-5">
+    <h1>Administrator Sign In</h1>
+    <p>Sign in with an authorized Google account to continue.</p>
+    <div class="d-flex justify-content-center">
+      <div class="g_id_signin"
+        data-type="standard"
+        data-size="large"
+        data-theme="outline"
+        data-text="signin_with"
+        data-shape="rectangular"
+        data-logo_alignment="left">
+      </div>
+    </div>
+  </main>
+{% endblock %}
