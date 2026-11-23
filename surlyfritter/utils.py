@@ -7,7 +7,8 @@ import os
 import re
 
 import dateutil.parser
-from flask import session, render_template as flask_render_template
+from functools import wraps
+from flask import abort, redirect, request, session, url_for, render_template as flask_render_template
 from PIL import Image, ExifTags
 import requests
 
@@ -22,6 +23,7 @@ ADMIN_EMAILS = [
     "miriamrobinallen@gmail.com",
     "julia.saide.allen@gmail.com",
     "juliasaideallen@gmail.com",
+    "sheilapaske@gmail.com",
 ]
 
 
@@ -65,7 +67,22 @@ def is_logged_in() -> bool:
 
 def is_admin() -> bool:
     """Is an admin user logged in?"""
-    return is_logged_in() and session.get("user_email") in ADMIN_EMAILS
+    return is_logged_in() and session.get("user_email", "").casefold() in {
+        email.casefold() for email in ADMIN_EMAILS
+    }
+
+
+def admin_required(func):
+    """Require an administrator, prompting logged-out visitors to sign in."""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if not is_logged_in():
+            return redirect(url_for("login", next=request.full_path.rstrip("?")))
+        if not is_admin():
+            abort(403, "Administrator access required.")
+        return func(*args, **kwargs)
+
+    return wrapper
 
 
 def get_exif_data_from_url(img_url: str) -> datetime.datetime:

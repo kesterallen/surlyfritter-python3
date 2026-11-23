@@ -25,6 +25,7 @@ from surlyfritter.models import (
 from surlyfritter.utils import (
     get_exif_data_from_url,
     get_hash_from_url,
+    admin_required,
     is_admin,
     render_template,
     send_email,
@@ -112,6 +113,7 @@ def filter_tagfontsize(tag):
 @app.route("/picture/<int:img_id>")
 @app.route("/p/<int:img_id>")
 @app.route("/<int:img_id>.jpg")
+@admin_required
 def display(img_id: int = None):
     """
     Display the picture that img_id == Picture.added_order for. If that doesn't
@@ -134,6 +136,7 @@ def display(img_id: int = None):
 
 @app.route("/display/highest")
 @app.route("/d/highest")
+@admin_required
 def display_highest():
     """Show the picture page for the picture with the most recent date"""
     if not is_admin():
@@ -148,6 +151,7 @@ def display_highest():
 @app.route("/d/mostrecent")
 @app.route("/display/highestp")
 @app.route("/d/highestp")
+@admin_required
 def display_newest():
     """Show the picture page for the picture that was added most recently"""
     if not is_admin():
@@ -164,6 +168,7 @@ def display_newest():
 @app.route("/d/leastrecent")
 @app.route("/display/lowestp")
 @app.route("/d/highestp")
+@admin_required
 def display_oldest():
     """Show the picture page for the oldest picture"""
     if not is_admin():
@@ -206,6 +211,7 @@ def feed(max_num: int = 5):
 
 
 @app.route("/tags/<tag_text>/all")
+@admin_required
 def pictures_for_tags_all(tag_text: str):
     """
     Display all pictures with the tag "tag_text"
@@ -218,6 +224,7 @@ def pictures_for_tags_all(tag_text: str):
 
 @app.route("/tags/<tag_text>/<int:max_num>")
 @app.route("/tags/<tag_text>")
+@admin_required
 def pictures_for_tags(tag_text: str, max_num: int = 5):
     """
     Display N pictures with the tag "tag_text"
@@ -252,6 +259,7 @@ def _kid_is(name: str, age_years: float):
 
 @app.route("/miri_is/<int:age_years>")
 @app.route("/miri_is/<float:age_years>")
+@admin_required
 def miri_is(age_years: float):
     """
     Return a redirect the display page for miri at age "age_years"
@@ -264,6 +272,7 @@ def miri_is(age_years: float):
 
 @app.route("/julia_is/<int:age_years>")
 @app.route("/julia_is/<float:age_years>")
+@admin_required
 def julia_is(age_years: float):
     """
     Return a redirect the display page for julia at age "age_years"
@@ -276,6 +285,7 @@ def julia_is(age_years: float):
 
 @app.route("/linus_is/<int:age_years>")
 @app.route("/linus_is/<float:age_years>")
+@admin_required
 def linus_is(age_years: float):
     """
     Return a redirect the display page for linus at age "age_years"
@@ -289,6 +299,7 @@ def linus_is(age_years: float):
 @app.route("/same-age/<int:age_years>")
 @app.route("/same-age/<float:age_years>")
 @app.route("/same-age")
+@admin_required
 def same_age(age_years=None):
     """
     Return a redirect the display page for linus at age "age_years"
@@ -312,6 +323,7 @@ def same_age(age_years=None):
 @app.route("/multiple/<int:img_id1>/<int:img_id2>/<int:img_id3>/")
 @app.route("/dm/<int:img_id1>/<int:img_id2>/<int:img_id3>/")
 @app.route("/m/<int:img_id1>/<int:img_id2>/<int:img_id3>/")
+@admin_required
 def side_by_side(img_id1: int, img_id2: int, img_id3: int):
     """Display the three images on one page"""
     if not is_admin():
@@ -327,6 +339,7 @@ def side_by_side(img_id1: int, img_id2: int, img_id3: int):
 
 
 @app.route("/mm/<img_ids_str>")
+@admin_required
 def side_by_side_list(img_ids_str: str):
     """Display a list of images on one page"""
     if not is_admin():
@@ -342,6 +355,7 @@ def side_by_side_list(img_ids_str: str):
 
 
 @app.route("/date/<date_str>")
+@admin_required
 def display_date(date_str: str):
     """
     Display the picture closest to "date_str"

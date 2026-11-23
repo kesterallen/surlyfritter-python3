@@ -4,24 +4,26 @@ Admin routes
 import datetime
 import io
 import pprint
+import os
 import requests
 
 import dateutil.parser
-import jwt
 from flask import redirect, request, abort, session
 
 from google.cloud import storage
 from google.cloud.exceptions import NotFound
-#from google.oauth2 import id_token
+from google.oauth2 import id_token
 from google.auth.transport import requests as g_requests
 
 from surlyfritter.models import Picture, Tag, Comment, GCS_BUCKET_NAME
 from surlyfritter.utils import (
     send_email,
     render_template,
-    #get_key,
+    get_key,
+    ADMIN_EMAILS,
     get_hash_from_url,
     is_logged_in,
+    admin_required,
     is_admin,
     get_exif_date_from_url,
 )
@@ -32,6 +34,19 @@ from surlyfritter.fixtures.correct_ordering import (
 )
 
 from . import app, client
+
+# Keep the browser's Google Identity Services client ID and the server-side
+# token audience check in sync.
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
+if not GOOGLE_CLIENT_ID:
+    try:
+        GOOGLE_CLIENT_ID = get_key("onetap_key")
+    except (FileNotFoundError, ValueError):
+        GOOGLE_CLIENT_ID = None
+GOOGLE_CLIENT_ID = GOOGLE_CLIENT_ID or (
+    "75715567093-1nhb1mtio6jvfoika3rradalj3c0q7n8.apps.googleusercontent.com"
+)
+app.config["GOOGLE_CLIENT_ID"] = GOOGLE_CLIENT_ID
 
 DISABLE_DAMAGING_ENDPOINTS = True
 
@@ -54,25 +69,47 @@ def _counts():
         comments=num_comments
     )
 
+def _safe_local_redirect(target):
+    """Accept only same-site relative URLs to prevent open redirects."""
+    from urllib.parse import urlsplit
+
+    if not target:
+        return "/"
+    parsed = urlsplit(target)
+    if (
+        parsed.scheme
+        or parsed.netloc
+        or not parsed.path.startswith("/")
+        or parsed.path.startswith("//")
+        or "\\" in parsed.path
+    ):
+        return "/"
+    return target
+
+
+@app.route('/login')
+def login():
+    """Display the Google sign-in page for an administrator."""
+    if is_logged_in():
+        if is_admin():
+            target = session.pop("admin_next", None) or request.args.get("next")
+            return redirect(_safe_local_redirect(target))
+        abort(403, "This Google account is not an administrator.")
+
+    session["admin_next"] = _safe_local_redirect(request.args.get("next"))
+    return render_template("login.html")
+
+
 @app.route('/logout')
 def logout():
-    """Clear session of user info to log out"""
-    session['user_img'] = None
-    session['user_email'] = None
-    session['user_name'] = None
-    return redirect(request.referrer)
+    """Clear the current session."""
+    session.clear()
+    return redirect("/")
+
 
 @app.route('/gauth', methods=['POST'])
 def gauth():
-    """
-    Google Onetap auth handler
-    https://developers.google.com/identity/sign-in/web/server-side-flow
-    """
-    # Exit early if already authenticated
-    if is_logged_in():
-        return redirect(request.referrer)
-
-    # Valiidate tokens:
+    """Validate a Google credential before establishing an administrator session."""
     csrf_token_cookie = request.cookies.get('g_csrf_token')
     if not csrf_token_cookie:
         abort(400, 'No CSRF token in Cookie.')
@@ -84,21 +121,38 @@ def gauth():
     if csrf_token_cookie != csrf_token_body:
         abort(400, 'Failed to verify double submit cookie.')
 
-    # Get credential and set user info:
     credential = request.values.get('credential')
-    decoded = jwt.decode(credential, options={"verify_signature": False})
-    #client_id = get_key("onetap_key")
-    #decoded_token = jwt.decode(csrf_token_body, options={"verify_signature": False})
-    #idinfo = id_token.verify_oauth2_token(
-    #    decoded_token, g_requests.Request(), client_id
-    #)
+    if not credential:
+        abort(400, 'Missing Google credential.')
 
-    session['user_img'] = decoded['picture']
-    session['user_email'] = decoded['email']
-    session['user_name'] = decoded['name']
-    return redirect(request.referrer)
+    client_id = app.config['GOOGLE_CLIENT_ID']
+
+    # Google's verifier checks the signature, issuer, expiry, and audience.
+    try:
+        decoded = id_token.verify_oauth2_token(
+            credential, g_requests.Request(), client_id
+        )
+    except ValueError:
+        abort(401, "Google sign-in token is invalid or expired.")
+
+    email = decoded.get("email", "").casefold()
+    allowed_emails = {address.casefold() for address in ADMIN_EMAILS}
+    if decoded.get("email_verified") is not True or email not in allowed_emails:
+        abort(403, "This Google account is not authorized as an administrator.")
+
+    # Preserve the intended destination before rotating the session.
+    next_url = session.get("admin_next") or request.form.get("next")
+    next_url = _safe_local_redirect(next_url)
+
+    session.clear()
+    session['user_img'] = decoded.get('picture') or ''
+    session['user_email'] = email
+    session['user_name'] = decoded.get('name') or email
+    return redirect(next_url)
+
 
 @app.route('/counts')
+@admin_required
 def counts():
     """Display the count of pictures and blobs"""
     if not is_admin():
@@ -108,6 +162,7 @@ def counts():
     return render_template('admin_report.html', counts=counts_dict)
 
 @app.route('/picture/nullrefs/<int:img_id>', methods=['POST'])
+@admin_required
 def picture_null_refs(img_id:int):
     """
     Null the next / previous links for this picture. Used for date linkage
@@ -129,6 +184,7 @@ def picture_null_refs(img_id:int):
         picture.put()
 
 @app.route('/delete/all')
+@admin_required
 def delete_everything():
     """Erase everything"""
     # ABORT
@@ -289,6 +345,7 @@ def _picture_edit_get(img_id:int):
         edit_picture=picture, exif_date=exif_date)
 
 @app.route('/picture/edit/<int:img_id>', methods=['GET', 'POST'])
+@admin_required
 def picture_edit(img_id:int):
     """Edit a Picture that already exists"""
 
@@ -301,10 +358,15 @@ def picture_edit(img_id:int):
         return _picture_edit_get(img_id)
 
 @app.route('/picture/delete/<int:img_id>')
+@admin_required
 def picture_delete(img_id:int):
     """Delete a Picture and its blob (by the .added_order attribute)"""
     if not is_admin():
         abort(404, "picture delete is admin-only")
+
+    # ABORT
+    if DISABLE_DAMAGING_ENDPOINTS:
+        abort(404, 'delete is currently disabled')
 
     with client.context():
         try:
@@ -396,6 +458,7 @@ def import_hrd():
     return hrd_meta
 
 @app.route('/fix-next-prev')
+@admin_required
 def fix_next_prev_links():
     """
     Fix next/prev links
@@ -460,6 +523,7 @@ def fix_next_prev_links():
     return render_template('admin_report.html', fixes=fixes, message=message)
 
 @app.route('/smoke-test')
+@admin_required
 def smoke_test(do_hash_check=False):
     """
     Smoke test for the
@@ -580,6 +644,7 @@ def fixtures():
         + ", ".join([str(x) for x in old_site_date_orders]))
 
 @app.route('/reverttooldsitedateorder')
+@admin_required
 def revert_to_old_site_date_order():
     # from https://surlyfritter-hrd.appspot.com/listdate
     # fold the next 6500 lines in vim for better editing
@@ -652,6 +717,7 @@ def revert_to_old_site_date_order():
     return "done"
 
 @app.route('/fix6521')
+@admin_required
 def fix_6521():
     if not is_admin():
         abort(404, "fix_6521 is admin-only")
