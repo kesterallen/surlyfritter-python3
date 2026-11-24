@@ -57,7 +57,10 @@ a:focus-visible { outline: 3px solid #f0b429; outline-offset: 3px; border-radius
 .main-head a, .main-footer a { display: inline-flex; align-items: center; gap: .35em; }
 .icon { width: .95em; height: .95em; fill: currentColor; flex-shrink: 0; }
 .main-column-first { grid-area: content; }
-.main-column-second { grid-area: sidebar; }
+.main-column-second {
+  grid-area: sidebar;
+  background: #f4f0fa;
+}
 .main-footer { grid-area: footer; text-align: center; }
 h2 {
   margin: 20px 0 4px;
