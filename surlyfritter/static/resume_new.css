@@ -16,7 +16,7 @@ body {
   padding: clamp(0px, 2vw, 24px);
   color: var(--ink);
   background: var(--page);
-  font: 16px/1.35 "URW Gothic", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font: 16px/1.35 "Liberation Sans", "Ubuntu", "URW Gothic", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 a { color: var(--link); text-decoration: none; text-underline-offset: .15em; }
 a:hover { text-decoration: underline; }
@@ -24,7 +24,7 @@ a:focus-visible { outline: 3px solid #f0b429; outline-offset: 3px; border-radius
 .wrapper {
   display: grid;
   grid-template-columns: minmax(0, 1.9fr) minmax(250px, .8fr);
-  grid-template-areas: "header header" "content sidebar" "footer footer";
+  grid-template-areas: "header header" "content sidebar" "publications publications" "footer footer";
   gap: 14px;
   max-width: 1240px;
   margin: 0 auto;
@@ -61,6 +61,7 @@ a:focus-visible { outline: 3px solid #f0b429; outline-offset: 3px; border-radius
   grid-area: sidebar;
   background: #f4f0fa;
 }
+.publications { grid-area: publications; width: 100%; justify-self: stretch; }
 .main-footer { grid-area: footer; text-align: center; }
 h2 {
   margin: 20px 0 4px;
@@ -142,6 +143,7 @@ h2 {
   .main-head { order: 1; }
   .career-focus { order: 2; }
   .main-column-first { order: 3; }
+  .publications { order: 4; }
   .main-column-second > section:not(.career-focus) { order: 4; }
   .main-footer { order: 5; }
 }
@@ -156,7 +158,7 @@ h2 {
   .wrapper {
     display: grid;
     grid-template-columns: minmax(0, 1.85fr) minmax(180px, .8fr);
-    grid-template-areas: "header header" "content sidebar" "footer footer";
+    grid-template-areas: "header header" "content sidebar" "publications publications" "footer footer";
     gap: 10pt;
     max-width: none;
   }
@@ -181,5 +183,6 @@ h2 {
   .summary .title { color: #111; font-size: 10pt; }
   h2 { font-size: 11pt; margin-bottom: 8pt; padding-bottom: 3pt; break-after: avoid; }
   .entry h3 { font-size: 9.8pt; margin: 8pt 0 2pt; break-after: avoid; }
+  .main-column-second h3 { font-size: 8.75pt; margin: 5pt 0 1.5pt; break-after: avoid; }
   h3 { break-after: avoid; }
 }
