@@ -1,7 +1,9 @@
 <!--
 This page is a small experiment in CSS Grid and a lightweight responsive layout
-that looks good in wide screen, narrow screen views, and prints. Total
-pageweight including CSS is ~30kB as of November 2026.
+that looks good on wide or narrow screens views, or printed. Total
+pageweight including CSS is ~30kB as of November 2026. I have omitted
+rel="noopener noreferrer" on the links or a javascript wrapper
+to add them to keep the page cleaner.
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -17,11 +19,11 @@ pageweight including CSS is ~30kB as of November 2026.
 
   <svg class="icon">
     <defs>
-      <path id="phone" d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58z"/>
-      <path id="map" d="M15.817.113A.5.5 0 0 1 16 .5v14a.5.5 0 0 1-.402.49l-5 1a.5.5 0 0 1-.196 0L5.5 15.01l-4.902.98A.5.5 0 0 1 0 15.5v-14a.5.5 0 0 1 .402-.49l5-1a.5.5 0 0 1 .196 0L10.5.99l4.902-.98a.5.5 0 0 1 .415.103M10 1.91l-4-.8v12.98l4 .8zm1 12.98 4-.8V1.11l-4 .8zm-6-.8V1.11l-4 .8v12.98z"/>
-      <path id="mail" d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z"/>
+      <path id="phone"    d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58z"/>
+      <path id="map"      d="M15.817.113A.5.5 0 0 1 16 .5v14a.5.5 0 0 1-.402.49l-5 1a.5.5 0 0 1-.196 0L5.5 15.01l-4.902.98A.5.5 0 0 1 0 15.5v-14a.5.5 0 0 1 .402-.49l5-1a.5.5 0 0 1 .196 0L10.5.99l4.902-.98a.5.5 0 0 1 .415.103M10 1.91l-4-.8v12.98l4 .8zm1 12.98 4-.8V1.11l-4 .8zm-6-.8V1.11l-4 .8v12.98z"/>
+      <path id="mail"     d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z"/>
       <path id="linkedin" d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z"/>
-      <path id="github" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/>
+      <path id="github"   d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/>
     </defs>
   </svg>
 </head>
@@ -228,7 +230,7 @@ pageweight including CSS is ~30kB as of November 2026.
           <span class="title">Senior Principal Software Engineer</span>
           <span class="company">
             <a href="https://science.nasa.gov/mission/kepler">Kepler Space Telescope</a>
-            &bull; Orbital Sciences 
+            &bull; Orbital Sciences
             &bull; <a href="https://www.nasa.gov/ames">NASA Ames</a>
           </span>
           <span class="dates">2005 - 2011</span>
@@ -368,7 +370,7 @@ pageweight including CSS is ~30kB as of November 2026.
         <div class="summary">
           <span class="title">Computer Specialist</span>
           <span class="company">
-            <a href="https://www.cfa.harvard.edu/sao">Smithsonian Astrophysical Observatory</a> 
+            <a href="https://www.cfa.harvard.edu/sao">Smithsonian Astrophysical Observatory</a>
             &bull; <a href="http://www.nasa.gov/mission_pages/chandra/main">Chandra X-Ray Observatory</a>
           </span>
           <span class="dates">1997 - 1999</span>
@@ -403,8 +405,8 @@ pageweight including CSS is ~30kB as of November 2026.
           </li>
           <li>
             Ten years of NASA software development for space telescopes on the
-            <a href="https://www.nasa.gov/mission_pages/kepler/overview/index.html">Kepler</a> 
-            and 
+            <a href="https://www.nasa.gov/mission_pages/kepler/overview/index.html">Kepler</a>
+            and
             <a href="http://www.nasa.gov/mission_pages/chandra/main">Chandra</a>
             missions.
           </li>
@@ -443,7 +445,7 @@ pageweight including CSS is ~30kB as of November 2026.
         <h3><a href="https://readtheplaque.com">Read The Plaque</a></h3>
         <ul>
           <li>
-            The historical marker project from 
+            The historical marker project from
             <a href="http://99percentinvisible.org/">99% Invisible</a>
             (<a href="https://github.com/kesterallen/read-the-plaque">repo</a>)
             (<a href="https://cloud.google.com/appengine">Google App Engine</a>)
@@ -454,9 +456,9 @@ pageweight including CSS is ~30kB as of November 2026.
         </h3>
         <ul>
           <li>
-            Humorous date comparison app 
+            Humorous date comparison app
             (<a href="https://github.com/kesterallen/timeghost-python3">repo</a>,
-            <a href="https://github.com/kesterallen/timeghost">old version</a>) 
+            <a href="https://github.com/kesterallen/timeghost">old version</a>)
             (<a href="https://cloud.google.com/appengine">Google App Engine</a>)
           </li>
         </ul>
@@ -466,10 +468,10 @@ pageweight including CSS is ~30kB as of November 2026.
         <ul>
           <li>
             <a href="https://github.com/kesterallen/rust-exploration/tree/main/wordle/">Rust</a>,
-            <a href="https://github.com/kesterallen/surlyfritter-python3/blob/main/surlyfritter/scripts/wordle.py">Python</a>, 
-            and 
+            <a href="https://github.com/kesterallen/surlyfritter-python3/blob/main/surlyfritter/scripts/wordle.py">Python</a>,
+            and
             <a href="https://github.com/kesterallen/julia-lang/blob/main/wordle.jl">Julia</a>
-            "helper" programs for 
+            "helper" programs for
             <a href="https://www.nytimes.com/games/wordle/index.html">Josh Wardle's six-guess five-letter word game</a>.
             Fun explorations of flexible / fast solutions to a well-bounded problem.
           </li>
@@ -479,7 +481,7 @@ pageweight including CSS is ~30kB as of November 2026.
         </h3>
         <ul>
           <li>
-            Venus Imagery Social Media Bot (and backing library 
+            Venus Imagery Social Media Bot (and backing library
             <a href="https://github.com/kesterallen/twitterbots">Twitterbots</a>)
             (<a href="https://developer.twitter.com/en/docs">Twitter API</a>)
           </li>
@@ -489,7 +491,7 @@ pageweight including CSS is ~30kB as of November 2026.
         </h3>
         <ul>
           <li>
-            Online image slideshow app 
+            Online image slideshow app
             (<a href="https://cloud.google.com/appengine">Google App Engine</a>)
           </li>
         </ul>
@@ -499,7 +501,7 @@ pageweight including CSS is ~30kB as of November 2026.
         <ul>
           <li>
             Political campaign postcard server
-            (<a href="https://cloud.google.com/appengine">Google App Engine</a>) 
+            (<a href="https://cloud.google.com/appengine">Google App Engine</a>)
             (<a href="https://github.com/kesterallen/poresopropongomx">repo</a>)
           </li>
         </ul>
@@ -542,7 +544,7 @@ pageweight including CSS is ~30kB as of November 2026.
             (Internal NASA Ames class)
           </li>
           <li>
-            Perl Data Munging 
+            Perl Data Munging
             <a href="http://damian.conway.org/">(Conway Perl Consulting</a>)
           </li>
         </ul>
@@ -552,7 +554,7 @@ pageweight including CSS is ~30kB as of November 2026.
         <ul>
           <li>
             <a href="https://twitter.com/search?q=berkeley%20bicycle%20bingo&src=typed_query&f=live">Biking</a>
-            and 
+            and
             <a href="https://bikeeastbay.org/">bicycle</a>
             <a href="https://www.strava.com/athletes/60190103">commuting</a>
           </li>
@@ -589,34 +591,34 @@ pageweight including CSS is ~30kB as of November 2026.
       <ul>
         <li>
           "The Occurrence of Rocky Habitable Zone Planets Around Solar-Like
-          Stars from Kepler Data", Bryson, et al, The Astrophysical Journal,
-          <a href="https://arxiv.org/abs/2010.14812">arXiv:2010.14812</a>
+          Stars from Kepler Data", Bryson, et al.,
+          <a href="https://arxiv.org/abs/2010.14812">The Astrophysical Journal</a>
         </li>
         <li>
           "Low-cost, high-throughput sequencing of DNA assemblies using a
-          highly multiplexed Nextera process", Shapland, et al, 
+          highly multiplexed Nextera process", Shapland, et al.,
           <a href="http://pubs.acs.org/doi/abs/10.1021/sb500362n">ASC Synthetic Biology, 2012</a>
         </li>
         <li>
           "Transit Timing Observations from Kepler : II. Confirmation of Two
           Multiplanet Systems via a Non-parametric Correlation Analysis",
-          Ford, et al, Astrophysical Journal Supplement (2012), 
-          <a href="http://arxiv.org/abs/1201.5409">arXiv:1201.5409v1</a>
+          Ford, et al.,
+          <a href="http://arxiv.org/abs/1201.5409">Astrophysical Journal Supplement (2012)</a>
         </li>
         <li>
           "Characteristics of Planetary Candidates Observed by Kepler. II.
-          Analysis of the First Four Months of Data", Borucki, et al,
+          Analysis of the First Four Months of Data", Borucki, et al.,
           <a href="https://arxiv.org/abs/1102.0541">Astrophysical Journal 736 (2011)</a>
         </li>
         <li>
           "Solar-like oscillations as a Probe of the Convective Envelope of a
-          Delta Scuti Star", Nature, 29 September, 2011.
-          <a href="http://arxiv.org/abs/1109.4285">Abstract</a>
+          Delta Scuti Star",
+          <a href="http://arxiv.org/abs/1109.4285">Nature, 29 September, 2011</a>
         </li>
         <li>
           "Kepler-10c, a 2.2-Earth radius transiting planet in a multiple
-          system" 
-          <a href="https://arxiv.org/abs/1105.4647">Astrophysical Journal, April 9, 2011; manuscript #: ApJ83508</a>
+          system"
+          <a href="https://arxiv.org/abs/1105.4647">Astrophysical Journal, April 9, 2011</a>
         </li>
         <li>
           Kepler Planet-Detection Mission: Introduction and First Results,
@@ -661,41 +663,41 @@ pageweight including CSS is ~30kB as of November 2026.
         <li>
           "Solar-like oscillations in red giants observed with Kepler:
           comparison of global oscillation parameters from different
-          methods", Hekker et al, 
+          methods", Hekker et al.,
           <a href="https://www.aanda.org/articles/aa/full_html/2011/01/aa15185-10/aa15185-10.html">Astronomy and Astrophysics, August 2010</a>
         </li>
         <li>
           "Discovery and Rossiter-McLaughlin Effect of Exoplanet Kepler-8b0",
-          Jenkins, et al, Astrophysical Journal 724 (2010) 1108-1119
-          <a href="http://iopscience.iop.org/0004-637X/724/2/1108/">Abstract</a>
+          Jenkins, et al.,
+          <a href="http://iopscience.iop.org/0004-637X/724/2/1108/">Astrophysical Journal 724 (2010) 1108-1119</a>
         </li>
         <li>
           "A Parameterization of the Chandra Point Spread Function, 2003
           Chandra Calibration Workshop, Christopher Allen, Diab Jerius, Terry
-          Gaetz 
+          Gaetz
           <a href="http://cxc.harvard.edu/ccw/proceedings/03_proc/presentations/allen/index.html">Abstract</a>
         </li>
         <li>
           "A Parameterization of the Chandra Point Spread Function, X-Ray
           Instruments and Missions, SPIE Meeting Volume 5165,Christopher L.
-          Allen et al, August 2003. ISBN# 0-8194-5038-3
+          Allen et al., August 2003. ISBN# 0-8194-5038-3
         </li>
         <li>
           "Interstellar Matter Near the Pleiades. V. Observations of Na I
-          toward 36 Stars." Richard E. White, et al, 2000, Astrophysical
+          toward 36 Stars." Richard E. White, et al., 2000, Astrophysical
           Journal Supplement, volume 132, pg 253
           <a href="http://adsabs.harvard.edu/abs/2001ApJS..132..253W">Abstract</a>
         </li>
         <li>
           "Analysis of the AXAF HRMA+ACIS Effective Area Measurements from
           the XRCF," X-Ray Instruments and Missions, SPIE Meeting Volume
-          3444, Christopher L. Allen, et al, Ed. Hoover and Walker, October
+          3444, Christopher L. Allen, et al., Ed. Hoover and Walker, October
           1998. ISBN# 0-8194-2899-X
         </li>
         <li>
           "He I 1083 nm Oscillations and Downflows near the North Solar
-          Pole." M. J. Penn and C. L. Allen, 1997, Solar Physics, volume 174,
-          pps 359-366
+          Pole." M. J. Penn and C. L. Allen, 1997,
+          <a href=https://link.springer.com/article/10.1023/A:1004902903348"">Solar Physics, volume 174, pps 359-366</a>
         </li>
         <li>
           "An Interstellar Three-Body Encounter at the Pleiades?", Richard E.
@@ -703,13 +705,13 @@ pageweight including CSS is ~30kB as of November 2026.
           1996 American Astronomical Society meeting
         </li>
         <li>
-          Near-IR images of Jupiter of the 
-          <a href="https://en.wikipedia.org/wiki/Comet_Shoemaker%E2%80%93Levy_9">SL9 comet</a> 
-          collision with Jupiter taken by myself and 
+          Near-IR images of Jupiter of the
+          <a href="https://en.wikipedia.org/wiki/Comet_Shoemaker%E2%80%93Levy_9">SL9 comet</a>
+          collision with Jupiter taken by myself and
           <a href="https://skrutskie.uvacreate.virginia.edu/home.html">Dr Michael Skrutskie</a>
-          <a href="https://www.umass.edu/">(UMass Amherst)</a> 
-          appeared in 
-          <a href="https://www.astronomy.com/issues/1995/">Astronomy Magazine (July 1995)</a>, 
+          <a href="https://www.umass.edu/">(UMass Amherst)</a>
+          appeared in
+          <a href="https://www.astronomy.com/issues/1995/">Astronomy Magazine (July 1995)</a>,
           and
           <a href="https://www.amazon.com/Great-Comet-Crash-Collision-Shoemaker-Levy/dp/0521482747">The Great Comet Crash, Ed. John R. Spencer and Jacqueline Mitton</a>.
         </li>

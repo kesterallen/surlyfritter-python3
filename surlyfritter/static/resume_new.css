@@ -16,7 +16,8 @@ body {
   padding: clamp(0px, 2vw, 24px);
   color: var(--ink);
   background: var(--page);
-  font: 16px/1.35 "Liberation Sans", "Ubuntu", "URW Gothic", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font: 16px/1.35 "Liberation Sans", "Ubuntu", "Bahnschrift", "URW Gothic", "Franklin Gothic", "Helvetica", "Arial", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  /*font: 16px/1.35 "Liberation Sans", "Ubuntu", "Bahnschrift", "URW Gothic", "Helvetica", "Arial", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;*/
 }
 a { color: var(--link); text-decoration: none; text-underline-offset: .15em; }
 a:hover { text-decoration: underline; }
@@ -36,7 +37,11 @@ a:focus-visible { outline: 3px solid #f0b429; outline-offset: 3px; border-radius
   border: 1px solid var(--line);
   border-radius: 10px;
 }
-.main-head { grid-area: header; text-align: center; padding-block: 28px 22px; }
+.main-head {
+  grid-area: header;
+  text-align: center;
+  padding-block: 28px 22px;
+}
 .main-head h1 {
   margin: 0 0 12px;
   color: var(--accent);
@@ -185,4 +190,10 @@ h2 {
   .entry h3 { font-size: 9.8pt; margin: 8pt 0 2pt; break-after: avoid; }
   .main-column-second h3 { font-size: 8.75pt; margin: 5pt 0 1.5pt; break-after: avoid; }
   h3 { break-after: avoid; }
+
+  /* Force a page break BEFORE an element (e.g., a new section or heading) */
+  .publications {
+    break-before: page;
+    page-break-before: always; /* Legacy fallback */
+  }
 }
